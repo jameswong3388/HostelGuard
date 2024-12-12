@@ -20,3 +20,10 @@ touch custom.cnf
 ```bash
 touch init.sql
 ```
+
+## Start wildfly server
+/opt/homebrew/opt/wildfly-as/libexec/bin/standalone.sh
+
+mvn package verify
+
+

@@ -1,5 +1,10 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 
+
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
+<%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -11,9 +16,11 @@
     <div class="card">
         <div class="card-body">
             <h5 class="card-title font-medium text-lg text-center">Welcome to Hostel Visitor Verification System</h5>
-            <div class="alert alert-danger" role="alert">
-                ${requestScope.error}
-            </div>
+            <c:if test="${not empty requestScope.error}">
+                <div class="alert alert-danger" role="alert">
+                    ${requestScope.error}
+                </div>
+            </c:if>
 
             <form class="row g-3" action="login" method="post">
                 <div class="col-md-12">
@@ -26,6 +33,10 @@
                            placeholder="Your password">
                 </div>
                 <div class="col-md-12">
+                    <div class="form-check mb-3">
+                        <input type="checkbox" class="form-check-input" id="rememberMe" name="rememberMe">
+                        <label class="form-check-label" for="rememberMe">Remember me</label>
+                    </div>
                     <button type="submit" class="btn btn-primary">Sign in with Email</button>
                 </div>
                 <div class="col-md-12 mt-3">

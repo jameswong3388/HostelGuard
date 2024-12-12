@@ -10,6 +10,7 @@ DROP TABLE IF EXISTS users;
 CREATE TABLE users (
                        user_id VARCHAR(36) PRIMARY KEY,
                        username VARCHAR(50) NOT NULL UNIQUE,
+                       salt VARCHAR(255) NOT NULL,
                        password VARCHAR(255) NOT NULL,
                        email VARCHAR(100) NOT NULL UNIQUE,
                        full_name VARCHAR(100) NOT NULL,
@@ -91,3 +92,7 @@ CREATE INDEX idx_visit_request_user ON visit_request(user_id);
 CREATE INDEX idx_visitor_record_request ON visitor_record(request_id);
 CREATE INDEX idx_request_status_request ON request_status(request_id);
 CREATE INDEX idx_security_staff_badge ON security_staff_profile(badge_number);
+
+-- Insert admin user, password is admin
+INSERT INTO users (user_id, username, salt, password, email, full_name, phone_number, is_active, role)
+VALUES ('550e8400-e29b-41d4-a716-446655440000', 'admin', 'FTUa8P#OT7N8d>o3', '59B8A449EABC84CB0D032576DF953518B3F6028314F0F2E6FD410EF6BBAE719D', 'admin@hvvs.com', 'System Administrator', '+60123456789', true, 'ADMIN');
