@@ -3,4 +3,63 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd"
          version="6.0">
+    <display-name>
+        Hostel Visitor Verification System
+    </display-name>
+
+    <welcome-file-list>
+        <welcome-file>/home</welcome-file>
+    </welcome-file-list>
+
+    <!--    Middleware    -->
+    <filter>
+        <filter-name>LoginFilter</filter-name>
+        <filter-class>org.example.hvvs.middleware.LoginFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>LoginFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+    <session-config>
+        <session-timeout>60</session-timeout>
+    </session-config>
+
+    <error-page>
+        <error-code>404</error-code>
+        <location>/404.jsp</location>
+    </error-page>
+
+    <!--    Controller    -->
+    <servlet>
+        <servlet-name>LoginController</servlet-name>
+        <servlet-class>org.example.hvvs.controllers.auth.LoginServlet</servlet-class>
+        <init-param>
+            <param-name>auto_login_time</param-name>
+            <param-value>604800</param-value>   <!-- 设置自动登录时间，以秒为单位 -->
+        </init-param>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>LoginController</servlet-name>
+        <url-pattern>/LoginController</url-pattern>
+    </servlet-mapping>
+
+    <!--    JSP    -->
+    <servlet>
+        <servlet-name>home</servlet-name>
+        <jsp-file>/index.jsp</jsp-file>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>home</servlet-name>
+        <url-pattern>/home</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>auth</servlet-name>
+        <jsp-file>/auth.jsp</jsp-file>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>auth</servlet-name>
+        <url-pattern>/auth</url-pattern>
+    </servlet-mapping>
 </web-app>

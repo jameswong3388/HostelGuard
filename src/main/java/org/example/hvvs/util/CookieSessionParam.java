@@ -1,20 +1,21 @@
 package org.example.hvvs.util;
 
 /**
- * 定义了cookie和session约定的一些常量
+ * Defines constants for cookie and session parameters
  * 
  * @author hkq
  *
  */
 
 public class CookieSessionParam {
-	/* ================= 添加到session的属性名和值 =================== */
-	public static final String Session_self = "self";				// 保存一个User or Admin对象
-	public static final String Session_role = "role";				// 角色类型
-	public static final String Session_role_valueUser = "user";
-	public static final String Session_role_valueAdmin = "admin";
+	/* ================= Session attribute names and values =================== */
+	public static final String SESSION_SELF = "self";				// Stores User or Admin object
+	public static final String SESSION_ROLE = "role";				// Role type
+	public static final String SESSION_ROLE_RESIDENT = "RESIDENT";
+	public static final String SESSION_ROLE_SECURITY_STAFF = "SECURITY_STAFF"; 
+	public static final String SESSION_ROLE_ADMIN = "ADMIN";
+	public static final String SESSION_ROLE_SUPER_ADMIN = "SUPER_ADMIN";
 	
-	
-	/* ================= Cookie相关 =================== */
-	public static final String Cookie_autoLogin = "auto_login";	// 自动登录的cookie名
+	/* ================= Cookie related =================== */
+	public static final String COOKIE_AUTO_LOGIN = "auto_login";	// Auto login cookie name
 }

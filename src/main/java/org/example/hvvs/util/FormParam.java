@@ -8,7 +8,7 @@ package org.example.hvvs.util;
 public class FormParam {
 	/* ================= 用户相关 ================ */
 	/* 
-	 * login.jsp
+	 * auth.jsp
 	 * LoginController.java 
 	 */
 	public static final String Login_id = "id";

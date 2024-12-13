@@ -19,7 +19,7 @@ CREATE TABLE users (
                        role VARCHAR(20) NOT NULL,
                        created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
                        updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                       CHECK (role IN ('RESIDENT', 'SECURITY_STAFF', 'ADMIN'))
+                       CHECK (role IN ('RESIDENT', 'SECURITY_STAFF', 'ADMIN', 'SUPER ADMIN'))
 );
 
 -- Create resident_profile table
@@ -95,4 +95,4 @@ CREATE INDEX idx_security_staff_badge ON security_staff_profile(badge_number);
 
 -- Insert admin user, password is admin
 INSERT INTO users (user_id, username, salt, password, email, full_name, phone_number, is_active, role)
-VALUES ('550e8400-e29b-41d4-a716-446655440000', 'admin', 'FTUa8P#OT7N8d>o3', '59B8A449EABC84CB0D032576DF953518B3F6028314F0F2E6FD410EF6BBAE719D', 'admin@hvvs.com', 'System Administrator', '+60123456789', true, 'ADMIN');
+VALUES ('550e8400-e29b-41d4-a716-446655440000', 'admin', 'FTUa8P#OT7N8d>o3', '59B8A449EABC84CB0D032576DF953518B3F6028314F0F2E6FD410EF6BBAE719D', 'admin@hvvs.com', 'SUPER ADMIN', '+60123456789', true, 'SUPER ADMIN');
