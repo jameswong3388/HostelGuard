@@ -10,76 +10,46 @@
 <head>
     <title>Admin Dashboard</title>
     <jsp:include page="/components/common_css.jsp" />
-    <style>
-        .sidebar {
-            min-height: 100vh;
-            background-color: #343a40;
-        }
-        .sidebar .nav-link {
-            color: #fff;
-            padding: 0.5rem 1rem;
-            margin: 0.2rem 0;
-        }
-        .sidebar .nav-link:hover {
-            background-color: #495057;
-        }
-        .sidebar .nav-link.active {
-            background-color: #0d6efd;
-        }
-        .content {
-            padding: 20px;
-        }
-        .navbar-brand {
-            padding-left: 0;
-            display: block;
-            text-align: center;
-        }
-        .nav-link i {
-            display: inline-block;
-            width: 20px;
-            text-align: center;
-        }
-    </style>
 </head>
 <body>
 <div class="container-fluid">
     <div class="row">
-        <!-- Sidebar -->
-        <div class="col-md-3 col-lg-2 d-md-block sidebar collapse">
-            <div class="position-sticky">
-                <div class="navbar-brand text-white py-3">
-                    <i class="fas fa-shield-alt"></i>
-                    HVVS Admin
+        <!-- Sidebar using Bootstrap classes -->
+        <div class="col-md-3 col-lg-2 d-md-block bg-dark text-white vh-100 p-0">
+            <div class="sticky-top">
+                <div class="py-3 text-center">
+                    <i class="bi bi-shield-lock"></i>
+                    <span class="fs-5">HVVS Admin</span>
                 </div>
                 <hr class="text-white">
                 <ul class="nav flex-column">
                     <li class="nav-item">
-                        <a class="nav-link active" href="#">
-                            <i class="fas fa-tachometer-alt me-2"></i>
+                        <a class="nav-link active text-white" href="#">
+                            <i class="bi bi-speedometer2 me-2"></i>
                             Dashboard
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">
-                            <i class="fas fa-users me-2"></i>
+                        <a class="nav-link text-white" href="#">
+                            <i class="bi bi-people me-2"></i>
                             Users Management
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">
-                            <i class="fas fa-cog me-2"></i>
+                        <a class="nav-link text-white" href="#">
+                            <i class="bi bi-gear me-2"></i>
                             Settings
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">
-                            <i class="fas fa-chart-bar me-2"></i>
+                        <a class="nav-link text-white" href="#">
+                            <i class="bi bi-bar-chart me-2"></i>
                             Reports
                         </a>
                     </li>
                     <li class="nav-item mt-3">
-                        <a class="nav-link text-danger" href="logout">
-                            <i class="fas fa-sign-out-alt me-2"></i>
+                        <a class="nav-link text-danger" href="http://localhost:8080/HVVS-1.0-SNAPSHOT/signout">
+                            <i class="bi bi-box-arrow-right me-2"></i>
                             Logout
                         </a>
                     </li>
@@ -99,8 +69,8 @@
                 </div>
             </div>
 
-            <!-- Your dashboard content goes here -->
-            <div class="content">
+            <!-- Dashboard content -->
+            <div>
                 Welcome to the admin dashboard
             </div>
         </main>

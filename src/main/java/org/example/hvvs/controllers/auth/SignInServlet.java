@@ -13,7 +13,7 @@ import org.example.hvvs.util.CookieSessionParam;
 import java.io.IOException;
 
 @WebServlet("/login")
-public class LoginServlet extends HttpServlet {
+public class SignInServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
         String email = req.getParameter("email");
         String password = req.getParameter("password");
