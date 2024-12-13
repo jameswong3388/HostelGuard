@@ -19,7 +19,7 @@ CREATE TABLE users (
                        role VARCHAR(20) NOT NULL,
                        created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
                        updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                       CHECK (role IN ('RESIDENT', 'SECURITY_STAFF', 'ADMIN', 'SUPER ADMIN'))
+                       CHECK (role IN ('RESIDENT', 'SECURITY_STAFF', 'ADMIN', 'SUPER_ADMIN'))
 );
 
 -- Create resident_profile table
