@@ -97,13 +97,10 @@ CREATE INDEX idx_request_status_request ON request_status(request_id);
 CREATE INDEX idx_security_staff_badge ON security_staff_profile(badge_number);
 CREATE INDEX idx_visit_request_serial ON visit_request(serial_number);
 
--- Insert initial users
+-- Insert initial users, all pass: admin
 INSERT INTO users (username, salt, password, email, full_name, phone_number, is_active, role)
 VALUES
-    ('super_admin', 'FTUa8P#OT7N8d>o3', '59B8A449EABC84CB0D032576DF953518B3F6028314F0F2E6FD410EF6BBAE719D', 'admin@hvvs.com', 'SUPER ADMIN', '+60123456789', TRUE, 'SUPER_ADMIN'),
-    -- New Resident User
-    ('resident_user', 'FTUa8P#OT7N8d>o3', '59B8A449EABC84CB0D032576DF953518B3F6028314F0F2E6FD410EF6BBAE719D', 'resident@example.com', 'John Doe', '+60123456780', TRUE, 'RESIDENT'),
-    -- New Security Staff User
-    ('security_staff', 'FTUa8P#OT7N8d>o3', '59B8A449EABC84CB0D032576DF953518B3F6028314F0F2E6FD410EF6BBAE719D', 'security@example.com', 'Jane Smith', '+60123456781', TRUE, 'SECURITY_STAFF'),
-    -- New Admin User
-    ('admin', 'FTUa8P#OT7N8d>o3', '59B8A449EABC84CB0D032576DF953518B3F6028314F0F2E6FD410EF6BBAE719D', 'adminuser@example.com', 'Alice Admin', '+60123456782', TRUE, 'ADMIN');
+    ('super_admin', 'FTUa8P#OT7N8d>o3', '59B8A449EABC84CB0D032576DF953518B3F6028314F0F2E6FD410EF6BBAE719D', 'superadmin@hvvs.com', 'SUPER ADMIN', '+60123456789', TRUE, 'SUPER_ADMIN'),
+    ('resident_user', 'FTUa8P#OT7N8d>o3', '59B8A449EABC84CB0D032576DF953518B3F6028314F0F2E6FD410EF6BBAE719D', 'resident@hvvs.com', 'John Doe', '+60123456780', TRUE, 'RESIDENT'),
+    ('security_staff', 'FTUa8P#OT7N8d>o3', '59B8A449EABC84CB0D032576DF953518B3F6028314F0F2E6FD410EF6BBAE719D', 'security@hvvs.com', 'Jane Smith', '+60123456781', TRUE, 'SECURITY_STAFF'),
+    ('admin', 'FTUa8P#OT7N8d>o3', '59B8A449EABC84CB0D032576DF953518B3F6028314F0F2E6FD410EF6BBAE719D', 'admin@hvvs.com', 'Alice Admin', '+60123456782', TRUE, 'ADMIN');
