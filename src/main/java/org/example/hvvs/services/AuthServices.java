@@ -1,7 +1,7 @@
 package org.example.hvvs.services;
 
 
-import org.example.hvvs.modules.users.entities.User;
+import org.example.hvvs.model.User;
 
 public interface AuthServices {
 

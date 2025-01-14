@@ -6,7 +6,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 import org.example.hvvs.commonClasses.QueryWrapper;
 import org.example.hvvs.dao.GenericDao;
-import org.example.hvvs.modules.users.entities.User;
+import org.example.hvvs.model.User;
 import org.example.hvvs.services.AuthServices;
 import org.example.hvvs.util.CookieSessionParam;
 

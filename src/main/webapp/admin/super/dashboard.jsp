@@ -19,7 +19,7 @@
             <div class="sticky-top">
                 <div class="py-3 text-center">
                     <i class="bi bi-shield-lock"></i>
-                    <span class="fs-5">HVVS Admin</span>
+                    <span class="fs-5">HVVS Super Admin</span>
                 </div>
                 <hr class="text-white">
                 <ul class="nav flex-column">

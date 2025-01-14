@@ -13,7 +13,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import org.example.hvvs.modules.users.entities.User;
+import org.example.hvvs.model.User;
 import org.example.hvvs.services.AuthServices;
 import org.example.hvvs.util.CookieSessionParam;
 
