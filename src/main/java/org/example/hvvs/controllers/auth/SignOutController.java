@@ -8,7 +8,7 @@ import org.example.hvvs.util.CookieSessionParam;
 import java.io.IOException;
 
 @WebServlet("/signout")
-public class SignOutServlet extends HttpServlet {
+public class SignOutController extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {

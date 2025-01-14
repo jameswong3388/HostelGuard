@@ -1,19 +1,28 @@
 package org.example.hvvs.controllers.auth;
 
+import jakarta.ejb.EJB;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
-import org.example.hvvs.dao.UserDao;
-import org.example.hvvs.dao.UserDaoImpl;
-import org.example.hvvs.model.User;
+import org.example.hvvs.commonClasses.QueryWrapper;
+import org.example.hvvs.dao.GenericDao;
+import org.example.hvvs.modules.users.entities.User;
 import org.example.hvvs.services.AuthServices;
-import org.example.hvvs.services.AuthServicesImpl;
 import org.example.hvvs.util.CookieSessionParam;
 
 import java.io.IOException;
+import java.util.List;
 
 @WebServlet("/login")
-public class SignInServlet extends HttpServlet {
+public class SignInController extends HttpServlet {
+
+    @EJB
+    private AuthServices authServices;
+
+    @EJB
+    private GenericDao dao;
+
+
     protected void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
         String email = req.getParameter("email");
         String password = req.getParameter("password");
@@ -26,7 +35,6 @@ public class SignInServlet extends HttpServlet {
         }
 
         try {
-            AuthServices authServices = new AuthServicesImpl();
             String result = authServices.signIn(email, password);
             if (result != null) {
                 req.setAttribute("error", result);
@@ -34,19 +42,20 @@ public class SignInServlet extends HttpServlet {
                 return;
             }
 
-            UserDao userDao = new UserDaoImpl();
-            User user = userDao.findRange(email, UserDao.Type.EMAIL, false, 0, 1).getFirst();
+            QueryWrapper queryWrapper = new QueryWrapper("User.findByEmail").setParameter("email", email);
+            List<User>  users = dao.findWithNamedQuery(queryWrapper);
+            User user = users.getFirst();
 
             HttpSession session = req.getSession();
             session.setAttribute(CookieSessionParam.SESSION_ROLE, user.getRole());
             session.setAttribute(CookieSessionParam.SESSION_SELF, user);
 
             if (rememberMe) {
-                String digest = authServices.getAutoLoginCookieValue(user.getUser_id().trim());
+                String digest = authServices.getAutoLoginCookieValue(user.getId());
 
                 if (digest != null) {
                     Cookie cookie = new Cookie(CookieSessionParam.COOKIE_AUTO_LOGIN, digest);
-                    int timeInSecond = 60 * 60; // todo: Integer.parseInt(getServletConfig().getInitParameter("auto_login_time"));
+                    int timeInSecond = 60 * 60; // Adjust as needed
                     cookie.setMaxAge(timeInSecond);
                     res.addCookie(cookie);
                 }
@@ -70,7 +79,6 @@ public class SignInServlet extends HttpServlet {
                     req.getRequestDispatcher("auth.jsp").forward(req, res);
             }
         } catch (Exception e) {
-            // Handle any exceptions that occur during sign in
             req.setAttribute("error", "An error occurred during login: " + e.getMessage());
             req.getRequestDispatcher("auth.jsp").forward(req, res);
         }

@@ -1,15 +1,15 @@
 package org.example.hvvs.services;
 
 
-import org.example.hvvs.model.User;
+import org.example.hvvs.modules.users.entities.User;
 
 public interface AuthServices {
 
-    User findUser(String id);
+    User findUser(int id);
 
     String signIn(String email, String password);
 
-    String getAutoLoginCookieValue(String id);
+    String getAutoLoginCookieValue(int id);
 
-    String allowAutoLogin(String cookieValue);
+    int allowAutoLogin(String cookieValue);
 }

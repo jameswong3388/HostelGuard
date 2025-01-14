@@ -1,17 +1,13 @@
-version: '3.8'
-
 services:
   mysql:
-    image: mysql:8.0
+    image: mysql:8.2
     container_name: mysql_prod
     restart: always
     environment:
-      - MYSQL_ROOT_PASSWORD_FILE=/run/secrets/mysql_root_password
-      - MYSQL_DATABASE=myapp_prod
-      - MYSQL_USER=app_user
-      - MYSQL_PASSWORD_FILE=/run/secrets/mysql_password
+      - MYSQL_DATABASE=app
+      - MYSQL_ROOT_PASSWORD=password
     ports:
-      - "3306:3306"
+      - "3308:3306"
     volumes:
       - mysql_data:/var/lib/mysql
       - mysql_config:/etc/mysql/conf.d
@@ -19,9 +15,6 @@ services:
       - ./custom.cnf:/etc/mysql/conf.d/custom.cnf:ro
     networks:
       - backend
-    secrets:
-      - mysql_root_password
-      - mysql_password
     deploy:
       resources:
         limits:
@@ -29,7 +22,7 @@ services:
         reservations:
           memory: 2G
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "--password=$$(cat /run/secrets/mysql_root_password)"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "--password=password"]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -50,9 +43,3 @@ volumes:
 networks:
   backend:
     driver: bridge
-
-secrets:
-  mysql_root_password:
-    file: ./secrets/mysql_root_password.txt
-  mysql_password:
-    file: ./secrets/mysql_password.txt
