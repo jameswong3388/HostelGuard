@@ -30,11 +30,6 @@
             <version>2.1.0</version>
         </dependency>
         <dependency>
-            <groupId>jakarta.nosql</groupId>
-            <artifactId>jakarta.nosql-api</artifactId>
-            <version>1.0.0-M1</version>
-        </dependency>
-        <dependency>
             <groupId>org.glassfish.jersey.containers</groupId>
             <artifactId>jersey-container-servlet</artifactId>
             <version>4.0.0-M1</version>
@@ -126,6 +121,22 @@
             <artifactId>jakarta.ejb-api</artifactId>
             <version>4.0.1</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.primefaces</groupId>
+            <artifactId>primefaces</artifactId>
+            <version>14.0.0</version>
+            <classifier>jakarta</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.webjars.npm</groupId>
+            <artifactId>primeflex</artifactId>
+            <version>3.3.1</version>
+        </dependency>
+        <dependency>
+            <groupId>com.googlecode.owasp-java-html-sanitizer</groupId>
+            <artifactId>owasp-java-html-sanitizer</artifactId>
+            <version>20240325.1</version>
         </dependency>
     </dependencies>
 

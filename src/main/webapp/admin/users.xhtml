@@ -1,0 +1,26 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                template="/WEB-INF/templates/admin-layout.xhtml">
+
+    <ui:define name="title">Users</ui:define>
+
+    <ui:define name="navigation">
+        <h:link outcome="/admin/dashboard.xhtml" styleClass="py-2 text-gray-500 hover:text-gray-700 focus:outline-none">Dashboard</h:link>
+        <h:link outcome="/admin/users.xhtml" styleClass="py-2 text-blue-600 font-medium focus:outline-none">Users</h:link>
+        <h:link outcome="/admin/requests.xhtml" styleClass="py-2 text-gray-500 hover:text-gray-700 focus:outline-none">Requests</h:link>
+    </ui:define>
+
+    <ui:define name="content">
+        <!-- Page Title & Subtitle -->
+        <div class="mb-8 flex justify-between">
+            <h2 class="text-2xl font-bold">Users</h2>
+            <div>
+                <p:button value="New User" icon="pi pi-plus" styleClass="p-button-raised p-button-primary"/>
+            </div>
+        </div>
+    </ui:define>
+
+</ui:composition>

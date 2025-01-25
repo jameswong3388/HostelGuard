@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+<h:head>
+    <title>404 - Page Not Found</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com" type="text/javascript"></script>
+    <!-- PrimeFaces Icons -->
+    <h:outputStylesheet name="primeicons/primeicons.css" library="primefaces"/>
+</h:head>
+
+<h:body class="flex h-screen flex-col items-center justify-center surface-ground">
+    <!-- 404 Text -->
+    <p class="mt-6 text-4xl font-semibold text-indigo-600 sm:text-5xl dark:text-indigo-500">
+        404
+    </p>
+
+    <!-- Page not found Header -->
+    <h1 class="mt-4 text-2xl font-semibold text-gray-900 dark:text-gray-50">
+        Page not found
+    </h1>
+
+    <!-- Support Text -->
+    <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+        Sorry, we couldn’t find the page you’re looking for.
+    </p>
+
+    <!-- Go Home Button -->
+    <!-- Use p:button or p:commandButton for navigation -->
+    <div class="group mt-8">
+        <p:button value="Go to the home page"
+                  outcome="/index"
+                  styleClass="p-button-outlined text-indigo-600 dark:text-indigo-500 hover:bg-indigo-50 dark:hover:bg-gray-800">
+            <!-- Optional icon on the right to mimic “ArrowAnimated” or arrow icon -->
+            <f:facet name="icon">
+                <i class="pi pi-arrow-right ml-2"/>
+            </f:facet>
+        </p:button>
+    </div>
+</h:body>
+</html>

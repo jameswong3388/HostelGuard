@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+<h:head>
+    <title><ui:insert name="title">Default Title</ui:insert></title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- PrimeFaces Icons -->
+    <h:outputStylesheet name="primeicons/primeicons.css" library="primefaces"/>
+    <ui:insert name="head"/>
+</h:head>
+
+<h:body class="bg-gray-50 text-gray-800">
+    <!-- Top Nav -->
+    <header class="flex items-center justify-between px-12 py-4 bg-white border-b">
+        <!-- Left: Brand/Title -->
+        <h:link outcome="/admin/dashboard.xhtml" styleClass="text-xl font-semibold hover:text-blue-600">
+            Hostel Visitor Verification System
+        </h:link>
+
+        <!-- Right: Icons or Profile -->
+        <h:form>
+            <div class="flex items-center space-x-4">
+                <p:button icon="pi pi-bell" styleClass="p-button-text text-gray-700"/>
+
+                <div class="relative">
+                    <p:commandButton id="profileBtn"
+                                     icon="pi pi-user"
+                                     styleClass="p-button-text p-button-rounded"
+                                     type="button"/>
+
+                    <p:menu id="profileMenu"
+                            overlay="true"
+                            trigger="profileBtn"
+                            my="left top+10"
+                            at="left bottom">
+                        <p:menuitem value="Settings" outcome="/admin/settings/general" icon="pi pi-cog"/>
+                        <p:separator/>
+                        <p:menuitem value="Sign Out" icon="pi pi-sign-out" action="#{dashboardController.logout}" ajax="false"/>
+                    </p:menu>
+                </div>
+            </div>
+        </h:form>
+    </header>
+
+    <!-- Secondary Tab Nav -->
+    <nav class="flex items-center space-x-8 px-12 py-2 bg-white border-b">
+        <ui:insert name="navigation">
+            <h:link outcome="/admin/dashboard.xhtml" styleClass="py-2 text-gray-500 hover:text-gray-700 focus:outline-none">Dashboard</h:link>
+            <h:link outcome="/admin/users.xhtml" styleClass="py-2 text-gray-500 hover:text-gray-700 focus:outline-none">Users</h:link>
+            <h:link outcome="/admin/requests.xhtml" styleClass="py-2 text-gray-500 hover:text-gray-700 focus:outline-none">Requests</h:link>
+        </ui:insert>
+    </nav>
+
+    <!-- Main Content Container -->
+    <main class="mx-auto px-12 py-8">
+        <ui:insert name="content">
+            <!-- Default content -->
+        </ui:insert>
+    </main>
+</h:body>
+</html>

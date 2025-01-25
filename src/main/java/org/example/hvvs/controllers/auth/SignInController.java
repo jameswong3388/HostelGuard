@@ -1,86 +1,108 @@
 package org.example.hvvs.controllers.auth;
 
 import jakarta.ejb.EJB;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.*;
-import org.example.hvvs.commonClasses.QueryWrapper;
-import org.example.hvvs.dao.GenericDao;
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.faces.application.FacesMessage;
+import jakarta.faces.context.FacesContext;
+import jakarta.inject.Named;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import org.example.hvvs.model.User;
 import org.example.hvvs.services.AuthServices;
-import org.example.hvvs.util.CookieSessionParam;
+import org.example.hvvs.util.CommonParam;
+import org.example.hvvs.util.ServiceResult;
 
-import java.io.IOException;
-import java.util.List;
+import java.io.Serializable;
 
-@WebServlet("/login")
-public class SignInController extends HttpServlet {
+@Named
+@RequestScoped
+public class SignInController implements Serializable {
 
     @EJB
     private AuthServices authServices;
 
-    @EJB
-    private GenericDao dao;
+    private String email;
+    private String password;
+    private boolean rememberMe;
 
-
-    protected void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
-        String email = req.getParameter("email");
-        String password = req.getParameter("password");
-        boolean rememberMe = req.getParameter("rememberMe") != null;
-
-        if (email == null || email.trim().isEmpty() || password == null || password.trim().isEmpty()) {
-            req.setAttribute("error", "Email and password are required");
-            req.getRequestDispatcher("auth.jsp").forward(req, res);
-            return;
-        }
-
+    public String login() {
         try {
-            String result = authServices.signIn(email, password);
-            if (result != null) {
-                req.setAttribute("error", result);
-                req.getRequestDispatcher("auth.jsp").forward(req, res);
-                return;
+            ServiceResult<User> serviceResult = authServices.signIn(email, password, rememberMe);
+
+            if (!serviceResult.isSuccess()) {
+                // Failed authentication: show the error message
+                FacesContext.getCurrentInstance().addMessage(null,
+                        new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                                "Error", serviceResult.getMessage()));
+                return null;
             }
 
-            QueryWrapper queryWrapper = new QueryWrapper("User.findByEmail").setParameter("email", email);
-            List<User>  users = dao.findWithNamedQuery(queryWrapper);
-            User user = users.getFirst();
+            // If success, retrieve the authenticated user
+            User user = serviceResult.getData();
 
-            HttpSession session = req.getSession();
-            session.setAttribute(CookieSessionParam.SESSION_ROLE, user.getRole());
-            session.setAttribute(CookieSessionParam.SESSION_SELF, user);
+            // Store in session
+            FacesContext context = FacesContext.getCurrentInstance();
+            HttpSession session = (HttpSession) context.getExternalContext().getSession(true);
+            session.setAttribute(CommonParam.SESSION_ROLE, user.getRole());
+            session.setAttribute(CommonParam.SESSION_SELF, user);
 
-            if (rememberMe) {
-                String digest = authServices.getAutoLoginCookieValue(user.getId());
-
-                if (digest != null) {
-                    Cookie cookie = new Cookie(CookieSessionParam.COOKIE_AUTO_LOGIN, digest);
-                    int timeInSecond = 60 * 60; // Adjust as needed
-                    cookie.setMaxAge(timeInSecond);
-                    res.addCookie(cookie);
+            if (Boolean.TRUE.equals(rememberMe)) {
+                String autoLoginDigest = authServices.getAutoLoginCookieValue(user.getId());
+                
+                if (autoLoginDigest != null) {
+                    Cookie cookie = new Cookie(CommonParam.COOKIE_AUTO_LOGIN, autoLoginDigest);
+                    cookie.setMaxAge(30 * 24 * 60 * 60); // 30 days
+                    cookie.setPath("/");
+                    HttpServletResponse response = (HttpServletResponse) FacesContext.getCurrentInstance()
+                            .getExternalContext().getResponse();
+                    response.addCookie(cookie);
                 }
             }
 
-            switch (user.getRole()) {
-                case CookieSessionParam.SESSION_ROLE_RESIDENT:
-                    res.sendRedirect("resident/dashboard.jsp");
-                    break;
-                case CookieSessionParam.SESSION_ROLE_SECURITY_STAFF:
-                    res.sendRedirect("security/dashboard.jsp");
-                    break;
-                case CookieSessionParam.SESSION_ROLE_ADMIN:
-                    res.sendRedirect("admin/dashboard.jsp");
-                    break;
-                case CookieSessionParam.SESSION_ROLE_SUPER_ADMIN:
-                    res.sendRedirect("admin/super/dashboard.jsp");
-                    break;
-                default:
-                    req.setAttribute("error", "Invalid user role");
-                    req.getRequestDispatcher("auth.jsp").forward(req, res);
-            }
+            // Now redirect or navigate based on the user's role
+            return switch (user.getRole()) {
+                case CommonParam.SESSION_ROLE_RESIDENT -> "resident/dashboard";
+                case CommonParam.SESSION_ROLE_SECURITY_STAFF -> "security/dashboard";
+                case CommonParam.SESSION_ROLE_MANAGING_STAFF -> "admin/dashboard";
+                default -> {
+                    FacesContext.getCurrentInstance().addMessage(null,
+                            new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                                    "Error", "Invalid user role: " + user.getRole()));
+                    yield null;
+                }
+            };
         } catch (Exception e) {
-            req.setAttribute("error", "An error occurred during login: " + e.getMessage());
-            req.getRequestDispatcher("auth.jsp").forward(req, res);
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                            "Error", "An error occurred during login: " + e.getMessage()));
+            return null;
         }
+    }
+
+
+    // Getters and Setters
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public boolean isRememberMe() {
+        return rememberMe;
+    }
+
+    public void setRememberMe(boolean rememberMe) {
+        this.rememberMe = rememberMe;
     }
 }
