@@ -62,8 +62,8 @@ public class SignInController implements Serializable {
 
             // Now redirect or navigate based on the user's role
             return switch (user.getRole()) {
-                case CommonParam.SESSION_ROLE_RESIDENT -> "resident/dashboard";
-                case CommonParam.SESSION_ROLE_SECURITY_STAFF -> "security/dashboard";
+                case CommonParam.SESSION_ROLE_RESIDENT -> "resident/requests";
+                case CommonParam.SESSION_ROLE_SECURITY_STAFF -> "security/visits";
                 case CommonParam.SESSION_ROLE_MANAGING_STAFF -> "admin/dashboard";
                 default -> {
                     FacesContext.getCurrentInstance().addMessage(null,

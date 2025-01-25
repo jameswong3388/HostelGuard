@@ -17,7 +17,7 @@
     <!-- Top Nav -->
     <header class="flex items-center justify-between px-12 py-4 bg-white border-b">
         <!-- Left: Brand/Title -->
-        <h:link outcome="/admin/dashboard.xhtml" styleClass="text-xl font-semibold hover:text-blue-600">
+        <h:link outcome="/security/visits.xhtml" styleClass="text-xl font-semibold hover:text-blue-600">
             Hostel Visitor Verification System
         </h:link>
 
@@ -37,9 +37,9 @@
                             trigger="profileBtn"
                             my="left top+10"
                             at="left bottom">
-                        <p:menuitem value="Settings" outcome="/admin/settings/general" icon="pi pi-cog"/>
+                        <p:menuitem value="Settings" outcome="/security/settings/general" icon="pi pi-cog"/>
                         <p:separator/>
-                        <p:menuitem value="Sign Out" icon="pi pi-sign-out" action="#{signOutController.signOut()}" ajax="false"/>
+                        <p:menuitem value="Sign Out" icon="pi pi-sign-out" action="#{signOutController.signOut}" ajax="false"/>
                     </p:menu>
                 </div>
             </div>

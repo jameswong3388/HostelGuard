@@ -1,0 +1,24 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                template="/WEB-INF/templates/resident-layout.xhtml">
+
+    <ui:define name="title">Requests</ui:define>
+
+    <ui:define name="navigation">
+        <h:link outcome="/resident/requests.xhtml" styleClass="py-2 text-blue-600 font-medium focus:outline-none">Requests</h:link>
+    </ui:define>
+
+    <ui:define name="content">
+        <!-- Page Title & Subtitle -->
+        <div class="mb-8 flex justify-between">
+            <h2 class="text-2xl font-bold">Requests</h2>
+            <div>
+                <p:button value="New Request" icon="pi pi-plus" styleClass="p-button-raised p-button-primary"/>
+            </div>
+        </div>
+    </ui:define>
+
+</ui:composition>

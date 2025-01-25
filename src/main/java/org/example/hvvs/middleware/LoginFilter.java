@@ -176,10 +176,10 @@ public class LoginFilter implements Filter {
         String contextPath = req.getServletContext().getContextPath();
         switch (role) {
             case CommonParam.SESSION_ROLE_RESIDENT:
-                resp.sendRedirect(contextPath + "/resident/dashboard.xhtml");
+                resp.sendRedirect(contextPath + "/resident/requests.xhtml");
                 break;
             case CommonParam.SESSION_ROLE_SECURITY_STAFF:
-                resp.sendRedirect(contextPath + "/security/dashboard.xhtml");
+                resp.sendRedirect(contextPath + "/security/visits.xhtml");
                 break;
             case CommonParam.SESSION_ROLE_MANAGING_STAFF:
                 resp.sendRedirect(contextPath + "/admin/dashboard.xhtml");

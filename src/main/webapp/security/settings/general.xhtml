@@ -1,0 +1,273 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                template="/WEB-INF/templates/admin-layout.xhtml">
+
+    <!-- Keep your other <ui:define> blocks for title, navigation, etc. -->
+    <ui:define name="title">Users</ui:define>
+
+    <ui:define name="navigation">
+        <h:link outcome="/security/settings/general.xhtml" styleClass="py-2 text-blue-600 font-medium focus:outline-none">General</h:link>
+        <h:link outcome="/security/visits.xhtml" styleClass="py-2 text-gray-500 hover:text-gray-700 focus:outline-none">Coming Soon</h:link>
+    </ui:define>
+
+    <!-- Replace only the content block with the new design -->
+    <ui:define name="content">
+        <h:form>
+            <div class="space-y-10">
+
+                <!-- Personal Information Section -->
+                <section aria-labelledby="personal-information">
+                    <div class="grid grid-cols-1 gap-x-14 gap-y-8 md:grid-cols-3">
+                        <div>
+                            <h2 id="personal-information"
+                                class="scroll-mt-10 font-semibold text-gray-900 dark:text-gray-50">
+                                Personal information
+                            </h2>
+                            <p class="mt-1 text-sm leading-6 text-gray-500">
+                                Manage your personal information and role.
+                            </p>
+                        </div>
+
+                        <div class="md:col-span-2">
+                            <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
+                                <!-- First Name -->
+                                <div class="col-span-full sm:col-span-3">
+                                    <h:outputLabel for="firstName" value="First name" styleClass="font-medium"/>
+                                    <p:inputText id="firstName" value="#{userController.user.firstName}"
+                                                 placeholder="Emma" styleClass="mt-2 w-full"
+                                                 autocomplete="given-name"/>
+                                </div>
+
+                                <!-- Last Name -->
+                                <div class="col-span-full sm:col-span-3">
+                                    <h:outputLabel for="lastName" value="Last name" styleClass="font-medium"/>
+                                    <p:inputText id="lastName" value="#{userController.user.lastName}"
+                                                 placeholder="Stone" styleClass="mt-2 w-full"
+                                                 autocomplete="family-name"/>
+                                </div>
+
+                                <!-- Email -->
+                                <div class="col-span-full">
+                                    <h:outputLabel for="email" value="Email" styleClass="font-medium"/>
+                                    <p:inputText id="email" value="#{userController.user.email}" type="email"
+                                                 placeholder="emma@acme.com" styleClass="mt-2 w-full"
+                                                 autocomplete="email"/>
+                                </div>
+
+                                <!-- Birth Year -->
+                                <div class="col-span-full sm:col-span-2">
+                                    <h:outputLabel for="birthYear" value="Birth year" styleClass="font-medium"/>
+                                    <!-- p:spinner or p:inputNumber can be used; here we show p:inputNumber -->
+                                    <p:inputText id="birthYear"
+                                                   value="#{userController.user.birthYear}"
+                                                   styleClass="mt-2 w-full"
+                                                   minValue="1900" maxValue="#{bean.currentYear}"
+                                                   autocomplete="off"/>
+                                </div>
+
+                                <div class="col-span-full sm:col-span-2">
+                                    <h:outputLabel for="birthMonth" value="Birth Month" styleClass="font-medium"/>
+                                    <!-- p:spinner or p:inputNumber can be used; here we show p:inputNumber -->
+                                    <p:inputText id="birthMonth"
+                                                   value="#{userController.user.birthYear}"
+                                                   styleClass="mt-2 w-full"
+                                                   minValue="1900" maxValue="#{bean.currentYear}"
+                                                   autocomplete="off"/>
+                                </div>
+
+                                <div class="col-span-full sm:col-span-2">
+                                    <h:outputLabel for="birthDay" value="Birth Day" styleClass="font-medium"/>
+                                    <!-- p:spinner or p:inputNumber can be used; here we show p:inputNumber -->
+                                    <p:inputText id="birthDay"
+                                                   value="#{userController.user.birthYear}"
+                                                   styleClass="mt-2 w-full"
+                                                   minValue="1900" maxValue="#{bean.currentYear}"
+                                                   autocomplete="off"/>
+                                </div>
+
+                                <!-- Role -->
+                                <div class="col-span-2">
+                                    <h:outputLabel for="role" value="Role" styleClass="font-medium"/>
+                                    <p:inputText id="role" disabled="true" value="Admin" styleClass="mt-2 w-full"/>
+                                    <p class="mt-2 text-xs text-gray-500">
+                                        Roles can only be changed by system admin.
+                                    </p>
+                                </div>
+
+                                <!-- Save button -->
+                                <div class="col-span-full mt-6 flex justify-end">
+                                    <!-- Use p:commandButton if you need to process the form -->
+                                    <p:commandButton value="Save settings"
+                                                     action="#{userController.saveSettings}"
+                                                     styleClass="p-button-raised p-button-primary"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Divider -->
+                <hr class="border-gray-300 dark:border-gray-800"/>
+
+                <!-- Notification Settings Section -->
+                <section aria-labelledby="notification-settings">
+                    <div class="grid grid-cols-1 gap-x-14 gap-y-8 md:grid-cols-3">
+                        <div>
+                            <h2 id="notification-settings"
+                                class="scroll-mt-10 font-semibold text-gray-900 dark:text-gray-50">
+                                Notification settings
+                            </h2>
+                            <p class="mt-1 text-sm leading-6 text-gray-500">
+                                Configure the types of notifications you want to receive.
+                            </p>
+                        </div>
+
+                        <div class="md:col-span-2">
+                            <!-- Team Notifications -->
+                            <fieldset>
+                                <legend class="text-sm font-medium text-gray-900 dark:text-gray-50">
+                                    Team
+                                </legend>
+                                <p class="mt-1 text-sm leading-6 text-gray-500">
+                                    Configure the types of team alerts you want to receive.
+                                </p>
+                                <ul role="list" class="mt-4 divide-y divide-gray-200 dark:divide-gray-800">
+                                    <li class="flex items-center gap-x-3 py-3">
+                                        <p:selectBooleanCheckbox id="teamRequests"
+                                                                 value="#{userController.user.receiveTeamRequests}"
+                                                                 styleClass="mr-1"/>
+                                        <h:outputLabel for="teamRequests" value="Team join requests"/>
+                                    </li>
+                                    <li class="flex items-center gap-x-3 py-3">
+                                        <p:selectBooleanCheckbox id="teamDigest"
+                                                                 value="#{userController.user.receiveTeamDigest}"
+                                                                 styleClass="mr-1"/>
+                                        <h:outputLabel for="teamDigest" value="Weekly team activity digest"/>
+                                    </li>
+                                </ul>
+                            </fieldset>
+
+                            <!-- Usage Notifications -->
+                            <fieldset class="mt-6">
+                                <legend class="text-sm font-medium text-gray-900 dark:text-gray-50">
+                                    Usage
+                                </legend>
+                                <p class="mt-1 text-sm leading-6 text-gray-500">
+                                    Configure the types of usage alerts you want to receive.
+                                </p>
+                                <ul role="list" class="mt-4 divide-y divide-gray-200 dark:divide-gray-800">
+                                    <li class="flex items-center gap-x-3 py-3">
+                                        <p:selectBooleanCheckbox id="apiRequests"
+                                                                 value="#{userController.user.alertApiIncidents}"
+                                                                 styleClass="mr-1"/>
+                                        <h:outputLabel for="apiRequests" value="API incidents"/>
+                                    </li>
+                                    <li class="flex items-center gap-x-3 py-3">
+                                        <p:selectBooleanCheckbox id="platformIncidents"
+                                                                 value="#{userController.user.alertPlatformIncidents}"
+                                                                 styleClass="mr-1"/>
+                                        <h:outputLabel for="platformIncidents" value="Platform incidents"/>
+                                    </li>
+                                    <li class="flex items-center gap-x-3 py-3">
+                                        <p:selectBooleanCheckbox id="paymentTransactions"
+                                                                 value="#{userController.user.alertPaymentTransactions}"
+                                                                 styleClass="mr-1"/>
+                                        <h:outputLabel for="paymentTransactions" value="Payment transactions"/>
+                                    </li>
+                                    <li class="flex items-center gap-x-3 py-3">
+                                        <p:selectBooleanCheckbox id="userBehavior"
+                                                                 value="#{userController.user.alertUserBehavior}"
+                                                                 styleClass="mr-1"/>
+                                        <h:outputLabel for="userBehavior" value="User behavior"/>
+                                    </li>
+                                </ul>
+                            </fieldset>
+
+                            <!-- Save Button for Notifications -->
+                            <div class="col-span-full mt-6 flex justify-end">
+                                <p:commandButton value="Save settings"
+                                                 action="#{userController.saveNotificationSettings}"
+                                                 styleClass="p-button-raised p-button-primary"/>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Divider -->
+                <hr class="border-gray-300 dark:border-gray-800"/>
+
+                <!-- Danger Zone Section -->
+                <section aria-labelledby="danger-zone">
+                    <div class="grid grid-cols-1 gap-x-14 gap-y-8 md:grid-cols-3">
+                        <div>
+                            <h2 id="danger-zone"
+                                class="scroll-mt-10 font-semibold text-gray-900 dark:text-gray-50">
+                                Danger zone
+                            </h2>
+                            <p class="mt-1 text-sm leading-6 text-gray-500">
+                                Manage general workspace. Contact system admin for more information.
+                                <!-- Example 'Learn more' link with prime icon -->
+                                <a href="#" class="inline-flex items-center gap-1 text-indigo-600 hover:underline
+                                                  hover:underline-offset-4 dark:text-indigo-400">
+                                    Learn more
+                                    <i class="pi pi-external-link size-4 shrink-0" aria-hidden="true"/>
+                                </a>
+                            </p>
+                        </div>
+
+                        <div class="space-y-6 md:col-span-2">
+                            <!-- Card: Leave workspace -->
+                            <div class="p-4 border border-gray-200 dark:border-gray-800 rounded-md">
+                                <div class="flex items-start justify-between gap-10">
+                                    <div>
+                                        <h4 class="text-sm font-medium text-gray-900 dark:text-gray-50">
+                                            Leave workspace
+                                        </h4>
+                                        <p class="mt-2 text-sm leading-6 text-gray-500">
+                                            Revoke your access to this team. Other people you have
+                                            added to the workspace will remain.
+                                        </p>
+                                    </div>
+                                    <p:commandButton value="Leave"
+                                                     action="#{userController.leaveWorkspace}"
+                                                     styleClass="p-button-secondary text-red-600 dark:text-red-500"/>
+                                </div>
+                            </div>
+
+                            <!-- Card: Delete workspace -->
+                            <div class="overflow-hidden border border-gray-200 dark:border-gray-800 rounded-md">
+                                <div class="p-4 flex items-start justify-between gap-10">
+                                    <div>
+                                        <!-- Disabled heading style to indicate not available -->
+                                        <h4 class="text-sm font-medium text-gray-400 dark:text-gray-600">
+                                            Delete workspace
+                                        </h4>
+                                        <p class="mt-2 text-sm leading-6 text-gray-400 dark:text-gray-600">
+                                            Revoke your access to this team. Other people you have
+                                            added to the workspace will remain.
+                                        </p>
+                                    </div>
+                                    <!-- Disabled button -->
+                                    <p:commandButton value="Delete workspace"
+                                                     disabled="true"
+                                                     styleClass="p-button-secondary text-red-600 disabled:text-red-300
+                                                                 disabled:opacity-50 dark:text-red-500 disabled:dark:text-red-700"/>
+                                </div>
+                                <div class="border-t border-gray-200 bg-gray-50 p-4 dark:border-gray-900 dark:bg-gray-900">
+                                    <p class="text-sm text-gray-500">
+                                        You cannot delete the workspace because you are not the system admin.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </h:form>
+    </ui:define>
+
+</ui:composition>

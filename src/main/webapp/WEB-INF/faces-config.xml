@@ -8,13 +8,13 @@
     <navigation-rule>
         <from-view-id>/auth.xhtml</from-view-id>
         <navigation-case>
-            <from-outcome>resident/dashboard</from-outcome>
-            <to-view-id>/resident/dashboard.xhtml</to-view-id>
+            <from-outcome>resident/requests</from-outcome>
+            <to-view-id>/resident/requests.xhtml</to-view-id>
             <redirect/>
         </navigation-case>
         <navigation-case>
-            <from-outcome>security/dashboard</from-outcome>
-            <to-view-id>/security/dashboard.xhtml</to-view-id>
+            <from-outcome>security/visits</from-outcome>
+            <to-view-id>/security/visits.xhtml</to-view-id>
             <redirect/>
         </navigation-case>
         <navigation-case>
