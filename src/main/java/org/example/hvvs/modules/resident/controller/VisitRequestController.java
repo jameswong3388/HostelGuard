@@ -11,6 +11,7 @@ import org.example.hvvs.model.VisitRequest;
 import org.example.hvvs.model.User;
 import org.example.hvvs.modules.resident.services.VisitRequestService;
 import org.example.hvvs.util.CommonParam;
+import org.primefaces.event.RowEditEvent;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
@@ -125,7 +126,7 @@ public class VisitRequestController implements Serializable {
      * Called by PrimeFaces rowEdit event when a row is saved (after inline editing).
      */
     @Transactional
-    public void onRowEdit(org.primefaces.event.RowEditEvent<VisitRequest> event) {
+    public void onRowEdit(RowEditEvent<VisitRequest> event) {
         try {
             VisitRequest editedRequest = event.getObject();
             editedRequest.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
@@ -142,8 +143,35 @@ public class VisitRequestController implements Serializable {
     /**
      * Called by PrimeFaces rowEdit event when a row edit is canceled.
      */
-    public void onRowCancel(org.primefaces.event.RowEditEvent<VisitRequest> event) {
+    public void onRowCancel(RowEditEvent<VisitRequest> event) {
         FacesContext.getCurrentInstance().addMessage(null,
                 new FacesMessage(FacesMessage.SEVERITY_INFO, "Cancelled", "No changes were saved"));
+    }
+
+    @Transactional
+    public String cancelRequest(VisitRequest request) {
+        try {
+            // Mark as canceled (or any other logic you need)
+            request.setStatus("CANCELLED");
+            request.setRemarks("CANCELLED");
+            request.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
+
+            // Persist the changes
+            visitRequestService.update(request);
+
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_INFO,
+                            "Success",
+                            "Request ID " + request.getId() + " was canceled."));
+
+        } catch (Exception e) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                            "Error",
+                            "Could not cancel request: " + e.getMessage()));
+        }
+
+        // return null to stay on the same page
+        return null;
     }
 }

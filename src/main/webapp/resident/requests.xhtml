@@ -163,15 +163,29 @@
                     </p:cellEditor>
                 </p:column>
 
-                <!-- RowEditor to save/cancel editing -->
-                <p:column headerText="Actions" style="width: 120px;">
-                    <p:rowEditor
-                            editTitle="Edit"
-                            cancelTitle="Cancel"
-                            saveTitle="Save"
-                            saveListener="#{visitRequestControllerResident.onRowEdit}"
-                            cancelListener="#{visitRequestControllerResident.onRowCancel}"
-                            update=":requestsTableForm:requestsTable :messages" />
+                <p:ajax event="rowEdit"
+                        listener="#{visitRequestControllerResident.onRowEdit}"
+                        update=":requestsTableForm:requestsTable :messages" />
+                <p:ajax event="rowEditCancel"
+                        listener="#{visitRequestControllerResident.onRowCancel}"
+                        update=":requestsTableForm:requestsTable :messages" />
+
+                <!-- Row Editor column, hidden if status = 'CANCELED' -->
+                <p:column headerText="Actions">
+                    <p:rowEditor editTitle="Edit"
+                                 cancelTitle="Cancel"
+                                 saveTitle="Save"
+                                 rendered="#{req.status ne 'CANCELLED'}" />
+                </p:column>
+
+                <!-- Cancel Request Button, hidden if already canceled -->
+                <p:column headerText="Cancel">
+                    <p:commandButton value="Cancel Request"
+                                     icon="pi pi-ban"
+                                     styleClass="p-button-danger"
+                                     action="#{visitRequestControllerResident.cancelRequest(req)}"
+                                     update=":requestsTableForm:requestsTable :messages"
+                                     rendered="#{req.status ne 'CANCELLED'}" />
                 </p:column>
             </p:dataTable>
         </h:form>
