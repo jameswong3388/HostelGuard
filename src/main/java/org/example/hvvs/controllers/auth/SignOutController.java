@@ -12,7 +12,7 @@ import org.example.hvvs.util.CommonParam;
 import java.io.IOException;
 import java.io.Serializable;
 
-@Named
+@Named("signOutController")
 @SessionScoped
 public class SignOutController implements Serializable {
 

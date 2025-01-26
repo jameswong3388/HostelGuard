@@ -20,25 +20,25 @@ import org.example.hvvs.util.CommonParam;
 
 /**
  * Login Filter<br/>
- * For all pages:<br/>
  * 1. If already logged in (admin or user), and request is a public page, redirect to dashboard.<br/>
  * 2. If auto-login cookie exists, verify validity. If valid then login and allow through, otherwise delete cookie<br/>
  * 3. If accessing a page that doesn't require login, allow through<br/>
- * 4. Otherwise, redirect to login page
+ * 4. Otherwise, redirect to login page<br/>
+ * 5. After ensuring login, check if user’s role matches the path they are accessing.
  *
  * @author ...
  */
-public class LoginFilter implements Filter {
+public class Middleware implements Filter {
     @EJB
     private AuthServices authServices;
 
     // Servlet paths that don't require login
     public static final String[] unLoginServletPathes = {
-            "/auth.xhtml",
-            "/index.xhtml",
-            "/forget-password.xhtml",
-            "/404.xhtml",
-            "/jakarta.faces.resource/*"  // Important for JSF resources
+        "/auth.xhtml",
+        "/index.xhtml",
+        "/forget-password.xhtml",
+        "/404.xhtml",
+        "/jakarta.faces.resource/*"  // Important for JSF resources
     };
 
     @Override
@@ -71,7 +71,7 @@ public class LoginFilter implements Filter {
         // ---------------------------------------------------------------------
         // 1. If user is already logged in:
         //    - If requesting a public page, redirect to user's dashboard
-        //    - Otherwise, let the user access the requested page
+        //    - Otherwise, let the user access the requested page (but check role below)
         // ---------------------------------------------------------------------
         if (user != null) {
             if (isUnLoginPage(servletPath)) {
@@ -79,7 +79,18 @@ public class LoginFilter implements Filter {
                 redirectToDashboard(req, resp, user.getRole());
                 return;
             }
-            // Otherwise, user is logged in and requesting a secured page
+
+            // ---------------------------------------------------------
+            // 5. Role-based check: ensure the user’s role matches path
+            // ---------------------------------------------------------
+            if (!isAuthorizedForPath(servletPath, user.getRole())) {
+                // If user doesn’t have permission, respond with 403 or redirect to an error page.
+                // Here we send 403 Forbidden:
+                resp.sendError(HttpServletResponse.SC_FORBIDDEN);
+                return;
+            }
+
+            // If role check passes, proceed
             chain.doFilter(request, response);
             return;
         }
@@ -103,6 +114,15 @@ public class LoginFilter implements Filter {
                     redirectToDashboard(req, resp, user.getRole());
                     return;
                 }
+
+                // ---------------------------------------------------------
+                // 5. Role-based check after auto-login
+                // ---------------------------------------------------------
+                if (!isAuthorizedForPath(servletPath, user.getRole())) {
+                    resp.sendError(HttpServletResponse.SC_FORBIDDEN);
+                    return;
+                }
+
                 // Otherwise, allow access
                 chain.doFilter(request, response);
                 return;
@@ -185,9 +205,31 @@ public class LoginFilter implements Filter {
                 resp.sendRedirect(contextPath + "/admin/dashboard.xhtml");
                 break;
             default:
-                // If the role is unrecognized, fallback to a default
+                // If the role is unrecognized, fallback to login
                 resp.sendRedirect(contextPath + "/auth.xhtml");
                 break;
         }
+    }
+
+    /**
+     * Utility: check if the user’s role grants access to the requested path.
+     */
+    private boolean isAuthorizedForPath(String servletPath, String role) {
+        // If path starts with /resident => only resident role can access
+        if (servletPath.startsWith("/resident")) {
+            return CommonParam.SESSION_ROLE_RESIDENT.equals(role);
+        }
+        // If path starts with /security => only security staff can access
+        if (servletPath.startsWith("/security")) {
+            return CommonParam.SESSION_ROLE_SECURITY_STAFF.equals(role);
+        }
+        // If path starts with /admin => only managing staff can access
+        if (servletPath.startsWith("/admin")) {
+            return CommonParam.SESSION_ROLE_MANAGING_STAFF.equals(role);
+        }
+        // If none of the above prefixes, you can decide whether it's open
+        // to all authenticated users or no one. For simplicity, let's allow
+        // any authenticated user if it doesn't match any prefix:
+        return true;
     }
 }

@@ -1,0 +1,149 @@
+package org.example.hvvs.controllers.resident;
+
+import jakarta.annotation.PostConstruct;
+import jakarta.enterprise.context.SessionScoped;
+import jakarta.faces.application.FacesMessage;
+import jakarta.faces.context.FacesContext;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import jakarta.transaction.Transactional;
+import org.example.hvvs.model.VisitRequest;
+import org.example.hvvs.model.User;
+import org.example.hvvs.services.VisitRequestService;
+import org.example.hvvs.util.CommonParam;
+
+import java.io.Serializable;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
+@Named("visitRequestControllerResident")
+@SessionScoped
+public class VisitRequestController implements Serializable {
+
+    private VisitRequest newRequest;
+    private List<VisitRequest> userRequests; // Holds existing requests for the logged-in user
+
+    @Inject
+    private VisitRequestService visitRequestService;
+
+    @PostConstruct
+    public void init() {
+        // Prepare the 'newRequest' object for the dialog
+        this.newRequest = new VisitRequest();
+        String verificationCode = UUID.randomUUID().toString().substring(0, 6).toUpperCase();
+        newRequest.setStatus("PENDING");
+        newRequest.setRemarks("Awaiting approval");
+        newRequest.setVerificationCode(verificationCode);
+
+        // Load existing requests for current user
+        loadUserRequests();
+    }
+
+    public VisitRequest getNewRequest() {
+        return newRequest;
+    }
+
+    public void setNewRequest(VisitRequest newRequest) {
+        this.newRequest = newRequest;
+    }
+
+    public List<VisitRequest> getUserRequests() {
+        return userRequests;
+    }
+
+    /**
+     * Called in @PostConstruct or whenever you need to refresh the table data
+     */
+    private void loadUserRequests() {
+        User currentUser = (User) FacesContext
+                .getCurrentInstance()
+                .getExternalContext()
+                .getSessionMap()
+                .get(CommonParam.SESSION_SELF);
+
+        if (currentUser != null) {
+            userRequests = visitRequestService.findRequestsByUserEntity(currentUser);
+        } else {
+            userRequests = new ArrayList<>();
+        }
+    }
+
+    @Transactional
+    public void createRequest() {
+        try {
+            // Basic validation
+            if (newRequest.getPurpose() == null || newRequest.getPurpose().trim().isEmpty()) {
+                FacesContext.getCurrentInstance().addMessage(null,
+                        new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                                "Error", "Please fill in all required fields"));
+                return;
+            }
+            // Get current user from session
+            User currentUser = (User) FacesContext
+                    .getCurrentInstance()
+                    .getExternalContext()
+                    .getSessionMap()
+                    .get(CommonParam.SESSION_SELF);
+
+            if (currentUser == null) {
+                FacesContext.getCurrentInstance().addMessage(null,
+                        new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "User not authenticated"));
+                return;
+            }
+
+            // Set additional fields
+            Timestamp now = new Timestamp(System.currentTimeMillis());
+            newRequest.setUserId(currentUser);
+            newRequest.setCreatedAt(now);
+            newRequest.setUpdatedAt(now);
+
+            // Persist
+            visitRequestService.create(newRequest);
+
+            // Reset the form for next time
+            newRequest = new VisitRequest();
+            newRequest.setVerificationCode(UUID.randomUUID().toString().substring(0, 6).toUpperCase());
+            newRequest.setStatus("PENDING");
+            newRequest.setRemarks("Awaiting approval");
+
+            // Reload table
+            loadUserRequests();
+
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_INFO, "Success", "Visit request created successfully"));
+
+        } catch (Exception e) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                            "Error", "Failed to create visit request: " + e.getMessage()));
+        }
+    }
+
+    /**
+     * Called by PrimeFaces rowEdit event when a row is saved (after inline editing).
+     */
+    @Transactional
+    public void onRowEdit(org.primefaces.event.RowEditEvent<VisitRequest> event) {
+        try {
+            VisitRequest editedRequest = event.getObject();
+            editedRequest.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
+            visitRequestService.update(editedRequest);
+
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_INFO, "Success", "Request updated"));
+        } catch (Exception e) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Could not update request: " + e.getMessage()));
+        }
+    }
+
+    /**
+     * Called by PrimeFaces rowEdit event when a row edit is canceled.
+     */
+    public void onRowCancel(org.primefaces.event.RowEditEvent<VisitRequest> event) {
+        FacesContext.getCurrentInstance().addMessage(null,
+                new FacesMessage(FacesMessage.SEVERITY_INFO, "Cancelled", "No changes were saved"));
+    }
+}

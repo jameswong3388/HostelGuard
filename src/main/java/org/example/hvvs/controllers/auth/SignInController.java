@@ -15,7 +15,7 @@ import org.example.hvvs.util.ServiceResult;
 
 import java.io.Serializable;
 
-@Named
+@Named("signInController")
 @RequestScoped
 public class SignInController implements Serializable {
 

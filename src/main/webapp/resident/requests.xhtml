@@ -8,17 +8,172 @@
     <ui:define name="title">Requests</ui:define>
 
     <ui:define name="navigation">
-        <h:link outcome="/resident/requests.xhtml" styleClass="py-2 text-blue-600 font-medium focus:outline-none">Requests</h:link>
+        <h:link outcome="/resident/requests.xhtml" styleClass="py-2 text-blue-600 font-medium">
+            Requests
+        </h:link>
     </ui:define>
 
     <ui:define name="content">
-        <!-- Page Title & Subtitle -->
+        <!-- Title & New Request Button -->
         <div class="mb-8 flex justify-between">
             <h2 class="text-2xl font-bold">Requests</h2>
             <div>
-                <p:button value="New Request" icon="pi pi-plus" styleClass="p-button-raised p-button-primary"/>
+                <p:button value="New Request"
+                          icon="pi pi-plus"
+                          styleClass="p-button-raised p-button-primary"
+                          onclick="PF('newRequestDialog').show(); return false;" />
             </div>
         </div>
-    </ui:define>
 
+        <!-- Messages -->
+        <p:messages id="messages" showDetail="true" closable="true">
+            <p:autoUpdate />
+        </p:messages>
+
+        <!-- New Request Dialog -->
+        <p:dialog header="New Visit Request"
+                  widgetVar="newRequestDialog"
+                  modal="true"
+                  width="500">
+            <h:form id="newRequestForm">
+                <div class="p-fluid">
+                    <!-- Verification Code -->
+                    <div class="field mb-4">
+                        <p:outputLabel for="verificationCode" value="Verification Code" />
+                        <p:inputText id="verificationCode"
+                                     value="#{visitRequestControllerResident.newRequest.verificationCode}" />
+                    </div>
+
+                    <!-- Combined Date/Time -->
+                    <div class="field mb-4">
+                        <p:outputLabel for="visitDateTime" value="Visit Date/Time" />
+                        <p:datePicker id="visitDateTime"
+                                      value="#{visitRequestControllerResident.newRequest.visitDateTime}"
+                                      pattern="MM/dd/yy HH:mm"
+                                      showTime="true"
+                                      showIcon="true"
+                                      converter="timestampConverter"
+                                      required="true" />
+                    </div>
+
+                    <!-- Purpose -->
+                    <div class="field mb-4">
+                        <p:outputLabel for="purpose" value="Purpose" />
+                        <p:inputTextarea id="purpose"
+                                         value="#{visitRequestControllerResident.newRequest.purpose}"
+                                         required="true"
+                                         rows="3" />
+                    </div>
+
+                    <div class="flex justify-content-end gap-4">
+                        <p:commandButton value="Cancel"
+                                         icon="pi pi-times"
+                                         onclick="PF('newRequestDialog').hide(); return false;"
+                                         styleClass="p-button-text mr-2"
+                                         immediate="true" />
+                        <p:commandButton value="Submit"
+                                         icon="pi pi-check"
+                                         action="#{visitRequestControllerResident.createRequest}"
+                                         update=":messages @form :requestsTableForm:requestsTable"
+                                         styleClass="p-button-primary"
+                                         oncomplete="if (!args.validationFailed) PF('newRequestDialog').hide();" />
+                    </div>
+                </div>
+            </h:form>
+        </p:dialog>
+
+        <!-- Editable Table of Previous Requests -->
+        <h:form id="requestsTableForm">
+            <p:dataTable
+                    id="requestsTable"
+                    var="req"
+                    value="#{visitRequestControllerResident.userRequests}"
+                    editable="true"
+                    editMode="row"
+                    widgetVar="requestsTable"
+                    rowKey="#{req.id}"
+                    styleClass="w-full border rounded-md">
+
+                <!-- Verification Code -->
+                <p:column headerText="Verification Code">
+                    <p:cellEditor>
+                        <f:facet name="output">
+                            <h:outputText value="#{req.verificationCode}" />
+                        </f:facet>
+                        <f:facet name="input">
+                            <p:inputText value="#{req.verificationCode}" />
+                        </f:facet>
+                    </p:cellEditor>
+                </p:column>
+
+                <!-- Single Column: Timestamp (Date/Time) -->
+                <p:column headerText="Visit Date/Time">
+                    <p:cellEditor>
+                        <f:facet name="output">
+                            <h:outputText value="#{req.visitDateTime}">
+                                <!-- optional date-time formatting:
+                                <f:convertDateTime pattern="MM/dd/yy HH:mm" />
+                                -->
+                            </h:outputText>
+                        </f:facet>
+                        <f:facet name="input">
+                            <p:datePicker value="#{req.visitDateTime}"
+                                          pattern="MM/dd/yy HH:mm"
+                                          showTime="true"
+                                          showIcon="true"
+                                          converter="timestampConverter" />
+                        </f:facet>
+                    </p:cellEditor>
+                </p:column>
+
+                <!-- Purpose -->
+                <p:column headerText="Purpose">
+                    <p:cellEditor>
+                        <f:facet name="output">
+                            <h:outputText value="#{req.purpose}" />
+                        </f:facet>
+                        <f:facet name="input">
+                            <p:inputTextarea value="#{req.purpose}"
+                                             rows="2"
+                                             autoResize="false" />
+                        </f:facet>
+                    </p:cellEditor>
+                </p:column>
+
+                <!-- Show the single status from VisitRequestStatus -->
+                <p:column headerText="Status">
+                    <p:cellEditor disabled="true">
+                        <f:facet name="output">
+                            <h:outputText value="#{req.status}" />
+                        </f:facet>
+                        <f:facet name="input">
+                            <p:inputText value="#{req.status}" />
+                        </f:facet>
+                    </p:cellEditor>
+                </p:column>
+
+                <p:column headerText="Remarks">
+                    <p:cellEditor disabled="true">
+                        <f:facet name="output">
+                            <h:outputText value="#{req.remarks}" />
+                        </f:facet>
+                        <f:facet name="input">
+                            <p:inputTextarea value="#{req.remarks}" rows="2" autoResize="true"/>
+                        </f:facet>
+                    </p:cellEditor>
+                </p:column>
+
+                <!-- RowEditor to save/cancel editing -->
+                <p:column headerText="Actions" style="width: 120px;">
+                    <p:rowEditor
+                            editTitle="Edit"
+                            cancelTitle="Cancel"
+                            saveTitle="Save"
+                            saveListener="#{visitRequestControllerResident.onRowEdit}"
+                            cancelListener="#{visitRequestControllerResident.onRowCancel}"
+                            update=":requestsTableForm:requestsTable :messages" />
+                </p:column>
+            </p:dataTable>
+        </h:form>
+    </ui:define>
 </ui:composition>

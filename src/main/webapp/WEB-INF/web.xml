@@ -41,11 +41,11 @@
 
     <!--    Middleware    -->
     <filter>
-        <filter-name>LoginFilter</filter-name>
-        <filter-class>org.example.hvvs.middleware.LoginFilter</filter-class>
+        <filter-name>Middleware</filter-name>
+        <filter-class>org.example.hvvs.middleware.Middleware</filter-class>
     </filter>
     <filter-mapping>
-        <filter-name>LoginFilter</filter-name>
+        <filter-name>Middleware</filter-name>
         <url-pattern>*.xhtml</url-pattern>
         <dispatcher>REQUEST</dispatcher>
         <dispatcher>FORWARD</dispatcher>

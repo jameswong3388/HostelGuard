@@ -9,7 +9,7 @@ import org.example.hvvs.util.CommonParam;
 
 import java.io.Serializable;
 
-@Named
+@Named("dashboardController")
 @SessionScoped
 public class DashboardController implements Serializable {
     public String getCurrentUserName() {
