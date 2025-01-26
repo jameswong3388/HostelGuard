@@ -10,12 +10,13 @@ import org.example.hvvs.commonClasses.BaseEntity;
 import java.sql.Timestamp;
 
 @Entity
-@Table(name = "users")
+@Table(name = "user")
 @NamedQueries({
         @NamedQuery(name = "User.findAll", query = "SELECT u FROM User u"),
         @NamedQuery(name = "User.findByUsername", query = "SELECT u FROM User u WHERE u.username = :username"),
         @NamedQuery(name = "User.findByEmail", query = "SELECT u FROM User u WHERE u.email = :email"),
-        @NamedQuery(name = "User.findByFullName", query = "SELECT u FROM User u WHERE u.full_name = :fullName"),
+        @NamedQuery(name = "User.findByFirstName", query = "SELECT u FROM User u WHERE u.first_name = :firstName"),
+        @NamedQuery(name = "User.findByLastName", query = "SELECT u FROM User u WHERE u.last_name = :lastName"),
         @NamedQuery(name = "User.findByPhoneNumber", query = "SELECT u FROM User u WHERE u.phone_number = :phone_number"),
         @NamedQuery(name = "User.findByIsActive", query = "SELECT u FROM User u WHERE u.is_active = :is_active"),
         @NamedQuery(name = "User.findByRole", query = "SELECT u FROM User u WHERE u.role = :role"),
@@ -25,46 +26,52 @@ import java.sql.Timestamp;
 
 
 public class User extends BaseEntity {
-    @Column(name = "username")
+    @Column(name = "username", nullable = false, unique = true)
     private String username;
 
-    @Column(name = "salt")
+    @Column(name = "salt", nullable = false)
     private String salt;
 
-    @Column(name = "password")
+    @Column(name = "password", nullable = false)
     private String password;
 
-    @Column(name = "email")
+    @Column(name = "email", nullable = false, unique = true)
     private String email;
 
-    @Column(name = "full_name")
-    private String full_name;
+    @Column(name = "first_name")
+    private String first_name;
 
-    @Column(name = "phone_number")
+    @Column(name = "last_name")
+    private String last_name;
+
+    @Column(name = "phone_number", nullable = false)
     private String phone_number;
 
     @Column(name = "is_active")
-    private boolean is_active;
+    private boolean is_active = true;
 
-    @Column(name = "role")
+    @Column(name = "role", nullable = false)
     private String role;
 
-    @Column(name = "created_at")
+    @Column(name = "created_at", nullable = false)
     private Timestamp created_at;
 
-    @Column(name = "updated_at")
+    @Column(name = "updated_at", nullable = false)
     private Timestamp updated_at;
 
     public User() {
         super();
     }
 
-    public User(String username, String salt, String password, String email, String full_name, String phone_number, boolean is_active, String role, Timestamp created_at, Timestamp updated_at) {
+    public User(String username, String salt, String password, String email, 
+                String first_name, String last_name, String phone_number,
+                boolean is_active, String role, Timestamp created_at, Timestamp updated_at) {
         this.username = username;
         this.salt = salt;
         this.password = password;
         this.email = email;
-        this.full_name = full_name;
+        this.first_name = first_name;
+        this.last_name = last_name;
         this.phone_number = phone_number;
         this.is_active = is_active;
         this.role = role;
@@ -88,8 +95,12 @@ public class User extends BaseEntity {
         return email;
     }
 
-    public String getFullName() {
-        return full_name;
+    public String getFirstName() {
+        return first_name;
+    }
+
+    public String getLastName() {
+        return last_name;
     }
 
     public String getPhoneNumber() {
@@ -110,5 +121,49 @@ public class User extends BaseEntity {
 
     public Timestamp getUpdatedAt() {
         return updated_at;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public void setSalt(String salt) {
+        this.salt = salt;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public void setFirstName(String first_name) {
+        this.first_name = first_name;
+    }
+
+    public void setLastName(String last_name) {
+        this.last_name = last_name;
+    }
+
+    public void setPhoneNumber(String phone_number) {
+        this.phone_number = phone_number;
+    }
+
+    public void setIsActive(boolean is_active) {
+        this.is_active = is_active;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
+    }
+
+    public void setCreatedAt(Timestamp created_at) {
+        this.created_at = created_at;
+    }
+
+    public void setUpdatedAt(Timestamp updated_at) {
+        this.updated_at = updated_at;
     }
 }

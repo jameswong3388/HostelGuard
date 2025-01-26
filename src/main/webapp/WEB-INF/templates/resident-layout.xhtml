@@ -17,7 +17,7 @@
     <!-- Top Nav -->
     <header class="flex items-center justify-between px-12 py-4 bg-white border-b">
         <!-- Left: Brand/Title -->
-        <h:link outcome="/admin/dashboard.xhtml" styleClass="text-xl font-semibold hover:text-blue-600">
+        <h:link outcome="/resident/requests.xhtml" styleClass="text-xl font-semibold hover:text-blue-600">
             Hostel Visitor Verification System
         </h:link>
 
@@ -49,9 +49,12 @@
     <!-- Secondary Tab Nav -->
     <nav class="flex items-center space-x-8 px-12 py-2 bg-white border-b">
         <ui:insert name="navigation">
-            <h:link outcome="/admin/dashboard.xhtml" styleClass="py-2 text-gray-500 hover:text-gray-700 focus:outline-none">Dashboard</h:link>
-            <h:link outcome="/admin/users.xhtml" styleClass="py-2 text-gray-500 hover:text-gray-700 focus:outline-none">Users</h:link>
-            <h:link outcome="/admin/requests.xhtml" styleClass="py-2 text-gray-500 hover:text-gray-700 focus:outline-none">Requests</h:link>
+            <h:link outcome="/resident/settings/general.xhtml"
+                    styleClass="py-2 text-blue-600 font-medium focus:outline-none">General</h:link>
+            <h:link outcome="/resident/requests.xhtml"
+                    styleClass="py-2 text-gray-500 hover:text-gray-700 focus:outline-none">Account (Coming Soon)</h:link>
+            <h:link outcome="/resident/requests.xhtml"
+                    styleClass="py-2 text-gray-500 hover:text-gray-700 focus:outline-none">Password &amp; Authentication (Coming Soon)</h:link>
         </ui:insert>
     </nav>
 
