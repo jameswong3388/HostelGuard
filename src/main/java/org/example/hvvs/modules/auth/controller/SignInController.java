@@ -22,13 +22,13 @@ public class SignInController implements Serializable {
     @EJB
     private AuthServices authServices;
 
-    private String email;
+    private String identifier; // Can be either email or username
     private String password;
     private boolean rememberMe;
 
     public String login() {
         try {
-            ServiceResult<User> serviceResult = authServices.signIn(email, password, rememberMe);
+            ServiceResult<User> serviceResult = authServices.signIn(identifier, password, rememberMe);
 
             if (!serviceResult.isSuccess()) {
                 // Failed authentication: show the error message
@@ -80,14 +80,13 @@ public class SignInController implements Serializable {
         }
     }
 
-
     // Getters and Setters
-    public String getEmail() {
-        return email;
+    public String getIdentifier() {
+        return identifier;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public void setIdentifier(String identifier) {
+        this.identifier = identifier;
     }
 
     public String getPassword() {

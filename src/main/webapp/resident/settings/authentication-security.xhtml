@@ -52,11 +52,53 @@
                                 </a>
                             </p>
                         </div>
-                        <!-- Right column: action button -->
-                        <div class="md:col-span-2 flex items-start justify-end">
+
+                        <!-- Right column: Old + New Password Form -->
+                        <div class="md:col-span-2">
+
+                            <!-- Old (Current) Password -->
+                            <div class="mb-4">
+                                <h:outputLabel for="oldPassword" value="Current password" styleClass="font-medium"/>
+                                <p:password id="oldPassword"
+                                            value="#{SettingsControllerResident.oldPassword}"
+                                            styleClass="mt-2 w-full"
+                                            autocomplete="current-password"
+                                            required="true"
+                                            requiredMessage="Current password is required"/>
+                            </div>
+
+                            <!-- New Password -->
+                            <div class="mb-4">
+                                <h:outputLabel for="newPassword" value="New password" styleClass="font-medium"/>
+                                <p:password id="newPassword"
+                                            value="#{SettingsControllerResident.newPassword}"
+                                            styleClass="mt-2 w-full"
+                                            autocomplete="new-password"
+                                            required="true"
+                                            requiredMessage="New password is required"
+                                            feedback="true"
+                                            promptLabel="Please enter a password"
+                                            weakLabel="Weak"
+                                            goodLabel="Good"
+                                            strongLabel="Strong"/>
+                            </div>
+
+                            <!-- Confirm New Password -->
+                            <div class="mb-4">
+                                <h:outputLabel for="confirmNewPassword" value="Confirm new password" styleClass="font-medium"/>
+                                <p:password id="confirmNewPassword"
+                                            value="#{SettingsControllerResident.confirmNewPassword}"
+                                            styleClass="mt-2 w-full"
+                                            autocomplete="new-password"
+                                            required="true"
+                                            requiredMessage="Password confirmation is required"/>
+                            </div>
+
+                            <!-- Change Password Button -->
                             <p:commandButton value="Change password"
-                                             action="#{SettingsControllerResident.changePassword}"
-                                             styleClass="p-button-raised p-button-primary" />
+                                             action="#{SettingsControllerResident.updatePassword}"
+                                             update="@form"
+                                             styleClass="p-button-raised p-button-primary"/>
                         </div>
                     </div>
                 </section>
@@ -317,7 +359,7 @@
                                         Sign out everywhere
                                     </h4>
                                     <p class="mt-2 text-sm leading-6 text-gray-500">
-                                        Revoke all active web and mobile sessions. You’ll be asked to sign in again.
+                                        Revoke all active web and mobile sessions. You'll be asked to sign in again.
                                     </p>
                                 </div>
                                 <p:commandButton value="Sign out everywhere"

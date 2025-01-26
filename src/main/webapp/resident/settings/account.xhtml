@@ -111,13 +111,11 @@
                                             <h:outputLabel for="newOwnerEmail" value="New Owner's Email"
                                                            styleClass="block text-sm font-medium text-gray-700"/>
                                             <p:inputText id="newOwnerEmail"
-                                                         value="#{accountSettingsController.newOwnerEmail}"
                                                          placeholder="email@example.com"
                                                          styleClass="mt-1 w-full"/>
                                         </div>
                                     </div>
                                     <p:commandButton value="Transfer"
-                                                     action="#{accountSettingsController.transferOwnership}"
                                                      styleClass="p-button-warning"
                                                      onclick="return confirm('Are you sure you want to transfer ownership? This action cannot be undone.')"/>
                                 </div>
@@ -137,13 +135,12 @@
                                             <h:outputLabel for="confirmDelete" value="Type 'DELETE' to confirm"
                                                            styleClass="block text-sm font-medium text-gray-700"/>
                                             <p:inputText id="confirmDelete"
-                                                         value="#{accountSettingsController.deleteConfirmation}"
                                                          placeholder="DELETE"
                                                          styleClass="mt-1 w-full"/>
                                         </div>
                                     </div>
                                     <p:commandButton value="Delete Account"
-                                                     action="#{accountSettingsController.deleteAccount}"
+                                                     action="#{SettingsControllerResident.deleteAccount}"
                                                      styleClass="p-button-danger"
                                                      onclick="return confirm('Are you absolutely sure you want to delete your account? This action cannot be undone.')"/>
                                 </div>

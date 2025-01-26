@@ -38,14 +38,14 @@
         <div class="mt-10 w-full">
             <!-- Login form -->
             <h:form class="flex w-full flex-col gap-y-6">
-                <!-- Email field -->
+                <!-- Email/Username field -->
                 <div class="flex flex-col gap-y-2">
-                    <p:outputLabel for="email" value="Email" styleClass="font-medium"/>
-                    <p:inputText id="email"
-                                 value="#{signInController.email}"
-                                 placeholder="emily.ross@acme.ch"
+                    <p:outputLabel for="identifier" value="Email or Username" styleClass="font-medium"/>
+                    <p:inputText id="identifier"
+                                 value="#{signInController.identifier}"
+                                 placeholder="Email or username"
                                  required="true"
-                                 requiredMessage="Email is required"
+                                 requiredMessage="Email or username is required"
                                  styleClass="w-full"/>
                 </div>
 

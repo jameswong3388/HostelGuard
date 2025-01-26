@@ -5,6 +5,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.example.hvvs.model.ResidentProfile;
 import org.example.hvvs.model.User;
+import java.util.List;
 
 @ApplicationScoped
 public class SettingsService {
@@ -41,5 +42,22 @@ public class SettingsService {
      */
     public void updateResidentProfile(ResidentProfile residentProfile) {
         em.merge(residentProfile);
+    }
+
+    /**
+     * Check if a username already exists for a different user
+     */
+    public boolean isUsernameExists(String username, Integer currentUserId) {
+        try {
+            List<User> users = em.createNamedQuery("User.findByUsername", User.class)
+                    .setParameter("username", username)
+                    .getResultList();
+
+            // If no users found with this username, or the only user found is the current user
+            return !users.isEmpty() && !users.getFirst().getId().equals(currentUserId);
+        } catch (Exception e) {
+            // Log the error if needed
+            return false;
+        }
     }
 }
