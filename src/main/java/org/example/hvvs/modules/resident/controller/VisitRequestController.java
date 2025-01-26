@@ -1,4 +1,4 @@
-package org.example.hvvs.controllers.resident;
+package org.example.hvvs.modules.resident.controller;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.SessionScoped;
@@ -9,7 +9,7 @@ import jakarta.inject.Named;
 import jakarta.transaction.Transactional;
 import org.example.hvvs.model.VisitRequest;
 import org.example.hvvs.model.User;
-import org.example.hvvs.services.VisitRequestService;
+import org.example.hvvs.modules.resident.services.VisitRequestService;
 import org.example.hvvs.util.CommonParam;
 
 import java.io.Serializable;

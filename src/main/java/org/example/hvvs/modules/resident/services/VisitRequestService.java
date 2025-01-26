@@ -1,4 +1,4 @@
-package org.example.hvvs.services;
+package org.example.hvvs.modules.resident.services;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.persistence.EntityManager;

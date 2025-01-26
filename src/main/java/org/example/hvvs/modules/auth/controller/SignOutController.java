@@ -1,4 +1,4 @@
-package org.example.hvvs.controllers.auth;
+package org.example.hvvs.modules.auth.controller;
 
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.context.ExternalContext;

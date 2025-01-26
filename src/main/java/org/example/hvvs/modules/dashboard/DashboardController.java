@@ -1,4 +1,4 @@
-package org.example.hvvs.controllers.dashboard;
+package org.example.hvvs.modules.dashboard;
 
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.context.FacesContext;

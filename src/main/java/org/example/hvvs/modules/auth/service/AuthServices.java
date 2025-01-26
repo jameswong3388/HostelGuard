@@ -1,4 +1,4 @@
-package org.example.hvvs.services;
+package org.example.hvvs.modules.auth.service;
 
 
 import org.example.hvvs.model.User;

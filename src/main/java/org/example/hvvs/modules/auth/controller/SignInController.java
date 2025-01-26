@@ -1,4 +1,4 @@
-package org.example.hvvs.controllers.auth;
+package org.example.hvvs.modules.auth.controller;
 
 import jakarta.ejb.EJB;
 import jakarta.enterprise.context.RequestScoped;
@@ -9,7 +9,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.example.hvvs.model.User;
-import org.example.hvvs.services.AuthServices;
+import org.example.hvvs.modules.auth.service.AuthServices;
 import org.example.hvvs.util.CommonParam;
 import org.example.hvvs.util.ServiceResult;
 
