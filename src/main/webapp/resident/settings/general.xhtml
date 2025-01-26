@@ -44,7 +44,7 @@
                                 <div class="col-span-full sm:col-span-3">
                                     <h:outputLabel for="firstName" value="First name" styleClass="font-medium"/>
                                     <p:inputText id="firstName"
-                                                 value="#{generalSettingsControllerResident.user.firstName}"
+                                                 value="#{SettingsControllerResident.user.firstName}"
                                                  placeholder="Emma"
                                                  styleClass="mt-2 w-full"
                                                  autocomplete="given-name"/>
@@ -54,7 +54,7 @@
                                 <div class="col-span-full sm:col-span-3">
                                     <h:outputLabel for="lastName" value="Last name" styleClass="font-medium"/>
                                     <p:inputText id="lastName"
-                                                 value="#{generalSettingsControllerResident.user.lastName}"
+                                                 value="#{SettingsControllerResident.user.lastName}"
                                                  placeholder="Stone"
                                                  styleClass="mt-2 w-full"
                                                  autocomplete="family-name"/>
@@ -64,7 +64,7 @@
                                 <div class="col-span-full">
                                     <h:outputLabel for="email" value="Email" styleClass="font-medium"/>
                                     <p:inputText id="email"
-                                                 value="#{generalSettingsControllerResident.user.email}"
+                                                 value="#{SettingsControllerResident.user.email}"
                                                  type="email"
                                                  placeholder="emma@acme.com"
                                                  styleClass="mt-2 w-full"
@@ -75,7 +75,7 @@
                                 <div class="col-span-full">
                                     <h:outputLabel for="phoneNumber" value="Phone Number" styleClass="font-medium"/>
                                     <p:inputText id="phoneNumber"
-                                                 value="#{generalSettingsControllerResident.user.phoneNumber}"
+                                                 value="#{SettingsControllerResident.user.phoneNumber}"
                                                  placeholder="+1 555 5555"
                                                  styleClass="mt-2 w-full"
                                                  autocomplete="tel"/>
@@ -85,7 +85,7 @@
                                 <div class="col-span-2">
                                     <h:outputLabel for="role" value="Role" styleClass="font-medium"/>
                                     <p:inputText id="role" disabled="true"
-                                                 value="#{generalSettingsControllerResident.user.role}"
+                                                 value="#{SettingsControllerResident.user.role}"
                                                  styleClass="mt-2 w-full"/>
                                     <p class="mt-2 text-xs text-gray-500">
                                         Roles can only be changed by a system admin.
@@ -95,7 +95,7 @@
                                 <!-- Save button -->
                                 <div class="col-span-full mt-6 flex justify-end">
                                     <p:commandButton value="Save settings"
-                                                     action="#{generalSettingsControllerResident.savePersonalInformation}"
+                                                     action="#{SettingsControllerResident.savePersonalInformation}"
                                                      styleClass="p-button-raised p-button-primary"/>
                                 </div>
                             </div>
@@ -125,7 +125,7 @@
                                 <div class="col-span-full sm:col-span-3">
                                     <h:outputLabel for="blockNumber" value="Block Number" styleClass="font-medium"/>
                                     <p:inputText id="blockNumber"
-                                                 value="#{generalSettingsControllerResident.residentProfile.blockNumber}"
+                                                 value="#{SettingsControllerResident.residentProfile.blockNumber}"
                                                  placeholder="Block A"
                                                  disabled="true"
                                                  styleClass="mt-2 w-full"/>
@@ -138,7 +138,7 @@
                                 <div class="col-span-full sm:col-span-3">
                                     <h:outputLabel for="roomNumber" value="Room Number" styleClass="font-medium"/>
                                     <p:inputText id="roomNumber"
-                                                 value="#{generalSettingsControllerResident.residentProfile.roomNumber}"
+                                                 value="#{SettingsControllerResident.residentProfile.roomNumber}"
                                                  placeholder="101"
                                                  disabled="true"
                                                  styleClass="mt-2 w-full"/>

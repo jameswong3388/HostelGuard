@@ -9,21 +9,20 @@ import jakarta.inject.Named;
 import jakarta.transaction.Transactional;
 import org.example.hvvs.model.ResidentProfile;
 import org.example.hvvs.model.User;
-import org.example.hvvs.modules.resident.services.GeneralSettingsService;
+import org.example.hvvs.modules.resident.services.SettingsService;
 import org.example.hvvs.util.CommonParam;
 
 import java.io.Serializable;
-import java.util.Calendar;
 
-@Named("generalSettingsControllerResident")
+@Named("SettingsControllerResident")
 @SessionScoped
-public class GeneralSettingsController implements Serializable {
+public class SettingsController implements Serializable {
 
     private User user;
     private ResidentProfile residentProfile;
 
     @Inject
-    private GeneralSettingsService generalSettingsService;
+    private SettingsService generalSettingsService;
 
     @PostConstruct
     public void init() {

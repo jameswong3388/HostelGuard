@@ -1,6 +1,5 @@
 package org.example.hvvs.modules.resident.services;
 
-import jakarta.ejb.Stateless;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -8,7 +7,7 @@ import org.example.hvvs.model.ResidentProfile;
 import org.example.hvvs.model.User;
 
 @ApplicationScoped
-public class GeneralSettingsService {
+public class SettingsService {
 
     @PersistenceContext
     private EntityManager em;
