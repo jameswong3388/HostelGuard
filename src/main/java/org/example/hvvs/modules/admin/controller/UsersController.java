@@ -181,6 +181,12 @@ public class UsersController implements Serializable {
                 || user.getPhoneNumber().toLowerCase().contains(filterText)
                 || user.getRole().toLowerCase().contains(filterText);
     }
+
+    public void clearSelection() {
+        if (selectedUsers != null) {
+            selectedUsers.clear();
+        }
+    }
     
     private void addMessage(String summary, String detail) {
         FacesMessage message = new FacesMessage(FacesMessage.SEVERITY_INFO, summary, detail);
@@ -224,12 +230,6 @@ public class UsersController implements Serializable {
 
     public void setSelectedUsers(List<User> selectedUsers) {
         this.selectedUsers = selectedUsers;
-    }
-
-    public void clearSelection() {
-        if (selectedUsers != null) {
-            selectedUsers.clear();
-        }
     }
 
     public ResidentProfile getResidentProfile() {
