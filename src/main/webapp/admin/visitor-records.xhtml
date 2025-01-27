@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                template="/WEB-INF/templates/admin-layout.xhtml">
+
+    <ui:define name="title">Visitor Records</ui:define>
+
+    <ui:define name="navigation">
+        <h:link outcome="/admin/dashboard.xhtml" styleClass="py-2 text-gray-500 hover:text-gray-700 focus:outline-none">Dashboard</h:link>
+        <h:link outcome="/admin/users.xhtml" styleClass="py-2 text-gray-500 hover:text-gray-700 focus:outline-none">Users</h:link>
+        <h:link outcome="/admin/requests.xhtml" styleClass="py-2 text-gray-500 hover:text-gray-700 focus:outline-none">Visit Requests</h:link>
+        <h:link outcome="/admin/visitor-records.xhtml" styleClass="py-2 text-blue-600 font-medium focus:outline-none">Visitor Records</h:link>
+    </ui:define>
+
+    <ui:define name="content">
+        <!-- Records Table -->
+        <h:form id="recordsTableForm">
+            <p:toolbar>
+                <p:toolbarGroup>
+                    <p:commandButton id="delete-records-button"
+                                   value="#{visitorRecordController.deleteSelectedButtonLabel}"
+                                   icon="pi pi-trash"
+                                   actionListener="#{visitorRecordController.deleteSelectedRecords}"
+                                   styleClass="ui-button-danger"
+                                   disabled="#{empty visitorRecordController.selectedRecords}"
+                                   update="@this :recordsTableForm:recordsTable :messages"
+                                   style="margin-right: .5rem">
+                        <p:confirm header="Confirmation"
+                                 message="Delete the selected records?"
+                                 icon="pi pi-exclamation-triangle"/>
+                    </p:commandButton>
+
+                    <p:commandButton id="clearSelectionButton"
+                                   value="Clear Selection"
+                                   icon="pi pi-times"
+                                   styleClass="ui-button-secondary"
+                                   actionListener="#{visitorRecordController.clearSelection}"
+                                   process="@form"
+                                   update="@form :messages"
+                                   disabled="#{empty visitorRecordController.selectedRecords}"
+                                   style="margin-right: .5rem"/>
+                </p:toolbarGroup>
+            </p:toolbar>
+
+            <p:dataTable id="recordsTable"
+                        var="record"
+                        value="#{visitorRecordController.records}"
+                        widgetVar="recordsTable"
+                        reflow="true"
+                        rowKey="#{record.id}"
+                        paginator="true"
+                        rows="10"
+                        paginatorPosition="bottom"
+                        styleClass="w-full border rounded-md mt-2"
+                        filteredValue="#{visitorRecordController.filteredRecords}"
+                        globalFilterFunction="#{visitorRecordController.globalFilterFunction}"
+                        editable="true"
+                        editMode="row"
+                        selection="#{visitorRecordController.selectedRecords}"
+                        selectionRowMode="add">
+
+                <!-- Selection column -->
+                <p:column selectionMode="multiple" style="width: 1px;"/>
+
+                <!-- Global search bar -->
+                <f:facet name="header">
+                    <div class="flex justify-between">
+                        <span class="filter-container ui-input-icon-left">
+                            <i class="pi pi-search"></i>
+                            <p:inputText id="globalFilter"
+                                       onkeyup="PF('recordsTable').filter()"
+                                       placeholder="Search all fields"/>
+                        </span>
+                    </div>
+                </f:facet>
+
+                <!-- Request ID -->
+                <p:column headerText="Request ID" sortBy="#{record.requestId.id}">
+                    <h:outputText value="#{record.requestId.id}"/>
+                </p:column>
+
+                <!-- Security Staff -->
+                <p:column headerText="Security Staff Username" sortBy="#{record.securityStaffId.username}">
+                    <h:outputText value="#{record.securityStaffId.username}"/>
+                </p:column>
+
+                <!-- Visitor Name -->
+                <p:column headerText="Visitor Name" sortBy="#{record.visitorName}">
+                    <p:cellEditor>
+                        <f:facet name="output">
+                            <h:outputText value="#{record.visitorName}"/>
+                        </f:facet>
+                        <f:facet name="input">
+                            <p:inputText value="#{record.visitorName}"/>
+                        </f:facet>
+                    </p:cellEditor>
+                </p:column>
+
+                <!-- Visitor IC -->
+                <p:column headerText="Visitor IC" sortBy="#{record.visitorIc}">
+                    <p:cellEditor>
+                        <f:facet name="output">
+                            <h:outputText value="#{record.visitorIc}"/>
+                        </f:facet>
+                        <f:facet name="input">
+                            <p:inputText value="#{record.visitorIc}"/>
+                        </f:facet>
+                    </p:cellEditor>
+                </p:column>
+
+                <!-- Visitor Phone -->
+                <p:column headerText="Visitor Phone" sortBy="#{record.visitorPhone}">
+                    <p:cellEditor>
+                        <f:facet name="output">
+                            <h:outputText value="#{record.visitorPhone}"/>
+                        </f:facet>
+                        <f:facet name="input">
+                            <p:inputText value="#{record.visitorPhone}"/>
+                        </f:facet>
+                    </p:cellEditor>
+                </p:column>
+
+                <!-- Check In Time -->
+                <p:column headerText="Check In Time" sortBy="#{record.checkInTime}">
+                    <p:cellEditor>
+                        <f:facet name="output">
+                            <h:outputText value="#{record.checkInTime}">
+                                <f:convertDateTime pattern="MM/dd/yy HH:mm"/>
+                            </h:outputText>
+                        </f:facet>
+                        <f:facet name="input">
+                            <p:datePicker value="#{record.checkInTime}"
+                                         pattern="MM/dd/yy HH:mm"
+                                         showTime="true"
+                                         showIcon="true"/>
+                        </f:facet>
+                    </p:cellEditor>
+                </p:column>
+
+                <!-- Check Out Time -->
+                <p:column headerText="Check Out Time" sortBy="#{record.checkOutTime}">
+                    <p:cellEditor>
+                        <f:facet name="output">
+                            <h:outputText value="#{record.checkOutTime}">
+                                <f:convertDateTime pattern="MM/dd/yy HH:mm"/>
+                            </h:outputText>
+                        </f:facet>
+                        <f:facet name="input">
+                            <p:datePicker value="#{record.checkOutTime}"
+                                         pattern="MM/dd/yy HH:mm"
+                                         showTime="true"
+                                         showIcon="true"/>
+                        </f:facet>
+                    </p:cellEditor>
+                </p:column>
+
+                <!-- Remarks -->
+                <p:column headerText="Remarks" sortBy="#{record.remarks}">
+                    <p:cellEditor>
+                        <f:facet name="output">
+                            <h:outputText value="#{record.remarks}"/>
+                        </f:facet>
+                        <f:facet name="input">
+                            <p:inputTextarea value="#{record.remarks}" rows="2"/>
+                        </f:facet>
+                    </p:cellEditor>
+                </p:column>
+
+                <!-- Created At -->
+                <p:column headerText="Created At" sortBy="#{record.createdAt}">
+                    <h:outputText value="#{record.createdAt}">
+                        <f:convertDateTime pattern="MM/dd/yy HH:mm"/>
+                    </h:outputText>
+                </p:column>
+
+                <!-- Updated At -->
+                <p:column headerText="Updated At" sortBy="#{record.updatedAt}">
+                    <h:outputText value="#{record.updatedAt}">
+                        <f:convertDateTime pattern="MM/dd/yy HH:mm"/>
+                    </h:outputText>
+                </p:column>
+
+                <!-- Actions -->
+                <p:column headerText="Actions" style="width:100px">
+                    <p:rowEditor editTitle="Edit Row"
+                               cancelTitle="Cancel Edit"
+                               saveTitle="Save Row"/>
+                </p:column>
+
+                <!-- Selection Events -->
+                <p:ajax event="rowSelect" update=":recordsTableForm:delete-records-button :recordsTableForm:clearSelectionButton"/>
+                <p:ajax event="rowUnselect" update=":recordsTableForm:delete-records-button :recordsTableForm:clearSelectionButton"/>
+                <p:ajax event="rowSelectCheckbox" update=":recordsTableForm:delete-records-button :recordsTableForm:clearSelectionButton"/>
+                <p:ajax event="rowUnselectCheckbox" update=":recordsTableForm:delete-records-button :recordsTableForm:clearSelectionButton"/>
+                <p:ajax event="toggleSelect" update=":recordsTableForm:delete-records-button :recordsTableForm:clearSelectionButton"/>
+
+                <!-- Row Edit Events -->
+                <p:ajax event="rowEdit"
+                        listener="#{visitorRecordController.onRowEdit}"
+                        update=":recordsTableForm:recordsTable :messages"/>
+                <p:ajax event="rowEditCancel"
+                        listener="#{visitorRecordController.onRowCancel}"
+                        update=":recordsTableForm:recordsTable :messages"/>
+
+            </p:dataTable>
+
+            <!-- Confirmation Dialog -->
+            <p:confirmDialog global="true" showEffect="fade" hideEffect="fade" responsive="true">
+                <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no ui-button-flat"/>
+                <p:commandButton value="Yes" type="button" styleClass="ui-confirmdialog-yes"/>
+            </p:confirmDialog>
+        </h:form>
+    </ui:define>
+</ui:composition>
