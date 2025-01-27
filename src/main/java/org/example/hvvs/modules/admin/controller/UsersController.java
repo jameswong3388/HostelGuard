@@ -20,10 +20,10 @@ import java.util.List;
 @Named
 @ViewScoped
 public class UsersController implements Serializable {
-    
+
     @Inject
     private UsersService userService;
-    
+
     private List<User> users;
     private List<User> filteredUsers;
     private User newUser;
@@ -31,7 +31,7 @@ public class UsersController implements Serializable {
     private ResidentProfile residentProfile;
     private SecurityStaffProfile securityStaffProfile;
     private ManagingStaffProfile managingStaffProfile;
-    
+
     @PostConstruct
     public void init() {
         users = userService.getAllUsers();
@@ -40,7 +40,7 @@ public class UsersController implements Serializable {
         securityStaffProfile = new SecurityStaffProfile();
         managingStaffProfile = new ManagingStaffProfile();
     }
-    
+
     public void onRoleChange() {
         if ("RESIDENT".equals(newUser.getRole())) {
             if (residentProfile == null) {
@@ -66,7 +66,7 @@ public class UsersController implements Serializable {
             managingStaffProfile = null;
         }
     }
-    
+
     public void createUser() {
         try {
             // Validate unique constraints
@@ -78,12 +78,12 @@ public class UsersController implements Serializable {
                 addErrorMessage("Email already exists");
                 return;
             }
-            
+
             User createdUser = userService.createUser(newUser);
 
             // Create role-specific profile
             Timestamp now = new Timestamp(System.currentTimeMillis());
-            
+
             switch (newUser.getRole()) {
                 case "RESIDENT":
                     if (residentProfile != null) {
@@ -93,7 +93,7 @@ public class UsersController implements Serializable {
                         userService.createResidentProfile(residentProfile);
                     }
                     break;
-                    
+
                 case "SECURITY_STAFF":
                     if (securityStaffProfile != null) {
                         securityStaffProfile.setUserId(createdUser);
@@ -102,7 +102,7 @@ public class UsersController implements Serializable {
                         userService.createSecurityStaffProfile(securityStaffProfile);
                     }
                     break;
-                    
+
                 case "MANAGING_STAFF":
                     if (managingStaffProfile != null) {
                         managingStaffProfile.setUserId(createdUser);
@@ -123,7 +123,7 @@ public class UsersController implements Serializable {
             addErrorMessage("Error creating user: " + e.getMessage());
         }
     }
-    
+
     public void onRowEdit(RowEditEvent<User> event) {
         try {
             User editedUser = event.getObject();
@@ -133,7 +133,7 @@ public class UsersController implements Serializable {
             addErrorMessage("Error updating user: " + e.getMessage());
         }
     }
-    
+
     public void onRowCancel(RowEditEvent<User> event) {
         addMessage("Cancelled", "Edit cancelled");
     }
@@ -166,7 +166,7 @@ public class UsersController implements Serializable {
             return "Delete Selected Users (" + selectedUsers.size() + ")";
         }
     }
-    
+
     public boolean globalFilterFunction(Object value, Object filter, String filterLocale) {
         String filterText = (filter == null) ? null : filter.toString().trim().toLowerCase();
         if (filterText == null || filterText.isEmpty()) {
@@ -187,39 +187,39 @@ public class UsersController implements Serializable {
             selectedUsers.clear();
         }
     }
-    
+
     private void addMessage(String summary, String detail) {
         FacesMessage message = new FacesMessage(FacesMessage.SEVERITY_INFO, summary, detail);
         FacesContext.getCurrentInstance().addMessage(null, message);
     }
-    
+
     private void addErrorMessage(String detail) {
         FacesMessage message = new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", detail);
         FacesContext.getCurrentInstance().addMessage(null, message);
     }
 
-    
+
     // Getters and Setters
     public List<User> getUsers() {
         return users;
     }
-    
+
     public void setUsers(List<User> users) {
         this.users = users;
     }
-    
+
     public List<User> getFilteredUsers() {
         return filteredUsers;
     }
-    
+
     public void setFilteredUsers(List<User> filteredUsers) {
         this.filteredUsers = filteredUsers;
     }
-    
+
     public User getNewUser() {
         return newUser;
     }
-    
+
     public void setNewUser(User newUser) {
         this.newUser = newUser;
     }
