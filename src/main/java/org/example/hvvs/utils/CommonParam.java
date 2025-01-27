@@ -1,4 +1,4 @@
-package org.example.hvvs.util;
+package org.example.hvvs.utils;
 
 /**
  * Defines constants for cookie and session parameters

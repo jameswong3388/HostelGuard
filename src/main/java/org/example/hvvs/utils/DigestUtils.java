@@ -1,4 +1,4 @@
-package org.example.hvvs.util;
+package org.example.hvvs.utils;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;

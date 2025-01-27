@@ -8,19 +8,377 @@
     <ui:define name="title">Users</ui:define>
 
     <ui:define name="navigation">
-        <h:link outcome="/admin/dashboard.xhtml" styleClass="py-2 text-gray-500 hover:text-gray-700 focus:outline-none">Dashboard</h:link>
-        <h:link outcome="/admin/users.xhtml" styleClass="py-2 text-blue-600 font-medium focus:outline-none">Users</h:link>
-        <h:link outcome="/admin/requests.xhtml" styleClass="py-2 text-gray-500 hover:text-gray-700 focus:outline-none">Requests</h:link>
+        <h:link outcome="/admin/dashboard.xhtml"
+                styleClass="py-2 text-gray-500 hover:text-gray-700 focus:outline-none">Dashboard</h:link>
+        <h:link outcome="/admin/users.xhtml"
+                styleClass="py-2 text-blue-600 font-medium focus:outline-none">Users</h:link>
+        <h:link outcome="/admin/requests.xhtml"
+                styleClass="py-2 text-gray-500 hover:text-gray-700 focus:outline-none">Requests</h:link>
     </ui:define>
 
     <ui:define name="content">
-        <!-- Page Title & Subtitle -->
-        <div class="mb-8 flex justify-between">
-            <h2 class="text-2xl font-bold">Users</h2>
-            <div>
-                <p:button value="New User" icon="pi pi-plus" styleClass="p-button-raised p-button-primary"/>
-            </div>
-        </div>
-    </ui:define>
+        <h:form id="newUserForm">
+            <!-- New User Dialog -->
+            <p:dialog header="New User"
+                      widgetVar="newUserDialog"
+                      modal="true"
+                      width="500">
+                <div class="p-fluid">
+                    <!-- Username -->
+                    <div class="field mb-4">
+                        <p:outputLabel for="username" value="Username"/>
+                        <p:inputText id="username"
+                                     value="#{usersController.newUser.username}"
+                                     required="true"/>
+                    </div>
 
+                    <!-- Email -->
+                    <div class="field mb-4">
+                        <p:outputLabel for="email" value="Email"/>
+                        <p:inputText id="email"
+                                     value="#{usersController.newUser.email}"
+                                     required="true"/>
+                    </div>
+
+                    <!-- Password -->
+                    <div class="field mb-4">
+                        <p:outputLabel for="password" value="Password"/>
+                        <p:password id="password"
+                                    value="#{usersController.newUser.password}"
+                                    required="true"
+                                    feedback="true"/>
+                    </div>
+
+                    <!-- First Name -->
+                    <div class="field mb-4">
+                        <p:outputLabel for="firstName" value="First Name"/>
+                        <p:inputText id="firstName"
+                                     value="#{usersController.newUser.firstName}"
+                                     required="true"/>
+                    </div>
+
+                    <!-- Last Name -->
+                    <div class="field mb-4">
+                        <p:outputLabel for="lastName" value="Last Name"/>
+                        <p:inputText id="lastName"
+                                     value="#{usersController.newUser.lastName}"
+                                     required="true"/>
+                    </div>
+
+                    <!-- Phone Number -->
+                    <div class="field mb-4">
+                        <p:outputLabel for="phoneNumber" value="Phone Number"/>
+                        <p:inputText id="phoneNumber"
+                                     value="#{usersController.newUser.phoneNumber}"
+                                     required="true"/>
+                    </div>
+
+                    <!-- Role -->
+                    <div class="field mb-4">
+                        <p:outputLabel for="role" value="Role"/>
+                        <p:selectOneMenu id="role"
+                                         value="#{usersController.newUser.role}"
+                                         required="true">
+                            <f:selectItem itemLabel="Select Role" itemValue=""/>
+                            <f:selectItem itemLabel="Resident" itemValue="RESIDENT"/>
+                            <f:selectItem itemLabel="Security Staff" itemValue="SECURITY_STAFF"/>
+                            <f:selectItem itemLabel="Managing Staff" itemValue="MANAGING_STAFF"/>
+                            <f:selectItem itemLabel="Admin" itemValue="ADMIN"/>
+                            <p:ajax update="roleSpecificFields" listener="#{usersController.onRoleChange}"/>
+                        </p:selectOneMenu>
+                    </div>
+
+                    <!-- Role Specific Fields -->
+                    <p:outputPanel id="roleSpecificFields">
+                        <!-- Resident Fields -->
+                        <h:panelGroup rendered="#{usersController.newUser.role == 'RESIDENT'}">
+                            <div class="field mb-4">
+                                <p:outputLabel for="blockNumber" value="Block Number"/>
+                                <p:inputText id="blockNumber"
+                                             value="#{usersController.residentProfile.blockNumber}"
+                                             required="true"/>
+                            </div>
+                            <div class="field mb-4">
+                                <p:outputLabel for="roomNumber" value="Room Number"/>
+                                <p:inputText id="roomNumber"
+                                             value="#{usersController.residentProfile.roomNumber}"
+                                             required="true"/>
+                            </div>
+                        </h:panelGroup>
+
+                        <!-- Security Staff Fields -->
+                        <h:panelGroup rendered="#{usersController.newUser.role == 'SECURITY_STAFF'}">
+                            <div class="field mb-4">
+                                <p:outputLabel for="badgeNumber" value="Badge Number"/>
+                                <p:inputText id="badgeNumber"
+                                             value="#{usersController.securityStaffProfile.badgeNumber}"
+                                             required="true"/>
+                            </div>
+                            <div class="field mb-4">
+                                <p:outputLabel for="shift" value="Shift"/>
+                                <p:selectOneMenu id="shift"
+                                                value="#{usersController.securityStaffProfile.shift}"
+                                                required="true">
+                                    <f:selectItem itemLabel="Select Shift" itemValue=""/>
+                                    <f:selectItem itemLabel="Morning" itemValue="MORNING"/>
+                                    <f:selectItem itemLabel="Afternoon" itemValue="AFTERNOON"/>
+                                    <f:selectItem itemLabel="Night" itemValue="NIGHT"/>
+                                </p:selectOneMenu>
+                            </div>
+                        </h:panelGroup>
+
+                        <!-- Managing Staff Fields -->
+                        <h:panelGroup rendered="#{usersController.newUser.role == 'MANAGING_STAFF'}">
+                            <div class="field mb-4">
+                                <p:outputLabel for="department" value="Department"/>
+                                <p:selectOneMenu id="department"
+                                                value="#{usersController.managingStaffProfile.department}"
+                                                required="true">
+                                    <f:selectItem itemLabel="Select Department" itemValue=""/>
+                                    <f:selectItem itemLabel="Administration" itemValue="ADMINISTRATION"/>
+                                    <f:selectItem itemLabel="Operations" itemValue="OPERATIONS"/>
+                                    <f:selectItem itemLabel="Maintenance" itemValue="MAINTENANCE"/>
+                                    <f:selectItem itemLabel="Finance" itemValue="FINANCE"/>
+                                </p:selectOneMenu>
+                            </div>
+                            <div class="field mb-4">
+                                <p:outputLabel for="position" value="Position"/>
+                                <p:selectOneMenu id="position"
+                                                value="#{usersController.managingStaffProfile.position}"
+                                                required="true">
+                                    <f:selectItem itemLabel="Select Position" itemValue=""/>
+                                    <f:selectItem itemLabel="Manager" itemValue="MANAGER"/>
+                                    <f:selectItem itemLabel="Supervisor" itemValue="SUPERVISOR"/>
+                                    <f:selectItem itemLabel="Coordinator" itemValue="COORDINATOR"/>
+                                </p:selectOneMenu>
+                            </div>
+                        </h:panelGroup>
+                    </p:outputPanel>
+
+                    <div class="flex justify-content-end gap-4">
+                        <p:commandButton value="Cancel"
+                                         icon="pi pi-times"
+                                         onclick="PF('newUserDialog').hide(); return false;"
+                                         styleClass="p-button-text mr-2"
+                                         immediate="true"/>
+                        <p:commandButton value="Create"
+                                         icon="pi pi-check"
+                                         action="#{usersController.createUser}"
+                                         update=":messages @form :usersTableForm:usersTable"
+                                         styleClass="p-button-primary"
+                                         oncomplete="if (!args.validationFailed) PF('newUserDialog').hide();"/>
+                    </div>
+                </div>
+            </p:dialog>
+
+
+            <!-- Confirmation Dialog -->
+            <p:confirmDialog global="true" showEffect="fade" hideEffect="fade" responsive="true">
+                <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no ui-button-flat"/>
+                <p:commandButton value="Yes" type="button" styleClass="ui-confirmdialog-yes"/>
+            </p:confirmDialog>
+        </h:form>
+
+        <!-- Users Table -->
+        <h:form id="usersTableForm">
+            <p:toolbar>
+                <p:toolbarGroup>
+                    <!-- "New Request" triggers the same dialog you already have -->
+                    <p:commandButton value="New User"
+                                     icon="pi pi-plus"
+                                     styleClass="ui-button-success"
+                                     onclick="PF('newUserDialog').show(); return false;"
+                                     style="margin-right: .5rem"/>
+
+                    <p:commandButton id="delete-users-button"
+                                     value="#{usersController.deleteSelectedButtonLabel}"
+                                     icon="pi pi-trash"
+                                     actionListener="#{usersController.deleteSelectedUsers}"
+                                     styleClass="ui-button-danger"
+                                     disabled="#{empty usersController.selectedUsers}"
+                                     update="@this :usersTableForm:usersTable :messages"
+                                     style="margin-right: .5rem">
+                        <p:confirm header="Confirmation"
+                                   message="Delete the selected users?"
+                                   icon="pi pi-exclamation-triangle"/>
+                    </p:commandButton>
+
+                    <p:commandButton id="clearSelectionButton"
+                                     value="Clear Selection"
+                                     icon="pi pi-times"
+                                     styleClass="ui-button-secondary"
+                                     actionListener="#{usersController.clearSelection}"
+                                     process="@form"
+                                     update="@form :messages"
+                                     disabled="#{empty usersController.selectedUsers}"
+                                     style="margin-right: .5rem"/>
+                </p:toolbarGroup>
+            </p:toolbar>
+
+            <p:dataTable id="usersTable"
+                         var="user"
+                         value="#{usersController.users}"
+                         widgetVar="usersTable"
+                         reflow="true"
+                         rowKey="#{user.id}"
+                         paginator="true"
+                         rows="10"
+                         paginatorPosition="bottom"
+                         styleClass="w-full border rounded-md mt-2"
+                         filteredValue="#{usersController.filteredUsers}"
+                         globalFilterFunction="#{usersController.globalFilterFunction}"
+                         editable="true"
+                         editMode="row"
+                         selection="#{usersController.selectedUsers}"
+                         selectionRowMode="add">
+
+                <!-- Add this selection column at the start (or any place you prefer) -->
+                <p:column selectionMode="multiple" style="width: 1px;"/>
+
+                <!-- Global search bar in the header facet -->
+                <f:facet name="header">
+                    <div class="flex justify-between">
+                        <span class="filter-container ui-input-icon-left">
+                            <i class="pi pi-search"></i>
+                            <p:inputText id="globalFilter"
+                                         onkeyup="PF('usersTable').filter()"
+                                         placeholder="Search all fields"/>
+                        </span>
+                    </div>
+                </f:facet>
+
+                <!-- Username -->
+                <p:column headerText="Username" sortBy="#{user.username}">
+                    <p:cellEditor>
+                        <f:facet name="output">
+                            <h:outputText value="#{user.username}"/>
+                        </f:facet>
+                        <f:facet name="input">
+                            <p:inputText value="#{user.username}"/>
+                        </f:facet>
+                    </p:cellEditor>
+                </p:column>
+
+                <!-- Email -->
+                <p:column headerText="Email" sortBy="#{user.email}">
+                    <p:cellEditor>
+                        <f:facet name="output">
+                            <h:outputText value="#{user.email}"/>
+                        </f:facet>
+                        <f:facet name="input">
+                            <p:inputText value="#{user.email}"/>
+                        </f:facet>
+                    </p:cellEditor>
+                </p:column>
+
+                <!-- First Name -->
+                <p:column headerText="First Name" sortBy="#{user.firstName}">
+                    <p:cellEditor>
+                        <f:facet name="output">
+                            <h:outputText value="#{user.firstName}"/>
+                        </f:facet>
+                        <f:facet name="input">
+                            <p:inputText value="#{user.firstName}"/>
+                        </f:facet>
+                    </p:cellEditor>
+                </p:column>
+
+                <!-- Last Name -->
+                <p:column headerText="Last Name" sortBy="#{user.lastName}">
+                    <p:cellEditor>
+                        <f:facet name="output">
+                            <h:outputText value="#{user.lastName}"/>
+                        </f:facet>
+                        <f:facet name="input">
+                            <p:inputText value="#{user.lastName}"/>
+                        </f:facet>
+                    </p:cellEditor>
+                </p:column>
+
+                <!-- Phone Number -->
+                <p:column headerText="Phone Number" sortBy="#{user.phoneNumber}">
+                    <p:cellEditor>
+                        <f:facet name="output">
+                            <h:outputText value="#{user.phoneNumber}"/>
+                        </f:facet>
+                        <f:facet name="input">
+                            <p:inputText value="#{user.phoneNumber}"/>
+                        </f:facet>
+                    </p:cellEditor>
+                </p:column>
+
+                <!-- Role -->
+                <p:column headerText="Role" sortBy="#{user.role}">
+                    <p:cellEditor>
+                        <f:facet name="output">
+                            <h:outputText value="#{user.role}"/>
+                        </f:facet>
+                        <f:facet name="input">
+                            <p:selectOneMenu value="#{user.role}">
+                                <f:selectItem itemLabel="Resident" itemValue="RESIDENT"/>
+                                <f:selectItem itemLabel="Security Staff" itemValue="SECURITY_STAFF"/>
+                                <f:selectItem itemLabel="Managing Staff" itemValue="MANAGING_STAFF"/>
+                                <f:selectItem itemLabel="Admin" itemValue="ADMIN"/>
+                            </p:selectOneMenu>
+                        </f:facet>
+                    </p:cellEditor>
+                </p:column>
+
+                <!-- Active Status -->
+                <p:column headerText="Status" sortBy="#{user.isActive}">
+                    <p:cellEditor>
+                        <f:facet name="output">
+                            <p:tag severity="#{user.isActive ? 'success' : 'danger'}"
+                                   value="#{user.isActive ? 'Active' : 'Inactive'}"/>
+                        </f:facet>
+                        <f:facet name="input">
+                            <p:selectBooleanButton value="#{user.isActive}"
+                                                   onLabel="Active"
+                                                   offLabel="Inactive"
+                                                   onIcon="pi pi-check"
+                                                   offIcon="pi pi-times"/>
+                        </f:facet>
+                    </p:cellEditor>
+                </p:column>
+
+                <!-- Created At -->
+                <p:column headerText="Created At" sortBy="#{user.createdAt}">
+                    <h:outputText value="#{user.createdAt}">
+                        <f:convertDateTime pattern="MM/dd/yy HH:mm"/>
+                    </h:outputText>
+                </p:column>
+
+                <!-- Actions -->
+                <p:column headerText="Actions" style="width:100px">
+                    <p:rowEditor editTitle="Edit Row"
+                                 cancelTitle="Cancel Edit"
+                                 saveTitle="Save Row"/>
+                </p:column>
+
+                <!-- trigger partial update to refresh the button label -->
+                <p:ajax event="rowSelect" update=":usersTableForm:delete-users-button"/>
+                <p:ajax event="rowUnselect" update=":usersTableForm:delete-users-button"/>
+                <p:ajax event="rowSelectCheckbox" update=":usersTableForm:delete-users-button"/>
+                <p:ajax event="rowUnselectCheckbox" update=":usersTableForm:delete-users-button"/>
+                <p:ajax event="toggleSelect" update=":usersTableForm:delete-users-button"/>
+
+
+                <p:ajax event="rowSelect" update=":usersTableForm:delete-users-button :usersTableForm:clearSelectionButton"/>
+                <p:ajax event="rowUnselect" update=":usersTableForm:delete-users-button :usersTableForm:clearSelectionButton"/>
+                <p:ajax event="rowSelectCheckbox" update=":usersTableForm:delete-users-button :usersTableForm:clearSelectionButton"/>
+                <p:ajax event="rowUnselectCheckbox" update=":usersTableForm:delete-users-button :usersTableForm:clearSelectionButton"/>
+                <p:ajax event="toggleSelect" update=":usersTableForm:delete-users-button :usersTableForm:clearSelectionButton"/>
+
+
+                <!-- Row edit events -->
+                <p:ajax event="rowEdit"
+                        listener="#{usersController.onRowEdit}"
+                        update=":usersTableForm:usersTable :messages"/>
+                <p:ajax event="rowEditCancel"
+                        listener="#{usersController.onRowCancel}"
+                        update=":usersTableForm:usersTable :messages"/>
+
+            </p:dataTable>
+        </h:form>
+    </ui:define>
 </ui:composition>

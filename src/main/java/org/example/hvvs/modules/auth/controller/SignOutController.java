@@ -7,7 +7,7 @@ import jakarta.inject.Named;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import org.example.hvvs.util.CommonParam;
+import org.example.hvvs.utils.CommonParam;
 
 import java.io.IOException;
 import java.io.Serializable;

@@ -1,4 +1,4 @@
-package org.example.hvvs.util;
+package org.example.hvvs.utils;
 
 /**
  * 定义了向控制器传递参数的参数名和值

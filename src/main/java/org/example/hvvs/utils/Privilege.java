@@ -1,4 +1,4 @@
-package org.example.hvvs.util;
+package org.example.hvvs.utils;
 
 public class Privilege {
 	

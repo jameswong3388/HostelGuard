@@ -1,7 +1,7 @@
 package org.example.hvvs.modules.auth.service;
 
 import org.example.hvvs.model.User;
-import org.example.hvvs.util.ServiceResult;
+import org.example.hvvs.utils.ServiceResult;
 
 public interface AuthServices {
 

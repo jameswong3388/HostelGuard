@@ -60,4 +60,24 @@ public class ResidentProfile extends BaseEntity {
     public Timestamp getUpdatedAt() {
         return updated_at;
     }
+
+    public void setUserId(User user_id) {
+        this.user_id = user_id;
+    }
+
+    public void setRoomNumber(String room_number) {
+        this.room_number = room_number;
+    }
+
+    public void setBlockNumber(String block_number) {
+        this.block_number = block_number;
+    }
+
+    public void setCreatedAt(Timestamp created_at) {
+        this.created_at = created_at;
+    }
+
+    public void setUpdatedAt(Timestamp updated_at) {
+        this.updated_at = updated_at;
+    }
 }

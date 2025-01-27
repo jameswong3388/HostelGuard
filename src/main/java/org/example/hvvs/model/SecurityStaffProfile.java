@@ -60,4 +60,24 @@ public class SecurityStaffProfile extends BaseEntity {
     public Timestamp getUpdatedAt() {
         return updated_at;
     }
+
+    public void setUserId(User user_id) {
+        this.user_id = user_id;
+    }
+
+    public void setBadgeNumber(String badge_number) {
+        this.badge_number = badge_number;
+    }
+
+    public void setShift(String shift) {
+        this.shift = shift;
+    }
+
+    public void setCreatedAt(Timestamp created_at) {
+        this.created_at = created_at;
+    }
+
+    public void setUpdatedAt(Timestamp updated_at) {
+        this.updated_at = updated_at;
+    }
 }

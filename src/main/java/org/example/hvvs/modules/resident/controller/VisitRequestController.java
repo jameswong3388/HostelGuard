@@ -10,7 +10,7 @@ import jakarta.transaction.Transactional;
 import org.example.hvvs.model.VisitRequest;
 import org.example.hvvs.model.User;
 import org.example.hvvs.modules.resident.services.VisitRequestService;
-import org.example.hvvs.util.CommonParam;
+import org.example.hvvs.utils.CommonParam;
 import org.primefaces.event.RowEditEvent;
 
 import java.io.Serializable;

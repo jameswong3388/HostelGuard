@@ -1,4 +1,4 @@
-package org.example.hvvs.util;
+package org.example.hvvs.utils;
 
 /**
  * 对用户信息进行验证
