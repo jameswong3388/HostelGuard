@@ -76,13 +76,15 @@
                     </div>
                 </f:facet>
 
-                <!-- Username -->
-                <p:column headerText="Username" sortBy="#{req.userId.username}">
-                    <h:outputText value="#{req.userId.username}"/>
-                </p:column>
 
+                <!-- Email -->
                 <p:column headerText="User Email" sortBy="#{req.userId.email}">
                     <h:outputText value="#{req.userId.email}"/>
+                </p:column>
+
+                <!-- Unit Number -->
+                <p:column headerText="Unit Number" sortBy="#{req.unitNumber}">
+                    <h:outputText value="#{req.unitNumber}"/>
                 </p:column>
 
                 <!-- Verification Code -->

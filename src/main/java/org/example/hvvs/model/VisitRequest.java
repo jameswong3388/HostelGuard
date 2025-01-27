@@ -32,6 +32,9 @@ public class VisitRequest extends BaseEntity {
     @Column(name = "remarks")
     private String remarks;
 
+    @Column(name = "unit_number", nullable = false)
+    private String unit_number;
+
     @Column(name = "created_at", nullable = false)
     private Timestamp created_at;
 
@@ -43,13 +46,14 @@ public class VisitRequest extends BaseEntity {
     }
 
     public VisitRequest(User user_id, String verification_code, Timestamp visit_datetime, String purpose, String status,
-                        String remarks, Timestamp created_at, Timestamp updated_at) {
+                        String remarks, String unit_number, Timestamp created_at, Timestamp updated_at) {
         this.user_id = user_id;
         this.verification_code = verification_code;
         this.visit_datetime = visit_datetime;
         this.purpose = purpose;
         this.status = status;
         this.remarks = remarks;
+        this.unit_number = unit_number;
         this.created_at = created_at;
         this.updated_at = updated_at;
     }
@@ -76,6 +80,10 @@ public class VisitRequest extends BaseEntity {
 
     public String getRemarks() {
         return remarks;
+    }
+
+    public String getUnitNumber() {
+        return unit_number;
     }
 
     public Timestamp getCreatedAt() {
@@ -116,5 +124,9 @@ public class VisitRequest extends BaseEntity {
 
     public void setRemarks(String remarks) {
         this.remarks = remarks;
+    }
+
+    public void setUnitNumber(String unit_number) {
+        this.unit_number = unit_number;
     }
 }

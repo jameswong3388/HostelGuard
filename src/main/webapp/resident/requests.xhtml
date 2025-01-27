@@ -21,6 +21,14 @@
                   width="500">
             <h:form id="newRequestForm">
                 <div class="p-fluid">
+                    <!-- Unit Number (Read-only) -->
+                    <div class="field mb-4">
+                        <p:outputLabel for="unitNumber" value="Unit Number" />
+                        <p:inputText id="unitNumber"
+                                   value="#{visitRequestControllerResident.residentProfile.unitNumber}"
+                                   readonly="true" />
+                    </div>
+
                     <!-- Verification Code -->
                     <div class="field mb-4">
                         <p:outputLabel for="verificationCode" value="Verification Code" />

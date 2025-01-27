@@ -11,117 +11,75 @@
         <h:link outcome="/admin/dashboard.xhtml" styleClass="py-2 text-blue-600 font-medium focus:outline-none">Dashboard</h:link>
         <h:link outcome="/admin/users.xhtml" styleClass="py-2 text-gray-500 hover:text-gray-700 focus:outline-none">Users</h:link>
         <h:link outcome="/admin/requests.xhtml" styleClass="py-2 text-gray-500 hover:text-gray-700 focus:outline-none">Visit Requests</h:link>
-        <h:link outcome="/admin/visitor-records.xhtml" styleClass="py-2 text-gray-500 hover:text-gray-700 focus:outline-none">Vistor Records</h:link>
+        <h:link outcome="/admin/visitor-records.xhtml" styleClass="py-2 text-gray-500 hover:text-gray-700 focus:outline-none">Visitor Records</h:link>
     </ui:define>
 
     <ui:define name="content">
-        <!-- Page Title & Subtitle -->
-        <div class="mb-8 flex justify-between">
-            <h2 class="text-2xl font-bold">Admin Dashboard</h2>
-            <div>
-                <p:button value="Create Ticket" icon="pi pi-plus" styleClass="p-button-raised p-button-primary"/>
-            </div>
+        <!-- Page Title -->
+        <div class="mb-8">
+            <h2 class="text-2xl font-bold">Analytics Dashboard</h2>
         </div>
 
-        <!-- Metric Cards & Create Ticket -->
-        <section class="flex flex-wrap items-start justify-between mb-8">
-            <div class="flex space-x-4">
-                <!-- Card 1 -->
-                <div class="bg-white rounded shadow p-4 w-64">
-                    <p class="text-gray-500 text-sm">Current Tickets</p>
-                    <p class="text-2xl font-bold">247</p>
-                    <!-- Example bar chart or stats row -->
-                    <div class="mt-2 h-3 w-full bg-gray-200 rounded">
-                        <div class="h-3 bg-blue-600 rounded" style="width: 82%"></div>
-                    </div>
-                    <div class="flex justify-between text-sm mt-1">
-                        <span>82% Resolved</span>
-                        <span class="text-red-600">5% Escalated</span>
-                    </div>
-                </div>
-
-                <!-- Card 2 -->
-                <div class="bg-white rounded shadow p-4 w-64">
-                    <p class="text-gray-500 text-sm">SLA Performance</p>
-                    <div class="flex items-center space-x-4 mt-2">
-                        <div>
-                            <p class="text-blue-500 font-bold">83.3%</p>
-                            <p class="text-xs text-gray-400">Within SLA</p>
-                        </div>
-                        <div>
-                            <p class="text-red-500 font-bold">16.7%</p>
-                            <p class="text-xs text-gray-400">SLA Breached</p>
-                        </div>
-                    </div>
-                    <!-- Example donut chart or placeholder -->
-                    <div class="mt-4 flex items-center justify-center">
-                        <div class="w-16 h-16 rounded-full border-4 border-blue-400 relative">
-                            <!-- Placeholder donut ring -->
-                            <span class="absolute inset-0 flex items-center justify-center text-xs text-gray-500">Pie</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Card 3 -->
-                <div class="bg-white rounded shadow p-4 w-64">
-                    <p class="text-gray-500 text-sm">Call Volume Trends</p>
-                    <div class="flex space-x-4 mt-2">
-                        <div>
-                            <p class="text-blue-500 font-bold">573</p>
-                            <p class="text-xs text-gray-400">Today</p>
-                        </div>
-                        <div>
-                            <p class="text-gray-700 font-bold">451</p>
-                            <p class="text-xs text-gray-400">Yesterday</p>
-                        </div>
-                    </div>
-                    <!-- Example mini line chart -->
-                    <div class="mt-4 h-16 bg-gray-100 rounded flex items-center justify-center text-gray-500 text-sm">
-                        Chart
-                    </div>
-                </div>
+        <!-- First Row - Visitor Reports -->
+        <div class="grid grid-cols-2 gap-4 mb-6">
+            <!-- Daily Visitor Activity -->
+            <div class="bg-white p-4 rounded-lg shadow">
+                <h3 class="text-lg font-semibold mb-4">Daily Visitor Activity</h3>
+                <p:chart value="#{dashboardController.visitorActivityChart}"
+                         style="width: 100%; height: 300px"/>
             </div>
-        </section>
 
-        <!-- Table Section -->
-        <section class="bg-white rounded shadow">
-            <div class="overflow-x-auto">
-                <table class="min-w-full table-auto">
-                    <thead class="bg-gray-100 border-b">
-                    <tr>
-                        <th class="px-4 py-2 text-left text-sm font-semibold text-gray-600">Created at</th>
-                        <th class="px-4 py-2 text-left text-sm font-semibold text-gray-600">Description</th>
-                        <th class="px-4 py-2 text-left text-sm font-semibold text-gray-600">Policy Info</th>
-                        <th class="px-4 py-2 text-left text-sm font-semibold text-gray-600">Contact Type</th>
-                        <th class="px-4 py-2 text-left text-sm font-semibold text-gray-600">Duration</th>
-                        <th class="px-4 py-2 text-left text-sm font-semibold text-gray-600">Assessed Priority</th>
-                    </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-200 text-sm">
-                    <tr>
-                        <td class="px-4 py-2">31/10/2024, 14:44</td>
-                        <td class="px-4 py-2">Fraudulent policy report</td>
-                        <td class="px-4 py-2">BIZ-50908850</td>
-                        <td class="px-4 py-2">Billing</td>
-                        <td class="px-4 py-2">20m</td>
-                        <td class="px-4 py-2">
-                            <p:badge value="High" severity="warning"/>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="px-4 py-2">31/10/2024, 14:29</td>
-                        <td class="px-4 py-2">Agent conduct complaint</td>
-                        <td class="px-4 py-2">HOME-30070782</td>
-                        <td class="px-4 py-2">Coverage</td>
-                        <td class="px-4 py-2">50m</td>
-                        <td class="px-4 py-2">
-                            <p:badge value="Low" severity="success"/>
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
-            </div>
-        </section>
+            <!-- Visitor Purpose Distribution -->
+<!--            <div class="bg-white p-4 rounded-lg shadow">-->
+<!--                <h3 class="text-lg font-semibold mb-4">Visit Purposes</h3>-->
+<!--                <p:chart type="pie" model="#{dashboardController.visitPurposeChart}" -->
+<!--                         style="width: 100%; height: 300px"/>-->
+<!--            </div>-->
+        </div>
+
+        <!-- Second Row - Visit Request Insights -->
+<!--        <div class="grid grid-cols-2 gap-4 mb-6">-->
+<!--            &lt;!&ndash; Visit Request Status &ndash;&gt;-->
+<!--            <div class="bg-white p-4 rounded-lg shadow">-->
+<!--                <h3 class="text-lg font-semibold mb-4">Visit Request Status</h3>-->
+<!--                <p:chart type="bar" model="#{dashboardController.visitRequestStatusChart}" -->
+<!--                         style="width: 100%; height: 300px"/>-->
+<!--            </div>-->
+
+<!--            &lt;!&ndash; Top Residents by Visits &ndash;&gt;-->
+<!--            <div class="bg-white p-4 rounded-lg shadow">-->
+<!--                <h3 class="text-lg font-semibold mb-4">Top Residents by Visits</h3>-->
+<!--                <p:chart type="bar" model="#{dashboardController.topResidentsChart}" -->
+<!--                         style="width: 100%; height: 300px"/>-->
+<!--            </div>-->
+<!--        </div>-->
+
+        <!-- Third Row - Security Insights -->
+<!--        <div class="grid grid-cols-2 gap-4 mb-6">-->
+<!--            &lt;!&ndash; Security Staff Performance &ndash;&gt;-->
+<!--            <div class="bg-white p-4 rounded-lg shadow">-->
+<!--                <h3 class="text-lg font-semibold mb-4">Security Staff Performance</h3>-->
+<!--                <p:chart type="bar" model="#{dashboardController.securityStaffPerformanceChart}" -->
+<!--                         style="width: 100%; height: 300px"/>-->
+<!--            </div>-->
+
+<!--            &lt;!&ndash; Staff Shift Distribution &ndash;&gt;-->
+<!--            <div class="bg-white p-4 rounded-lg shadow">-->
+<!--                <h3 class="text-lg font-semibold mb-4">Staff Shift Distribution</h3>-->
+<!--                <p:chart type="pie" model="#{dashboardController.shiftDistributionChart}" -->
+<!--                         style="width: 100%; height: 300px"/>-->
+<!--            </div>-->
+<!--        </div>-->
+
+        <!-- Fourth Row - Time Analysis -->
+<!--        <div class="grid grid-cols-1 gap-4">-->
+<!--            &lt;!&ndash; Visits by Time of Day &ndash;&gt;-->
+<!--            <div class="bg-white p-4 rounded-lg shadow">-->
+<!--                <h3 class="text-lg font-semibold mb-4">Visits by Time of Day</h3>-->
+<!--                <p:chart type="line" model="#{dashboardController.visitsByTimeChart}" -->
+<!--                         style="width: 100%; height: 300px"/>-->
+<!--            </div>-->
+<!--        </div>-->
     </ui:define>
 
 </ui:composition>

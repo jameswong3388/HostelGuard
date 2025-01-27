@@ -34,11 +34,11 @@ public class Middleware implements Filter {
 
     // Servlet paths that don't require login
     public static final String[] unLoginServletPathes = {
-        "/auth.xhtml",
-        "/index.xhtml",
-        "/forget-password.xhtml",
-        "/404.xhtml",
-        "/jakarta.faces.resource/*"  // Important for JSF resources
+            "/auth.xhtml",
+            "/index.xhtml",
+            "/forget-password.xhtml",
+            "/404.xhtml",
+            "/jakarta.faces.resource/*"  // Important for JSF resources
     };
 
     @Override
@@ -49,11 +49,10 @@ public class Middleware implements Filter {
     public void doFilter(ServletRequest request,
                          ServletResponse response,
                          FilterChain chain)
-            throws IOException, ServletException
-    {
-        HttpServletRequest  req  = (HttpServletRequest)  request;
+            throws IOException, ServletException {
+        HttpServletRequest req = (HttpServletRequest) request;
         HttpServletResponse resp = (HttpServletResponse) response;
-        String servletPath       = req.getServletPath();
+        String servletPath = req.getServletPath();
 
         // Allow JSF resources (CSS, JS, images) to pass through
         if (servletPath.startsWith("/jakarta.faces.resource/")) {
@@ -62,7 +61,7 @@ public class Middleware implements Filter {
         }
 
         HttpSession session = req.getSession(false);
-        User        user    = null;
+        User user = null;
 
         if (session != null) {
             user = (User) session.getAttribute(CommonParam.SESSION_SELF);
@@ -191,8 +190,7 @@ public class Middleware implements Filter {
      * Utility: redirect to a user’s dashboard based on their role
      */
     private void redirectToDashboard(HttpServletRequest req, HttpServletResponse resp, String role)
-            throws IOException
-    {
+            throws IOException {
         String contextPath = req.getServletContext().getContextPath();
         switch (role) {
             case CommonParam.SESSION_ROLE_RESIDENT:

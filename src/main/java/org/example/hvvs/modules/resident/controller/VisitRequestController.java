@@ -9,7 +9,9 @@ import jakarta.inject.Named;
 import jakarta.transaction.Transactional;
 import org.example.hvvs.model.VisitRequest;
 import org.example.hvvs.model.User;
+import org.example.hvvs.model.ResidentProfile;
 import org.example.hvvs.modules.resident.services.VisitRequestService;
+import org.example.hvvs.modules.resident.services.SettingsServiceResident;
 import org.example.hvvs.utils.CommonParam;
 import org.primefaces.event.RowEditEvent;
 
@@ -17,18 +19,22 @@ import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import java.util.Locale;
+import java.util.UUID;
 
 @Named("visitRequestControllerResident")
 @SessionScoped
 public class VisitRequestController implements Serializable {
 
     private VisitRequest newRequest;
-    private List<VisitRequest> userRequests; // Holds existing requests for the logged-in user
+    private List<VisitRequest> userRequests;
+    private ResidentProfile residentProfile;
 
     @Inject
     private VisitRequestService visitRequestService;
+
+    @Inject
+    private SettingsServiceResident settingsService;
 
     private List<VisitRequest> selectedRequests;
     private List<VisitRequest> filteredRequests;
@@ -64,6 +70,18 @@ public class VisitRequestController implements Serializable {
         newRequest.setRemarks("Awaiting approval");
         newRequest.setVerificationCode(verificationCode);
 
+        // Get current user from session
+        User currentUser = (User) FacesContext
+                .getCurrentInstance()
+                .getExternalContext()
+                .getSessionMap()
+                .get(CommonParam.SESSION_SELF);
+
+        if (currentUser != null) {
+            // Load resident profile
+            this.residentProfile = settingsService.findResidentProfileByUserId(currentUser.getId());
+        }
+
         // Load existing requests for current user
         loadUserRequests();
     }
@@ -86,6 +104,14 @@ public class VisitRequestController implements Serializable {
 
     public void setSelectedRequests(List<VisitRequest> selectedRequests) {
         this.selectedRequests = selectedRequests;
+    }
+
+    public ResidentProfile getResidentProfile() {
+        return residentProfile;
+    }
+
+    public void setResidentProfile(ResidentProfile residentProfile) {
+        this.residentProfile = residentProfile;
     }
 
     /**

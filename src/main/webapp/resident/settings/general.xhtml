@@ -116,29 +116,16 @@
                         <div class="md:col-span-2">
                             <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
 
-                                <!-- Block Number -->
+                                <!-- Unit Number -->
                                 <div class="col-span-full sm:col-span-3">
-                                    <h:outputLabel for="blockNumber" value="Block Number" styleClass="font-medium"/>
-                                    <p:inputText id="blockNumber"
-                                                 value="#{SettingsControllerResident.residentProfile.blockNumber}"
+                                    <h:outputLabel for="unitNumber" value="Unit Number" styleClass="font-medium"/>
+                                    <p:inputText id="unitNumber"
+                                                 value="#{SettingsControllerResident.residentProfile.unitNumber}"
                                                  placeholder="Block A"
                                                  disabled="true"
                                                  styleClass="mt-2 w-full"/>
                                     <p class="mt-2 text-xs text-gray-500">
-                                        Block number can only be changed by a system admin.
-                                    </p>
-                                </div>
-
-                                <!-- Room Number -->
-                                <div class="col-span-full sm:col-span-3">
-                                    <h:outputLabel for="roomNumber" value="Room Number" styleClass="font-medium"/>
-                                    <p:inputText id="roomNumber"
-                                                 value="#{SettingsControllerResident.residentProfile.roomNumber}"
-                                                 placeholder="101"
-                                                 disabled="true"
-                                                 styleClass="mt-2 w-full"/>
-                                    <p class="mt-2 text-xs text-gray-500">
-                                        Room Number can only be changed by a system admin.
+                                        Unit Number can only be changed by a system admin.
                                     </p>
                                 </div>
                             </div>

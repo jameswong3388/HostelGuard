@@ -77,16 +77,16 @@
                     </div>
                 </f:facet>
 
-                <!-- Request ID -->
-                <p:column headerText="Request ID" sortBy="#{record.requestId.id}">
-                    <h:outputText value="#{record.requestId.id}"/>
-                </p:column>
-
                 <!-- Security Staff -->
                 <p:column headerText="Security Staff Username" sortBy="#{record.securityStaffId.username}">
                     <h:outputText value="#{record.securityStaffId.username}"/>
                 </p:column>
 
+                <!-- Request ID -->
+                <p:column headerText="Unit Number" sortBy="#{record.requestId.unitNumber}">
+                    <h:outputText value="#{record.requestId.unitNumber}"/>
+                </p:column>
+                
                 <!-- Visitor Name -->
                 <p:column headerText="Visitor Name" sortBy="#{record.visitorName}">
                     <p:cellEditor>
