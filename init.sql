@@ -74,7 +74,7 @@ CREATE TABLE visit_request
     created_at        TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at        TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES user (id) ON DELETE CASCADE,
-    CHECK (status IN ('PENDING', 'APPROVED', 'REJECTED', 'COMPLETED', 'CANCELLED'))
+    CHECK (status IN ('PENDING', 'APPROVED', 'REJECTED', 'PROGRESS','COMPLETED', 'CANCELLED'))
 );
 
 -- Create visitor_record table
@@ -92,7 +92,7 @@ CREATE TABLE visitor_record
     created_at        TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at        TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (request_id) REFERENCES visit_request (id) ON DELETE CASCADE,
-    FOREIGN KEY (security_staff_id) REFERENCES security_staff_profile (id) ON DELETE CASCADE
+    FOREIGN KEY (security_staff_id) REFERENCES user (id) ON DELETE CASCADE
 );
 
 -- Create indexes for better query performance

@@ -1,0 +1,221 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                template="/WEB-INF/templates/security-layout.xhtml">
+
+    <ui:define name="title">Onboard Visitor</ui:define>
+
+    <ui:define name="navigation">
+        <h:form id="navigationForm">
+            <nav class="flex items-center justify-between space-x-8 px-12 py-2 bg-white border-b">
+                <h:link outcome="/security/onboard-visitors.xhtml"
+                        styleClass="py-2 text-blue-600 font-medium focus:outline-none">Onboard Visitors</h:link>
+                <p:outputPanel id="stepBar">
+                    <ol class="mx-auto flex w-24 flex-nowrap gap-1 md:w-fit">
+                        <ui:repeat value="#{securityVisitorOnboardingController.stepSequence}" var="step">
+                            <li class="#{securityVisitorOnboardingController.currentStep ge step ? 'h-1 w-12 rounded-full bg-blue-500' : 'h-1 w-12 rounded-full bg-gray-200'}"/>
+                        </ui:repeat>
+                    </ol>
+                </p:outputPanel>
+
+                <p:commandButton value="Restart"
+                                 action="#{securityVisitorOnboardingController.restart}"
+                                 update=":navigationForm:stepBar :onboardingForm"
+                                 styleClass="ui-button-secondary ui-button-flat"/>
+            </nav>
+        </h:form>
+    </ui:define>
+
+    <ui:define name="content">
+        <div class="container mx-auto px-4 py-8">
+            <h:form id="onboardingForm" enctype="multipart/form-data">
+                <p:messages id="messages" showDetail="true" closable="true"/>
+
+                <!-- Step 1: Check-in/Check-out Selection -->
+                <p:panel id="step0Panel" rendered="#{securityVisitorOnboardingController.currentStep == 1}"
+                         styleClass="mb-4">
+                    <div class="space-y-4">
+                        <!-- Title, matching the style of the reference image -->
+                        <h2 class="text-xl font-semibold">Which operation are you interested in?</h2>
+                        <p class="text-gray-600">Select one option below to continue.</p>
+
+                        <!-- Grid of "cards," similar to your reference image -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <p:commandLink
+                                    styleClass="border rounded-lg p-4 hover:border-2 #{securityVisitorOnboardingController.checkIn ? 'border-2 border-blue-600' : ''}"
+                                    actionListener="#{securityVisitorOnboardingController.setCheckIn(true)}"
+                                    process="@this"
+                                    update="@form :navigationForm:stepBar">
+                                <h3 class="text-lg font-medium mb-2 #{securityVisitorOnboardingController.checkIn ? 'text-blue-600' : 'text-gray-800'}">
+                                    Check-in Visitor
+                                </h3>
+                                <ul class="text-sm text-gray-600 space-y-1 flex flex-col">
+                                    <p:tag icon="pi pi-check" severity="info">Validate Verification Code</p:tag>
+                                    <p:tag icon="pi pi-check" severity="info">Capture Visitor Details</p:tag>
+                                    <p:tag icon="pi pi-check" severity="info">Upload Relavant Images</p:tag>
+                                </ul>
+                            </p:commandLink>
+
+                            <p:commandLink
+                                    styleClass="border rounded-lg p-4 hover:border-2 cursor-pointer #{not securityVisitorOnboardingController.checkIn ? 'border-2 border-blue-600' : ''}"
+                                    actionListener="#{securityVisitorOnboardingController.setCheckIn(false)}"
+                                    process="@this"
+                                    update="@form :navigationForm:stepBar">
+                                <h3 class="text-lg font-medium mb-2 #{not securityVisitorOnboardingController.checkIn ? 'text-blue-600' : 'text-gray-800'}">
+                                    Check-out Visitor
+                                </h3>
+                                <ul class="text-sm text-gray-600 space-y-1 flex flex-col">
+                                    <p:tag icon="pi pi-check" severity="info">Validate Verification Code</p:tag>
+                                    <p:tag icon="pi pi-check" severity="info">Confirm Checkout</p:tag>
+                                </ul>
+                            </p:commandLink>
+                        </div>
+
+                        <!-- "Continue" button bottom-right -->
+                        <div class="flex justify-end">
+                            <p:commandButton value="Continue"
+                                             process="@this"
+                                             actionListener="#{securityVisitorOnboardingController.onSelectOperation}"
+                                             update=":navigationForm:stepBar :onboardingForm"/>
+                        </div>
+                    </div>
+                </p:panel>
+
+                <!-- Step 2: Verification Code -->
+                <p:panel id="step1Panel" rendered="#{securityVisitorOnboardingController.currentStep == 2}"
+                         styleClass="mb-4">
+                    <div class="space-y-4">
+                        <h2 class="text-xl font-semibold">#{securityVisitorOnboardingController.checkIn ? 'Step 2: Verify Visit Request' : 'Step 2: Enter Check-out Code'}</h2>
+                        <div class="flex flex-col space-y-2">
+                            <p:inputText id="verificationCode"
+                                         value="#{securityVisitorOnboardingController.verificationCode}"
+                                         placeholder="Enter verification code"
+                                         required="true"
+                                         styleClass="p-3 border rounded"/>
+                            <p:commandButton value="Verify"
+                                             action="#{securityVisitorOnboardingController.verifyCode}"
+                                             update=":navigationForm:stepBar :onboardingForm"
+                                             styleClass="w-full bg-blue-600 text-white p-3 rounded"/>
+                        </div>
+                    </div>
+                </p:panel>
+
+                <!-- Step 3: Visitor Information (Only for Check-in) -->
+                <p:panel id="step2Panel"
+                         rendered="#{securityVisitorOnboardingController.currentStep == 3 and securityVisitorOnboardingController.checkIn}"
+                         styleClass="mb-4">
+                    <div class="space-y-4">
+                        <h2 class="text-xl font-semibold">Step 3: Visitor Information</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="flex flex-col space-y-2">
+                                <p:inputText id="visitorName"
+                                             value="#{securityVisitorOnboardingController.visitorRecord.visitorName}"
+                                             placeholder="Visitor Name"
+                                             required="true"
+                                             styleClass="p-3 border rounded"/>
+                            </div>
+                            <div class="flex flex-col space-y-2">
+                                <p:inputText id="visitorIc"
+                                             value="#{securityVisitorOnboardingController.visitorRecord.visitorIc}"
+                                             placeholder="IC/Passport Number"
+                                             required="true"
+                                             styleClass="p-3 border rounded"/>
+                            </div>
+                            <div class="flex flex-col space-y-2">
+                                <p:inputText id="visitorPhone"
+                                             value="#{securityVisitorOnboardingController.visitorRecord.visitorPhone}"
+                                             placeholder="Phone Number"
+                                             required="true"
+                                             styleClass="p-3 border rounded"/>
+                            </div>
+                            <div class="flex flex-col space-y-2">
+                                <p:inputTextarea id="remarks"
+                                                 value="#{securityVisitorOnboardingController.visitorRecord.remarks}"
+                                                 placeholder="Remarks (Optional)"
+                                                 rows="3"
+                                                 styleClass="p-3 border rounded"/>
+                            </div>
+                        </div>
+                        <div class="flex justify-between">
+                            <p:commandButton value="Back"
+                                             action="#{securityVisitorOnboardingController.previousStep}"
+                                             update=":navigationForm:stepBar :onboardingForm"/>
+                            <p:commandButton value="Next"
+                                             action="#{securityVisitorOnboardingController.nextStep}"
+                                             update=":navigationForm:stepBar :onboardingForm"
+                            />
+                        </div>
+                    </div>
+                </p:panel>
+
+                <!-- Step 4: Image Upload (Only for Check-in) -->
+                <p:panel id="step3Panel"
+                         rendered="#{securityVisitorOnboardingController.currentStep == 4 and securityVisitorOnboardingController.checkIn}"
+                         styleClass="mb-4">
+                    <div class="space-y-4">
+                        <h2 class="text-xl font-semibold">Step 4: Visitor Photo</h2>
+                        <div class="flex flex-col items-center space-y-4">
+                            <p:fileUpload id="visitorPhoto"
+                                          value="#{securityVisitorOnboardingController.visitorPhoto}"
+                                          mode="simple"
+                                          skinSimple="true"
+                                          accept="image/*"
+                                          required="false"/>
+
+                            <div class="flex justify-between w-full">
+                                <p:commandButton value="Back"
+                                                 action="#{securityVisitorOnboardingController.previousStep}"
+                                                 update=":navigationForm:stepBar :onboardingForm"
+                                />
+                                <p:commandButton value="Complete Check-in"
+                                                 action="#{securityVisitorOnboardingController.completeRegistration}"
+                                                 update=":navigationForm:stepBar :onboardingForm"
+                                                 styleClass="ui-button-success"/>
+                            </div>
+                        </div>
+                    </div>
+                </p:panel>
+
+                <!-- Checkout Confirmation (When currentStep == 3 and not isCheckIn) -->
+                <p:panel id="checkoutPanel"
+                         rendered="#{securityVisitorOnboardingController.currentStep == 3 and not securityVisitorOnboardingController.checkIn}"
+                         styleClass="mb-4">
+                    <div class="space-y-4">
+                        <h2 class="text-xl font-semibold">Confirm Check-out</h2>
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="col-span-2">
+                                    <h3 class="font-medium">Visitor Information</h3>
+                                </div>
+                                <div>
+                                    <p class="text-gray-600">Name:</p>
+                                    <p class="font-medium">#{securityVisitorOnboardingController.visitorRecord.visitorName}</p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-600">IC/Passport:</p>
+                                    <p class="font-medium">#{securityVisitorOnboardingController.visitorRecord.visitorIc}</p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-600">Check-in Time:</p>
+                                    <p class="font-medium">#{securityVisitorOnboardingController.visitorRecord.checkInTime}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex justify-between">
+                            <p:commandButton value="Back"
+                                             action="#{securityVisitorOnboardingController.previousStep}"
+                                             update=":navigationForm:stepBar :onboardingForm"
+                                             />
+                            <p:commandButton value="Confirm Check-out"
+                                             action="#{securityVisitorOnboardingController.completeCheckout}"
+                                             update=":navigationForm:stepBar :onboardingForm"
+                                             styleClass="ui-button-success"/>
+                        </div>
+                    </div>
+                </p:panel>
+            </h:form>
+        </div>
+    </ui:define>
+</ui:composition>

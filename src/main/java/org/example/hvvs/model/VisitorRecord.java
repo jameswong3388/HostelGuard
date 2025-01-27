@@ -19,7 +19,7 @@ public class VisitorRecord extends BaseEntity {
 
     @ManyToOne
     @JoinColumn(name = "security_staff_id", nullable = false)
-    private SecurityStaffProfile security_staff_id;
+    private User security_staff_id;
 
     @Column(name = "visitor_name", nullable = false)
     private String visitor_name;
@@ -49,7 +49,7 @@ public class VisitorRecord extends BaseEntity {
         super();
     }
 
-    public VisitorRecord(VisitRequest request_id, SecurityStaffProfile security_staff_id, String visitor_name, 
+    public VisitorRecord(VisitRequest request_id, User security_staff_id, String visitor_name,
                         String visitor_ic, String visitor_phone, Timestamp check_in_time, Timestamp check_out_time, 
                         String remarks, Timestamp created_at, Timestamp updated_at) {
         this.request_id = request_id;
@@ -68,7 +68,7 @@ public class VisitorRecord extends BaseEntity {
         return request_id;
     }
 
-    public SecurityStaffProfile getSecurityStaffId() {
+    public User getSecurityStaffId() {
         return security_staff_id;
     }
 
@@ -102,5 +102,45 @@ public class VisitorRecord extends BaseEntity {
 
     public Timestamp getUpdatedAt() {
         return updated_at;
+    }
+
+    public void setRequestId(VisitRequest request_id) {
+        this.request_id = request_id;
+    }
+
+    public void setSecurityStaffId(User security_staff_id) {
+        this.security_staff_id = security_staff_id;
+    }
+
+    public void setVisitorName(String visitor_name) {
+        this.visitor_name = visitor_name;
+    }
+
+    public void setVisitorIc(String visitor_ic) {
+        this.visitor_ic = visitor_ic;
+    }
+
+    public void setVisitorPhone(String visitor_phone) {
+        this.visitor_phone = visitor_phone;
+    }
+
+    public void setCheckInTime(Timestamp check_in_time) {
+        this.check_in_time = check_in_time;
+    }
+
+    public void setCheckOutTime(Timestamp check_out_time) {
+        this.check_out_time = check_out_time;
+    }
+
+    public void setRemarks(String remarks) {
+        this.remarks = remarks;
+    }
+
+    public void setCreatedAt(Timestamp created_at) {
+        this.created_at = created_at;
+    }
+
+    public void setUpdatedAt(Timestamp updated_at) {
+        this.updated_at = updated_at;
     }
 }

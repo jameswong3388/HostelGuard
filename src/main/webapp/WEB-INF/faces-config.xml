@@ -13,8 +13,8 @@
             <redirect/>
         </navigation-case>
         <navigation-case>
-            <from-outcome>security/visits</from-outcome>
-            <to-view-id>/security/visits.xhtml</to-view-id>
+            <from-outcome>onboard-visitors</from-outcome>
+            <to-view-id>/security/onboard-visitors.xhtml</to-view-id>
             <redirect/>
         </navigation-case>
         <navigation-case>

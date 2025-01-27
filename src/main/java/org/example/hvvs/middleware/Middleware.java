@@ -199,7 +199,7 @@ public class Middleware implements Filter {
                 resp.sendRedirect(contextPath + "/resident/requests.xhtml");
                 break;
             case CommonParam.SESSION_ROLE_SECURITY_STAFF:
-                resp.sendRedirect(contextPath + "/security/visits.xhtml");
+                resp.sendRedirect(contextPath + "/security/onboard-visitors.xhtml");
                 break;
             case CommonParam.SESSION_ROLE_MANAGING_STAFF:
                 resp.sendRedirect(contextPath + "/admin/dashboard.xhtml");
