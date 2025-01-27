@@ -16,7 +16,7 @@ import java.sql.Timestamp;
 import java.util.UUID;
 
 @Stateless
-public class SecurityVisitorServiceImpl implements SecurityVisitorService {
+public class OnboardVisitorsServiceImpl implements OnboardVisitorsService {
 
     @PersistenceContext
     private EntityManager entityManager;

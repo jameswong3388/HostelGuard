@@ -14,14 +14,14 @@
                         styleClass="py-2 text-blue-600 font-medium focus:outline-none">Onboard Visitors</h:link>
                 <p:outputPanel id="stepBar">
                     <ol class="mx-auto flex w-24 flex-nowrap gap-1 md:w-fit">
-                        <ui:repeat value="#{securityVisitorOnboardingController.stepSequence}" var="step">
-                            <li class="#{securityVisitorOnboardingController.currentStep ge step ? 'h-1 w-12 rounded-full bg-blue-500' : 'h-1 w-12 rounded-full bg-gray-200'}"/>
+                        <ui:repeat value="#{onboardVisitorsController.stepSequence}" var="step">
+                            <li class="#{onboardVisitorsController.currentStep ge step ? 'h-1 w-12 rounded-full bg-blue-500' : 'h-1 w-12 rounded-full bg-gray-200'}"/>
                         </ui:repeat>
                     </ol>
                 </p:outputPanel>
 
                 <p:commandButton value="Restart"
-                                 action="#{securityVisitorOnboardingController.restart}"
+                                 action="#{onboardVisitorsController.restart}"
                                  update=":navigationForm:stepBar :onboardingForm"
                                  styleClass="ui-button-secondary ui-button-flat"/>
             </nav>
@@ -34,7 +34,7 @@
                 <p:messages id="messages" showDetail="true" closable="true"/>
 
                 <!-- Step 1: Check-in/Check-out Selection -->
-                <p:panel id="step0Panel" rendered="#{securityVisitorOnboardingController.currentStep == 1}"
+                <p:panel id="step0Panel" rendered="#{onboardVisitorsController.currentStep == 1}"
                          styleClass="mb-4">
                     <div class="space-y-4">
                         <!-- Title, matching the style of the reference image -->
@@ -44,11 +44,11 @@
                         <!-- Grid of "cards," similar to your reference image -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <p:commandLink
-                                    styleClass="border rounded-lg p-4 hover:border-2 #{securityVisitorOnboardingController.checkIn ? 'border-2 border-blue-600' : ''}"
-                                    actionListener="#{securityVisitorOnboardingController.setCheckIn(true)}"
+                                    styleClass="border rounded-lg p-4 hover:border-2 #{onboardVisitorsController.checkIn ? 'border-2 border-blue-600' : ''}"
+                                    actionListener="#{onboardVisitorsController.setCheckIn(true)}"
                                     process="@this"
                                     update="@form :navigationForm:stepBar">
-                                <h3 class="text-lg font-medium mb-2 #{securityVisitorOnboardingController.checkIn ? 'text-blue-600' : 'text-gray-800'}">
+                                <h3 class="text-lg font-medium mb-2 #{onboardVisitorsController.checkIn ? 'text-blue-600' : 'text-gray-800'}">
                                     Check-in Visitor
                                 </h3>
                                 <ul class="text-sm text-gray-600 space-y-1 flex flex-col">
@@ -59,11 +59,11 @@
                             </p:commandLink>
 
                             <p:commandLink
-                                    styleClass="border rounded-lg p-4 hover:border-2 cursor-pointer #{not securityVisitorOnboardingController.checkIn ? 'border-2 border-blue-600' : ''}"
-                                    actionListener="#{securityVisitorOnboardingController.setCheckIn(false)}"
+                                    styleClass="border rounded-lg p-4 hover:border-2 cursor-pointer #{not onboardVisitorsController.checkIn ? 'border-2 border-blue-600' : ''}"
+                                    actionListener="#{onboardVisitorsController.setCheckIn(false)}"
                                     process="@this"
                                     update="@form :navigationForm:stepBar">
-                                <h3 class="text-lg font-medium mb-2 #{not securityVisitorOnboardingController.checkIn ? 'text-blue-600' : 'text-gray-800'}">
+                                <h3 class="text-lg font-medium mb-2 #{not onboardVisitorsController.checkIn ? 'text-blue-600' : 'text-gray-800'}">
                                     Check-out Visitor
                                 </h3>
                                 <ul class="text-sm text-gray-600 space-y-1 flex flex-col">
@@ -77,25 +77,25 @@
                         <div class="flex justify-end">
                             <p:commandButton value="Continue"
                                              process="@this"
-                                             actionListener="#{securityVisitorOnboardingController.onSelectOperation}"
+                                             actionListener="#{onboardVisitorsController.onSelectOperation}"
                                              update=":navigationForm:stepBar :onboardingForm"/>
                         </div>
                     </div>
                 </p:panel>
 
                 <!-- Step 2: Verification Code -->
-                <p:panel id="step1Panel" rendered="#{securityVisitorOnboardingController.currentStep == 2}"
+                <p:panel id="step1Panel" rendered="#{onboardVisitorsController.currentStep == 2}"
                          styleClass="mb-4">
                     <div class="space-y-4">
-                        <h2 class="text-xl font-semibold">#{securityVisitorOnboardingController.checkIn ? 'Step 2: Verify Visit Request' : 'Step 2: Enter Check-out Code'}</h2>
+                        <h2 class="text-xl font-semibold">#{onboardVisitorsController.checkIn ? 'Step 2: Verify Visit Request' : 'Step 2: Enter Check-out Code'}</h2>
                         <div class="flex flex-col space-y-2">
                             <p:inputText id="verificationCode"
-                                         value="#{securityVisitorOnboardingController.verificationCode}"
+                                         value="#{onboardVisitorsController.verificationCode}"
                                          placeholder="Enter verification code"
                                          required="true"
                                          styleClass="p-3 border rounded"/>
                             <p:commandButton value="Verify"
-                                             action="#{securityVisitorOnboardingController.verifyCode}"
+                                             action="#{onboardVisitorsController.verifyCode}"
                                              update=":navigationForm:stepBar :onboardingForm"
                                              styleClass="w-full bg-blue-600 text-white p-3 rounded"/>
                         </div>
@@ -104,35 +104,35 @@
 
                 <!-- Step 3: Visitor Information (Only for Check-in) -->
                 <p:panel id="step2Panel"
-                         rendered="#{securityVisitorOnboardingController.currentStep == 3 and securityVisitorOnboardingController.checkIn}"
+                         rendered="#{onboardVisitorsController.currentStep == 3 and onboardVisitorsController.checkIn}"
                          styleClass="mb-4">
                     <div class="space-y-4">
                         <h2 class="text-xl font-semibold">Step 3: Visitor Information</h2>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div class="flex flex-col space-y-2">
                                 <p:inputText id="visitorName"
-                                             value="#{securityVisitorOnboardingController.visitorRecord.visitorName}"
+                                             value="#{onboardVisitorsController.visitorRecord.visitorName}"
                                              placeholder="Visitor Name"
                                              required="true"
                                              styleClass="p-3 border rounded"/>
                             </div>
                             <div class="flex flex-col space-y-2">
                                 <p:inputText id="visitorIc"
-                                             value="#{securityVisitorOnboardingController.visitorRecord.visitorIc}"
+                                             value="#{onboardVisitorsController.visitorRecord.visitorIc}"
                                              placeholder="IC/Passport Number"
                                              required="true"
                                              styleClass="p-3 border rounded"/>
                             </div>
                             <div class="flex flex-col space-y-2">
                                 <p:inputText id="visitorPhone"
-                                             value="#{securityVisitorOnboardingController.visitorRecord.visitorPhone}"
+                                             value="#{onboardVisitorsController.visitorRecord.visitorPhone}"
                                              placeholder="Phone Number"
                                              required="true"
                                              styleClass="p-3 border rounded"/>
                             </div>
                             <div class="flex flex-col space-y-2">
                                 <p:inputTextarea id="remarks"
-                                                 value="#{securityVisitorOnboardingController.visitorRecord.remarks}"
+                                                 value="#{onboardVisitorsController.visitorRecord.remarks}"
                                                  placeholder="Remarks (Optional)"
                                                  rows="3"
                                                  styleClass="p-3 border rounded"/>
@@ -140,10 +140,10 @@
                         </div>
                         <div class="flex justify-between">
                             <p:commandButton value="Back"
-                                             action="#{securityVisitorOnboardingController.previousStep}"
+                                             action="#{onboardVisitorsController.previousStep}"
                                              update=":navigationForm:stepBar :onboardingForm"/>
                             <p:commandButton value="Next"
-                                             action="#{securityVisitorOnboardingController.nextStep}"
+                                             action="#{onboardVisitorsController.nextStep}"
                                              update=":navigationForm:stepBar :onboardingForm"
                             />
                         </div>
@@ -152,13 +152,13 @@
 
                 <!-- Step 4: Image Upload (Only for Check-in) -->
                 <p:panel id="step3Panel"
-                         rendered="#{securityVisitorOnboardingController.currentStep == 4 and securityVisitorOnboardingController.checkIn}"
+                         rendered="#{onboardVisitorsController.currentStep == 4 and onboardVisitorsController.checkIn}"
                          styleClass="mb-4">
                     <div class="space-y-4">
                         <h2 class="text-xl font-semibold">Step 4: Visitor Photo</h2>
                         <div class="flex flex-col items-center space-y-4">
                             <p:fileUpload id="visitorPhoto"
-                                          value="#{securityVisitorOnboardingController.visitorPhoto}"
+                                          value="#{onboardVisitorsController.visitorPhoto}"
                                           mode="simple"
                                           skinSimple="true"
                                           accept="image/*"
@@ -166,11 +166,11 @@
 
                             <div class="flex justify-between w-full">
                                 <p:commandButton value="Back"
-                                                 action="#{securityVisitorOnboardingController.previousStep}"
+                                                 action="#{onboardVisitorsController.previousStep}"
                                                  update=":navigationForm:stepBar :onboardingForm"
                                 />
                                 <p:commandButton value="Complete Check-in"
-                                                 action="#{securityVisitorOnboardingController.completeRegistration}"
+                                                 action="#{onboardVisitorsController.completeRegistration}"
                                                  update=":navigationForm:stepBar :onboardingForm"
                                                  styleClass="ui-button-success"/>
                             </div>
@@ -180,7 +180,7 @@
 
                 <!-- Checkout Confirmation (When currentStep == 3 and not isCheckIn) -->
                 <p:panel id="checkoutPanel"
-                         rendered="#{securityVisitorOnboardingController.currentStep == 3 and not securityVisitorOnboardingController.checkIn}"
+                         rendered="#{onboardVisitorsController.currentStep == 3 and not onboardVisitorsController.checkIn}"
                          styleClass="mb-4">
                     <div class="space-y-4">
                         <h2 class="text-xl font-semibold">Confirm Check-out</h2>
@@ -191,25 +191,25 @@
                                 </div>
                                 <div>
                                     <p class="text-gray-600">Name:</p>
-                                    <p class="font-medium">#{securityVisitorOnboardingController.visitorRecord.visitorName}</p>
+                                    <p class="font-medium">#{onboardVisitorsController.visitorRecord.visitorName}</p>
                                 </div>
                                 <div>
                                     <p class="text-gray-600">IC/Passport:</p>
-                                    <p class="font-medium">#{securityVisitorOnboardingController.visitorRecord.visitorIc}</p>
+                                    <p class="font-medium">#{onboardVisitorsController.visitorRecord.visitorIc}</p>
                                 </div>
                                 <div>
                                     <p class="text-gray-600">Check-in Time:</p>
-                                    <p class="font-medium">#{securityVisitorOnboardingController.visitorRecord.checkInTime}</p>
+                                    <p class="font-medium">#{onboardVisitorsController.visitorRecord.checkInTime}</p>
                                 </div>
                             </div>
                         </div>
                         <div class="flex justify-between">
                             <p:commandButton value="Back"
-                                             action="#{securityVisitorOnboardingController.previousStep}"
+                                             action="#{onboardVisitorsController.previousStep}"
                                              update=":navigationForm:stepBar :onboardingForm"
                                              />
                             <p:commandButton value="Confirm Check-out"
-                                             action="#{securityVisitorOnboardingController.completeCheckout}"
+                                             action="#{onboardVisitorsController.completeCheckout}"
                                              update=":navigationForm:stepBar :onboardingForm"
                                              styleClass="ui-button-success"/>
                         </div>

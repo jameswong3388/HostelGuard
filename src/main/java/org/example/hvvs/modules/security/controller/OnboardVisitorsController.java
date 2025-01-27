@@ -8,7 +8,7 @@ import jakarta.inject.Named;
 import org.example.hvvs.model.User;
 import org.example.hvvs.model.VisitRequest;
 import org.example.hvvs.model.VisitorRecord;
-import org.example.hvvs.modules.security.service.SecurityVisitorService;
+import org.example.hvvs.modules.security.service.OnboardVisitorsService;
 import org.example.hvvs.utils.CommonParam;
 import org.primefaces.model.file.UploadedFile;
 
@@ -17,10 +17,10 @@ import java.sql.Timestamp;
 
 @Named
 @ViewScoped
-public class SecurityVisitorOnboardingController implements Serializable {
+public class OnboardVisitorsController implements Serializable {
     
     @Inject
-    private SecurityVisitorService securityVisitorService;
+    private OnboardVisitorsService securityVisitorService;
     
     private int currentStep = 1;
     private String verificationCode;
@@ -29,7 +29,7 @@ public class SecurityVisitorOnboardingController implements Serializable {
     private UploadedFile visitorPhoto;
     private boolean isCheckIn = true;
 
-    public SecurityVisitorOnboardingController() {
+    public OnboardVisitorsController() {
         visitorRecord = new VisitorRecord();
     }
 
