@@ -3,13 +3,12 @@ package org.example.hvvs.modules.admin.service;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import org.example.hvvs.model.ResidentProfile;
+import org.example.hvvs.model.ManagingStaffProfile;
 import org.example.hvvs.model.User;
-
 import java.util.List;
 
 @ApplicationScoped
-public class SettingsService {
+public class SettingsServiceAdmin {
 
     @PersistenceContext
     private EntityManager em;
@@ -29,20 +28,19 @@ public class SettingsService {
     }
 
     /**
-     * Find ResidentProfile by associated user ID.
+     * Find ManagingStaffProfile by associated user ID.
      */
-    public ResidentProfile findResidentProfileByUserId(Integer userId) {
-        // Example approach:
-        return em.createNamedQuery("ResidentProfile.findByUserId", ResidentProfile.class)
+    public ManagingStaffProfile findManagingStaffProfileByUserId(Integer userId) {
+        return em.createNamedQuery("ManagingStaffProfile.findByUserId", ManagingStaffProfile.class)
                 .setParameter("user_id", em.find(User.class, userId))
                 .getSingleResult();
     }
 
     /**
-     * Update or merge the ResidentProfile entity.
+     * Update or merge the ManagingStaffProfile entity.
      */
-    public void updateResidentProfile(ResidentProfile residentProfile) {
-        em.merge(residentProfile);
+    public void updateManagingStaffProfile(ManagingStaffProfile managingStaffProfile) {
+        em.merge(managingStaffProfile);
     }
 
     /**
@@ -55,6 +53,23 @@ public class SettingsService {
                     .getResultList();
 
             // If no users found with this username, or the only user found is the current user
+            return !users.isEmpty() && !users.getFirst().getId().equals(currentUserId);
+        } catch (Exception e) {
+            // Log the error if needed
+            return false;
+        }
+    }
+
+    /**
+     * Check if an email already exists for a different user
+     */
+    public boolean isEmailExists(String email, Integer currentUserId) {
+        try {
+            List<User> users = em.createNamedQuery("User.findByEmail", User.class)
+                    .setParameter("email", email)
+                    .getResultList();
+
+            // If no users found with this email, or the only user found is the current user
             return !users.isEmpty() && !users.getFirst().getId().equals(currentUserId);
         } catch (Exception e) {
             // Log the error if needed

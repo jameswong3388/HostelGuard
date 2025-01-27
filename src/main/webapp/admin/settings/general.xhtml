@@ -3,18 +3,26 @@
                 xmlns:f="http://xmlns.jcp.org/jsf/core"
                 xmlns:p="http://primefaces.org/ui"
                 xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
-                template="/WEB-INF/templates/resident-layout.xhtml">
+                template="/WEB-INF/templates/admin-layout.xhtml">
 
-    <!-- Keep your other <ui:define> blocks for title, navigation, etc. -->
+    <!-- Page Title -->
     <ui:define name="title">Users</ui:define>
 
-    <!--    <ui:define name="navigation">-->
-    <!--        <h:link outcome="/resident/settings/general.xhtml"-->
-    <!--                styleClass="py-2 text-blue-600 font-medium focus:outline-none">General</h:link>-->
-    <!--        <h:link outcome="/resident/requests.xhtml"-->
-    <!--                styleClass="py-2 text-gray-500 hover:text-gray-700 focus:outline-none">Coming Soon</h:link>-->
-    <!--    </ui:define>-->
-
+    <!-- Navigation links -->
+    <ui:define name="navigation">
+        <h:link outcome="/admin/settings/general.xhtml"
+                styleClass="py-2 text-blue-600 font-medium focus:outline-none">
+            General
+        </h:link>
+        <h:link outcome="/admin/settings/account.xhtml"
+                styleClass="py-2 text-gray-500 hover:text-gray-700 focus:outline-none">
+            Account
+        </h:link>
+        <h:link outcome="/admin/settings/authentication-security.xhtml"
+                styleClass="py-2 text-gray-500 hover:text-gray-700 focus:outline-none">
+            Authentication &amp; Security
+        </h:link>
+    </ui:define>
     <!-- Replace only the content block with the new design -->
     <ui:define name="content">
         <h:form>
@@ -38,7 +46,7 @@
                                 <div class="col-span-full sm:col-span-3">
                                     <h:outputLabel for="firstName" value="First name" styleClass="font-medium"/>
                                     <p:inputText id="firstName"
-                                                 value="#{SettingsControllerResident.user.firstName}"
+                                                 value="#{SettingsControllerAdmin.user.firstName}"
                                                  placeholder="Emma"
                                                  styleClass="mt-2 w-full"
                                                  autocomplete="given-name"/>
@@ -48,7 +56,7 @@
                                 <div class="col-span-full sm:col-span-3">
                                     <h:outputLabel for="lastName" value="Last name" styleClass="font-medium"/>
                                     <p:inputText id="lastName"
-                                                 value="#{SettingsControllerResident.user.lastName}"
+                                                 value="#{SettingsControllerAdmin.user.lastName}"
                                                  placeholder="Stone"
                                                  styleClass="mt-2 w-full"
                                                  autocomplete="family-name"/>
@@ -58,7 +66,7 @@
                                 <div class="col-span-full">
                                     <h:outputLabel for="email" value="Email" styleClass="font-medium"/>
                                     <p:inputText id="email"
-                                                 value="#{SettingsControllerResident.user.email}"
+                                                 value="#{SettingsControllerAdmin.user.email}"
                                                  type="email"
                                                  placeholder="emma@acme.com"
                                                  styleClass="mt-2 w-full"
@@ -69,7 +77,7 @@
                                 <div class="col-span-full">
                                     <h:outputLabel for="phoneNumber" value="Phone Number" styleClass="font-medium"/>
                                     <p:inputText id="phoneNumber"
-                                                 value="#{SettingsControllerResident.user.phoneNumber}"
+                                                 value="#{SettingsControllerAdmin.user.phoneNumber}"
                                                  placeholder="+1 555 5555"
                                                  styleClass="mt-2 w-full"
                                                  autocomplete="tel"/>
@@ -79,7 +87,7 @@
                                 <div class="col-span-2">
                                     <h:outputLabel for="role" value="Role" styleClass="font-medium"/>
                                     <p:inputText id="role" disabled="true"
-                                                 value="#{SettingsControllerResident.user.role}"
+                                                 value="#{SettingsControllerAdmin.user.role}"
                                                  styleClass="mt-2 w-full"/>
                                     <p class="mt-2 text-xs text-gray-500">
                                         Roles can only be changed by a system admin.
@@ -89,7 +97,7 @@
                                 <!-- Save button -->
                                 <div class="col-span-full mt-6 flex justify-end">
                                     <p:commandButton value="Save settings"
-                                                     action="#{SettingsControllerResident.savePersonalInformation}"
+                                                     action="#{SettingsControllerAdmin.savePersonalInformation}"
                                                      update="@form messages"
                                                      styleClass="p-button-raised p-button-primary"/>
                                 </div>
@@ -118,27 +126,27 @@
 
                                 <!-- Block Number -->
                                 <div class="col-span-full sm:col-span-3">
-                                    <h:outputLabel for="blockNumber" value="Block Number" styleClass="font-medium"/>
-                                    <p:inputText id="blockNumber"
-                                                 value="#{SettingsControllerResident.residentProfile.blockNumber}"
+                                    <h:outputLabel for="department" value="Department" styleClass="font-medium"/>
+                                    <p:inputText id="department"
+                                                 value="#{SettingsControllerAdmin.managingStaffProfile.department}"
                                                  placeholder="Block A"
                                                  disabled="true"
                                                  styleClass="mt-2 w-full"/>
                                     <p class="mt-2 text-xs text-gray-500">
-                                        Block number can only be changed by a system admin.
+                                        Department can only be changed by a system admin.
                                     </p>
                                 </div>
 
                                 <!-- Room Number -->
                                 <div class="col-span-full sm:col-span-3">
-                                    <h:outputLabel for="roomNumber" value="Room Number" styleClass="font-medium"/>
-                                    <p:inputText id="roomNumber"
-                                                 value="#{SettingsControllerResident.residentProfile.roomNumber}"
+                                    <h:outputLabel for="position" value="Position" styleClass="font-medium"/>
+                                    <p:inputText id="position"
+                                                 value="#{SettingsControllerAdmin.managingStaffProfile.position}"
                                                  placeholder="101"
                                                  disabled="true"
                                                  styleClass="mt-2 w-full"/>
                                     <p class="mt-2 text-xs text-gray-500">
-                                        Room Number can only be changed by a system admin.
+                                        Position can only be changed by a system admin.
                                     </p>
                                 </div>
                             </div>

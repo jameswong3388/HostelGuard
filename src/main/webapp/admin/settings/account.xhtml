@@ -8,13 +8,20 @@
     <!-- Keep your other <ui:define> blocks for title, navigation, etc. -->
     <ui:define name="title">Users</ui:define>
 
+    <!-- Navigation links -->
     <ui:define name="navigation">
-        <h:link outcome="/resident/settings/general.xhtml"
-                styleClass="py-2 text-gray-500 hover:text-gray-700 focus:outline-none">General</h:link>
-        <h:link outcome="/resident/settings/account.xhtml"
-                styleClass="py-2 text-blue-600 font-medium focus:outline-none">Account</h:link>
-        <h:link outcome="/resident/settings/authentication-security.xhtml"
-                styleClass="py-2 text-gray-500 hover:text-gray-700 focus:outline-none">Authentication &amp; Security</h:link>
+        <h:link outcome="/admin/settings/general.xhtml"
+                styleClass="py-2 text-gray-500 hover:text-gray-700 focus:outline-none">
+            General
+        </h:link>
+        <h:link outcome="/admin/settings/account.xhtml"
+                styleClass="py-2 text-blue-600 font-medium focus:outline-none">
+            Account
+        </h:link>
+        <h:link outcome="/admin/settings/authentication-security.xhtml"
+                styleClass="py-2 text-gray-500 hover:text-gray-700 focus:outline-none">
+            Authentication &amp; Security
+        </h:link>
     </ui:define>
 
     <!-- Replace only the content block with the new design -->
@@ -54,7 +61,7 @@
                                 <div class="col-span-full sm:col-span-3">
                                     <h:outputLabel for="username" value="Username" styleClass="font-medium"/>
                                     <p:inputText id="username"
-                                                 value="#{SettingsControllerResident.user.username}"
+                                                 value="#{SettingsControllerAdmin.user.username}"
                                                  placeholder="Enter new username"
                                                  styleClass="mt-2 w-full"/>
                                 </div>
@@ -62,7 +69,7 @@
                                 <!-- Update Username Button -->
                                 <div class="col-span-full mt-6 flex justify-end">
                                     <p:commandButton value="Change username"
-                                                     action="#{SettingsControllerResident.updateUsername}"
+                                                     action="#{SettingsControllerAdmin.updateUsername}"
                                                      update="@form messages"
                                                      styleClass="p-button-raised p-button-primary"/>
                                 </div>
@@ -137,7 +144,7 @@
                                         </div>
                                     </div>
                                     <p:commandButton value="Delete Account"
-                                                     action="#{SettingsControllerResident.deleteAccount}"
+                                                     action="#{SettingsControllerAdmin.deleteAccount}"
                                                      update="@form messages"
                                                      styleClass="p-button-danger"
                                                      onclick="return confirm('Are you absolutely sure you want to delete your account? This action cannot be undone.')"/>

@@ -8,7 +8,7 @@ import org.example.hvvs.model.User;
 import java.util.List;
 
 @ApplicationScoped
-public class SettingsService {
+public class SettingsServiceResident {
 
     @PersistenceContext
     private EntityManager em;
@@ -54,6 +54,23 @@ public class SettingsService {
                     .getResultList();
 
             // If no users found with this username, or the only user found is the current user
+            return !users.isEmpty() && !users.getFirst().getId().equals(currentUserId);
+        } catch (Exception e) {
+            // Log the error if needed
+            return false;
+        }
+    }
+
+    /**
+     * Check if an email already exists for a different user
+     */
+    public boolean isEmailExists(String email, Integer currentUserId) {
+        try {
+            List<User> users = em.createNamedQuery("User.findByEmail", User.class)
+                    .setParameter("email", email)
+                    .getResultList();
+
+            // If no users found with this email, or the only user found is the current user
             return !users.isEmpty() && !users.getFirst().getId().equals(currentUserId);
         } catch (Exception e) {
             // Log the error if needed

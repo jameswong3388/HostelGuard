@@ -10,16 +10,15 @@
 
     <!-- Navigation links -->
     <ui:define name="navigation">
-        <h:link outcome="/resident/settings/general.xhtml"
+        <h:link outcome="/admin/settings/general.xhtml"
                 styleClass="py-2 text-gray-500 hover:text-gray-700 focus:outline-none">
             General
         </h:link>
-        <h:link outcome="/resident/settings/account.xhtml"
+        <h:link outcome="/admin/settings/account.xhtml"
                 styleClass="py-2 text-gray-500 hover:text-gray-700 focus:outline-none">
             Account
         </h:link>
-        <!-- Active page link -->
-        <h:link outcome="/resident/settings/authentication-security.xhtml"
+        <h:link outcome="/admin/settings/authentication-security.xhtml"
                 styleClass="py-2 text-blue-600 font-medium focus:outline-none">
             Authentication &amp; Security
         </h:link>
@@ -55,7 +54,7 @@
                             <div class="mb-4">
                                 <h:outputLabel for="oldPassword" value="Current password" styleClass="font-medium"/>
                                 <p:password id="oldPassword"
-                                            value="#{SettingsControllerResident.oldPassword}"
+                                            value="#{SettingsControllerAdmin.oldPassword}"
                                             styleClass="mt-2 w-full"
                                             autocomplete="current-password"
                                             required="true"
@@ -66,7 +65,7 @@
                             <div class="mb-4">
                                 <h:outputLabel for="newPassword" value="New password" styleClass="font-medium"/>
                                 <p:password id="newPassword"
-                                            value="#{SettingsControllerResident.newPassword}"
+                                            value="#{SettingsControllerAdmin.newPassword}"
                                             styleClass="mt-2 w-full"
                                             autocomplete="new-password"
                                             required="true"
@@ -82,7 +81,7 @@
                             <div class="mb-4">
                                 <h:outputLabel for="confirmNewPassword" value="Confirm new password" styleClass="font-medium"/>
                                 <p:password id="confirmNewPassword"
-                                            value="#{SettingsControllerResident.confirmNewPassword}"
+                                            value="#{SettingsControllerAdmin.confirmNewPassword}"
                                             styleClass="mt-2 w-full"
                                             autocomplete="new-password"
                                             required="true"
@@ -91,7 +90,7 @@
 
                             <!-- Change Password Button -->
                             <p:commandButton value="Change password"
-                                             action="#{SettingsControllerResident.updatePassword}"
+                                             action="#{SettingsControllerAdmin.updatePassword}"
                                              update="@form messages"
                                              styleClass="p-button-raised p-button-primary"/>
                         </div>
@@ -156,7 +155,7 @@
                                                 </p>
                                             </div>
                                             <p:commandButton value="Edit"
-                                                             action="#{SettingsControllerResident.editAuthApp}"
+                                                             action="#{SettingsControllerAdmin.editAuthApp}"
                                                              update="@form messages"
                                                              styleClass="p-button-text p-button-sm" />
                                         </li>
@@ -169,7 +168,7 @@
                                                 </p>
                                             </div>
                                             <p:commandButton value="Add"
-                                                             action="#{SettingsControllerResident.addSmsMethod}"
+                                                             action="#{SettingsControllerAdmin.addSmsMethod}"
                                                              update="@form messages"
                                                              styleClass="p-button-text p-button-sm" />
                                         </li>
@@ -182,7 +181,7 @@
                                                 </p>
                                             </div>
                                             <p:commandButton value="Edit"
-                                                             action="#{SettingsControllerResident.editSecurityKeys}"
+                                                             action="#{SettingsControllerAdmin.editSecurityKeys}"
                                                              update="@form messages"
                                                              styleClass="p-button-text p-button-sm" />
                                         </li>
@@ -196,7 +195,7 @@
                                                 </p>
                                             </div>
                                             <p:commandButton value="Show"
-                                                             action="#{SettingsControllerResident.showGithubMobileDevices}"
+                                                             action="#{SettingsControllerAdmin.showGithubMobileDevices}"
                                                              update="@form messages"
                                                              styleClass="p-button-text p-button-sm" />
                                         </li>
@@ -210,7 +209,7 @@
                                                 </p>
                                             </div>
                                             <p:commandButton value="View"
-                                                             action="#{SettingsControllerResident.viewRecoveryCodes}"
+                                                             action="#{SettingsControllerAdmin.viewRecoveryCodes}"
                                                              update="@form messages"
                                                              styleClass="p-button-text p-button-sm" />
                                         </li>
@@ -259,7 +258,7 @@
                                     </p>
                                 </div>
                                 <p:commandButton value="See more"
-                                                 action="#{SettingsControllerResident.viewSessionDetails}"
+                                                 action="#{SettingsControllerAdmin.viewSessionDetails}"
                                                  update="@form messages"
                                                  styleClass="p-button-text p-button-sm" />
                             </div>
@@ -308,7 +307,7 @@
                                     </p>
                                 </div>
                                 <p:commandButton value="Revoke"
-                                                 action="#{SettingsControllerResident.revokeMobileSession}"
+                                                 action="#{SettingsControllerAdmin.revokeMobileSession}"
                                                  update="@form messages"
                                                  styleClass="p-button-danger p-button-text p-button-sm" />
                             </div>
@@ -330,7 +329,7 @@
                                     </p>
                                 </div>
                                 <p:commandButton value="Revoke"
-                                                 action="#{SettingsControllerResident.revokeMobileSession}"
+                                                 action="#{SettingsControllerAdmin.revokeMobileSession}"
                                                  update="@form messages"
                                                  styleClass="p-button-danger p-button-text p-button-sm" />
                             </div>
@@ -366,7 +365,7 @@
                                     </p>
                                 </div>
                                 <p:commandButton value="Sign out everywhere"
-                                                 action="#{SettingsControllerResident.revokeAllSessions}"
+                                                 action="#{SettingsControllerAdmin.revokeAllSessions}"
                                                  update="@form messages"
                                                  styleClass="p-button-danger" />
                             </div>

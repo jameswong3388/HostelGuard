@@ -9,7 +9,7 @@ import jakarta.inject.Named;
 import jakarta.transaction.Transactional;
 import org.example.hvvs.model.ResidentProfile;
 import org.example.hvvs.model.User;
-import org.example.hvvs.modules.resident.services.SettingsService;
+import org.example.hvvs.modules.resident.services.SettingsServiceResident;
 import org.example.hvvs.utils.CommonParam;
 import org.example.hvvs.utils.DigestUtils;
 
@@ -18,7 +18,7 @@ import java.sql.Timestamp;
 
 @Named("SettingsControllerResident")
 @SessionScoped
-public class SettingsController implements Serializable {
+public class SettingsControllerResident implements Serializable {
 
     private User user;
     private ResidentProfile residentProfile;
@@ -27,7 +27,7 @@ public class SettingsController implements Serializable {
     private String confirmNewPassword;
 
     @Inject
-    private SettingsService generalSettingsService;
+    private SettingsServiceResident generalSettingsService;
 
     @PostConstruct
     public void init() {
@@ -54,6 +54,28 @@ public class SettingsController implements Serializable {
     @Transactional
     public String savePersonalInformation() {
         try {
+            if (user.getEmail() == null || user.getEmail().trim().isEmpty()) {
+                FacesContext.getCurrentInstance().addMessage(null,
+                        new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                                "Error",
+                                "Email cannot be empty."));
+                resetUserData();
+                return null;
+            }
+
+            // Check if email is already taken by another user
+            if (generalSettingsService.isEmailExists(user.getEmail(), user.getId())) {
+                FacesContext.getCurrentInstance().addMessage(null,
+                        new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                                "Error",
+                                "This email is already registered to another account."));
+                resetUserData();
+                return null;
+            }
+
+            // Update timestamp
+            user.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
+            
             generalSettingsService.updateUser(user);
 
             FacesContext.getCurrentInstance().addMessage(null,
@@ -66,10 +88,26 @@ public class SettingsController implements Serializable {
                     new FacesMessage(FacesMessage.SEVERITY_ERROR,
                             "Error",
                             "An error occurred while saving your information. Please try again later."));
+            resetUserData();
         }
 
-        // 5. Return to the same page or navigate to another outcome
         return null;
+    }
+
+    /**
+     * Helper method to reset user data from database
+     */
+    private void resetUserData() {
+        User currentUser = (User) FacesContext
+                .getCurrentInstance()
+                .getExternalContext()
+                .getSessionMap()
+                .get(CommonParam.SESSION_SELF);
+
+        if (currentUser != null) {
+            this.user = generalSettingsService.findUserById(currentUser.getId());
+            this.residentProfile = generalSettingsService.findResidentProfileByUserId(currentUser.getId());
+        }
     }
 
     /**
@@ -84,6 +122,7 @@ public class SettingsController implements Serializable {
                         new FacesMessage(FacesMessage.SEVERITY_ERROR,
                                 "Error",
                                 "Username cannot be empty."));
+                resetUserData();
                 return null;
             }
 
@@ -93,6 +132,7 @@ public class SettingsController implements Serializable {
                         new FacesMessage(FacesMessage.SEVERITY_ERROR,
                                 "Error",
                                 "This username is already taken."));
+                resetUserData();
                 return null;
             }
 
@@ -112,6 +152,7 @@ public class SettingsController implements Serializable {
                     new FacesMessage(FacesMessage.SEVERITY_ERROR,
                             "Error",
                             "An error occurred while updating your username. Please try again later."));
+            resetUserData();
         }
 
         return null;
@@ -131,6 +172,7 @@ public class SettingsController implements Serializable {
                         new FacesMessage(FacesMessage.SEVERITY_ERROR,
                                 "Error",
                                 "All password fields are required."));
+                resetUserData();
                 return null;
             }
 
@@ -141,6 +183,7 @@ public class SettingsController implements Serializable {
                         new FacesMessage(FacesMessage.SEVERITY_ERROR,
                                 "Error",
                                 "Current password is incorrect."));
+                resetUserData();
                 return null;
             }
 
@@ -150,6 +193,7 @@ public class SettingsController implements Serializable {
                         new FacesMessage(FacesMessage.SEVERITY_ERROR,
                                 "Error",
                                 "New passwords do not match."));
+                resetUserData();
                 return null;
             }
 
@@ -159,6 +203,7 @@ public class SettingsController implements Serializable {
                         new FacesMessage(FacesMessage.SEVERITY_ERROR,
                                 "Error",
                                 "New password must be at least 8 characters long."));
+                resetUserData();
                 return null;
             }
 
@@ -185,6 +230,7 @@ public class SettingsController implements Serializable {
                     new FacesMessage(FacesMessage.SEVERITY_ERROR,
                             "Error",
                             "An error occurred while updating your password. Please try again later."));
+            resetUserData();
         }
 
         return null;
