@@ -17,12 +17,6 @@
 
     <!-- Replace only the content block with the new design -->
     <ui:define name="content">
-        <!-- Messages -->
-        <p:messages id="messages" showDetail="true" closable="true">
-            <p:autoUpdate/>
-        </p:messages>
-
-
         <h:form>
             <div class="space-y-10">
 
@@ -96,6 +90,7 @@
                                 <div class="col-span-full mt-6 flex justify-end">
                                     <p:commandButton value="Save settings"
                                                      action="#{SettingsControllerResident.savePersonalInformation}"
+                                                     update="@form messages"
                                                      styleClass="p-button-raised p-button-primary"/>
                                 </div>
                             </div>
@@ -225,6 +220,7 @@
                             <!-- Save Button for Notifications -->
                             <div class="col-span-full mt-6 flex justify-end">
                                 <p:commandButton value="Save settings"
+                                                 update="@form messages"
                                                  styleClass="p-button-raised p-button-primary"/>
                             </div>
                         </div>

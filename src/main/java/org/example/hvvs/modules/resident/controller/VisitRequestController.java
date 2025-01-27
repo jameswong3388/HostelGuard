@@ -18,6 +18,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.Locale;
 
 @Named("visitRequestControllerResident")
 @SessionScoped
@@ -28,6 +29,31 @@ public class VisitRequestController implements Serializable {
 
     @Inject
     private VisitRequestService visitRequestService;
+
+    private List<VisitRequest> selectedRequests;
+    private List<VisitRequest> filteredRequests;
+
+    public List<VisitRequest> getFilteredRequests() {
+        return filteredRequests;
+    }
+
+    public void setFilteredRequests(List<VisitRequest> filteredRequests) {
+        this.filteredRequests = filteredRequests;
+    }
+
+    public boolean globalFilterFunction(Object value, Object filter, Locale locale) {
+        String filterText = (filter == null) ? null : filter.toString().trim().toLowerCase();
+        if (filterText == null || filterText.isEmpty()) {
+            return true;
+        }
+
+        VisitRequest request = (VisitRequest) value;
+        return request.getVerificationCode().toLowerCase().contains(filterText)
+                || request.getPurpose().toLowerCase().contains(filterText)
+                || request.getStatus().toLowerCase().contains(filterText)
+                || (request.getRemarks() != null && request.getRemarks().toLowerCase().contains(filterText))
+                || request.getVisitDateTime().toString().toLowerCase().contains(filterText);
+    }
 
     @PostConstruct
     public void init() {
@@ -52,6 +78,14 @@ public class VisitRequestController implements Serializable {
 
     public List<VisitRequest> getUserRequests() {
         return userRequests;
+    }
+
+    public List<VisitRequest> getSelectedRequests() {
+        return selectedRequests;
+    }
+
+    public void setSelectedRequests(List<VisitRequest> selectedRequests) {
+        this.selectedRequests = selectedRequests;
     }
 
     /**

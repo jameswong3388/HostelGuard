@@ -14,22 +14,6 @@
     </ui:define>
 
     <ui:define name="content">
-        <!-- Title & New Request Button -->
-        <div class="mb-8 flex justify-between">
-            <h2 class="text-2xl font-bold">Requests</h2>
-            <div>
-                <p:button value="New Request"
-                          icon="pi pi-plus"
-                          styleClass="p-button-raised p-button-primary"
-                          onclick="PF('newRequestDialog').show(); return false;" />
-            </div>
-        </div>
-
-        <!-- Messages -->
-        <p:messages id="messages" showDetail="true" closable="true">
-            <p:autoUpdate />
-        </p:messages>
-
         <!-- New Request Dialog -->
         <p:dialog header="New Visit Request"
                   widgetVar="newRequestDialog"
@@ -84,18 +68,52 @@
 
         <!-- Editable Table of Previous Requests -->
         <h:form id="requestsTableForm">
-            <p:dataTable
-                    id="requestsTable"
-                    var="req"
-                    value="#{visitRequestControllerResident.userRequests}"
-                    editable="true"
-                    editMode="row"
-                    widgetVar="requestsTable"
-                    rowKey="#{req.id}"
-                    styleClass="w-full border rounded-md">
+            <p:toolbar>
+                <p:toolbarGroup>
+                    <!-- "New Request" triggers the same dialog you already have -->
+                    <p:commandButton value="New Request"
+                                     icon="pi pi-plus"
+                                     styleClass="ui-button-success"
+                                     onclick="PF('newRequestDialog').show(); return false;"
+                                     style="margin-right: .5rem" />
+                </p:toolbarGroup>
+            </p:toolbar>
+
+            <!-- DataTable with multi-select, global filter, paging, row editing -->
+            <p:dataTable id="requestsTable"
+                         widgetVar="requestsTable"
+                         var="req"
+                         value="#{visitRequestControllerResident.userRequests}"
+                         reflow="true"
+                         rowKey="#{req.id}"
+                         paginator="true"
+                         rows="10"
+                         selectionRowMode="add"
+                         paginatorPosition="bottom"
+                         selection="#{visitRequestControllerResident.selectedRequests}"
+                         styleClass="w-full border rounded-md mt-2"
+                         filteredValue="#{visitRequestControllerResident.filteredRequests}"
+                         globalFilterFunction="#{visitRequestControllerResident.globalFilterFunction}"
+                         editable="true"
+                         editMode="row">
+
+                <!-- Global search bar in the header facet -->
+                <f:facet name="header">
+                    <div class="flex justify-between">
+                        <span class="filter-container ui-input-icon-left">
+                            <i class="pi pi-search"></i>
+                            <p:inputText id="globalFilter"
+                                         onkeyup="PF('requestsTable').filter()"
+                                         placeholder="Search all fields" />
+                        </span>
+                    </div>
+                </f:facet>
+
+                <!-- Checkboxes for multi-select -->
+                <p:column selectionMode="multiple" exportable="false" style="width:1px" />
 
                 <!-- Verification Code -->
-                <p:column headerText="Verification Code">
+                <p:column headerText="Verification Code" sortBy="#{req.verificationCode}">
                     <p:cellEditor>
                         <f:facet name="output">
                             <h:outputText value="#{req.verificationCode}" />
@@ -107,7 +125,7 @@
                 </p:column>
 
                 <!-- Single Column: Timestamp (Date/Time) -->
-                <p:column headerText="Visit Date/Time">
+                <p:column headerText="Visit Date/Time" sortBy="#{req.visitDateTime}">
                     <p:cellEditor>
                         <f:facet name="output">
                             <h:outputText value="#{req.visitDateTime}">
@@ -127,7 +145,7 @@
                 </p:column>
 
                 <!-- Purpose -->
-                <p:column headerText="Purpose">
+                <p:column headerText="Purpose" sortBy="#{req.purpose}">
                     <p:cellEditor>
                         <f:facet name="output">
                             <h:outputText value="#{req.purpose}" />
@@ -140,8 +158,8 @@
                     </p:cellEditor>
                 </p:column>
 
-                <!-- Show the single status from VisitRequestStatus -->
-                <p:column headerText="Status">
+                <!-- Show the single status from VisitRequestStatus (disabled editing) -->
+                <p:column headerText="Status" sortBy="#{req.status}">
                     <p:cellEditor disabled="true">
                         <f:facet name="output">
                             <h:outputText value="#{req.status}" />
@@ -152,17 +170,19 @@
                     </p:cellEditor>
                 </p:column>
 
-                <p:column headerText="Remarks">
+                <!-- Remarks (disabled editing) -->
+                <p:column headerText="Remarks" sortBy="#{req.remarks}">
                     <p:cellEditor disabled="true">
                         <f:facet name="output">
                             <h:outputText value="#{req.remarks}" />
                         </f:facet>
                         <f:facet name="input">
-                            <p:inputTextarea value="#{req.remarks}" rows="2" autoResize="true"/>
+                            <p:inputTextarea value="#{req.remarks}" rows="2" autoResize="true" />
                         </f:facet>
                     </p:cellEditor>
                 </p:column>
 
+                <!-- Row edit events -->
                 <p:ajax event="rowEdit"
                         listener="#{visitRequestControllerResident.onRowEdit}"
                         update=":requestsTableForm:requestsTable :messages" />
@@ -170,15 +190,15 @@
                         listener="#{visitRequestControllerResident.onRowCancel}"
                         update=":requestsTableForm:requestsTable :messages" />
 
-                <!-- Row Editor column, hidden if status = 'CANCELED' -->
-                <p:column headerText="Actions">
+                <!-- Row Editor column (hidden if status = 'CANCELLED') -->
+                <p:column headerText="Edit">
                     <p:rowEditor editTitle="Edit"
                                  cancelTitle="Cancel"
                                  saveTitle="Save"
                                  rendered="#{req.status ne 'CANCELLED'}" />
                 </p:column>
 
-                <!-- Cancel Request Button, hidden if already canceled -->
+                <!-- Cancel Request Button, hidden if already cancelled -->
                 <p:column headerText="Cancel">
                     <p:commandButton value="Cancel Request"
                                      icon="pi pi-ban"

@@ -27,11 +27,6 @@
 
     <!-- Main content -->
     <ui:define name="content">
-        <!-- Growl / message display -->
-        <p:messages id="messages" showDetail="true" closable="true">
-            <p:autoUpdate />
-        </p:messages>
-
         <h:form>
             <div class="space-y-10">
 
@@ -97,7 +92,7 @@
                             <!-- Change Password Button -->
                             <p:commandButton value="Change password"
                                              action="#{SettingsControllerResident.updatePassword}"
-                                             update="@form"
+                                             update="@form messages"
                                              styleClass="p-button-raised p-button-primary"/>
                         </div>
                     </div>
@@ -162,6 +157,7 @@
                                             </div>
                                             <p:commandButton value="Edit"
                                                              action="#{SettingsControllerResident.editAuthApp}"
+                                                             update="@form messages"
                                                              styleClass="p-button-text p-button-sm" />
                                         </li>
                                         <!-- SMS/Text message -->
@@ -174,6 +170,7 @@
                                             </div>
                                             <p:commandButton value="Add"
                                                              action="#{SettingsControllerResident.addSmsMethod}"
+                                                             update="@form messages"
                                                              styleClass="p-button-text p-button-sm" />
                                         </li>
                                         <!-- Security keys -->
@@ -186,6 +183,7 @@
                                             </div>
                                             <p:commandButton value="Edit"
                                                              action="#{SettingsControllerResident.editSecurityKeys}"
+                                                             update="@form messages"
                                                              styleClass="p-button-text p-button-sm" />
                                         </li>
                                         <!-- GitHub Mobile -->
@@ -199,6 +197,7 @@
                                             </div>
                                             <p:commandButton value="Show"
                                                              action="#{SettingsControllerResident.showGithubMobileDevices}"
+                                                             update="@form messages"
                                                              styleClass="p-button-text p-button-sm" />
                                         </li>
                                         <!-- Recovery codes -->
@@ -212,6 +211,7 @@
                                             </div>
                                             <p:commandButton value="View"
                                                              action="#{SettingsControllerResident.viewRecoveryCodes}"
+                                                             update="@form messages"
                                                              styleClass="p-button-text p-button-sm" />
                                         </li>
                                     </ul>
@@ -260,6 +260,7 @@
                                 </div>
                                 <p:commandButton value="See more"
                                                  action="#{SettingsControllerResident.viewSessionDetails}"
+                                                 update="@form messages"
                                                  styleClass="p-button-text p-button-sm" />
                             </div>
                             <!-- Add more session items as needed... -->
@@ -308,6 +309,7 @@
                                 </div>
                                 <p:commandButton value="Revoke"
                                                  action="#{SettingsControllerResident.revokeMobileSession}"
+                                                 update="@form messages"
                                                  styleClass="p-button-danger p-button-text p-button-sm" />
                             </div>
 
@@ -329,6 +331,7 @@
                                 </div>
                                 <p:commandButton value="Revoke"
                                                  action="#{SettingsControllerResident.revokeMobileSession}"
+                                                 update="@form messages"
                                                  styleClass="p-button-danger p-button-text p-button-sm" />
                             </div>
                         </div>
@@ -364,6 +367,7 @@
                                 </div>
                                 <p:commandButton value="Sign out everywhere"
                                                  action="#{SettingsControllerResident.revokeAllSessions}"
+                                                 update="@form messages"
                                                  styleClass="p-button-danger" />
                             </div>
                         </div>

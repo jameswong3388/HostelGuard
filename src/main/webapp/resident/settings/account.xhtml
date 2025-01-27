@@ -19,11 +19,6 @@
 
     <!-- Replace only the content block with the new design -->
     <ui:define name="content">
-        <!-- Messages -->
-        <p:messages id="messages" showDetail="true" closable="true">
-            <p:autoUpdate/>
-        </p:messages>
-
         <h:form>
             <div class="space-y-10">
 
@@ -68,6 +63,7 @@
                                 <div class="col-span-full mt-6 flex justify-end">
                                     <p:commandButton value="Change username"
                                                      action="#{SettingsControllerResident.updateUsername}"
+                                                     update="@form messages"
                                                      styleClass="p-button-raised p-button-primary"/>
                                 </div>
                             </div>
@@ -117,6 +113,7 @@
                                     </div>
                                     <p:commandButton value="Transfer"
                                                      styleClass="p-button-warning"
+                                                     update="@form messages"
                                                      onclick="return confirm('Are you sure you want to transfer ownership? This action cannot be undone.')"/>
                                 </div>
                             </div>
@@ -141,6 +138,7 @@
                                     </div>
                                     <p:commandButton value="Delete Account"
                                                      action="#{SettingsControllerResident.deleteAccount}"
+                                                     update="@form messages"
                                                      styleClass="p-button-danger"
                                                      onclick="return confirm('Are you absolutely sure you want to delete your account? This action cannot be undone.')"/>
                                 </div>
