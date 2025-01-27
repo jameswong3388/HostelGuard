@@ -14,13 +14,197 @@
     </ui:define>
 
     <ui:define name="content">
-        <!-- Page Title & Subtitle -->
-        <div class="mb-8 flex justify-between">
-            <h2 class="text-2xl font-bold">Requests</h2>
-            <div>
-                <p:button value="Create Ticket" icon="pi pi-plus" styleClass="p-button-raised p-button-primary"/>
-            </div>
-        </div>
-    </ui:define>
+        <!-- Requests Table -->
+        <h:form id="requestsTableForm">
+            <p:toolbar>
+                <p:toolbarGroup>
+                    <p:commandButton id="delete-requests-button"
+                                   value="#{visitRequestsController.deleteSelectedButtonLabel}"
+                                   icon="pi pi-trash"
+                                   actionListener="#{visitRequestsController.deleteSelectedRequests}"
+                                   styleClass="ui-button-danger"
+                                   disabled="#{empty visitRequestsController.selectedRequests}"
+                                   update="@this :requestsTableForm:requestsTable :messages"
+                                   style="margin-right: .5rem">
+                        <p:confirm header="Confirmation"
+                                 message="Delete the selected requests?"
+                                 icon="pi pi-exclamation-triangle"/>
+                    </p:commandButton>
 
+                    <p:commandButton id="clearSelectionButton"
+                                   value="Clear Selection"
+                                   icon="pi pi-times"
+                                   styleClass="ui-button-secondary"
+                                   actionListener="#{visitRequestsController.clearSelection}"
+                                   process="@form"
+                                   update="@form :messages"
+                                   disabled="#{empty visitRequestsController.selectedRequests}"
+                                   style="margin-right: .5rem"/>
+                </p:toolbarGroup>
+            </p:toolbar>
+
+            <p:dataTable id="requestsTable"
+                        var="req"
+                        value="#{visitRequestsController.requests}"
+                        widgetVar="requestsTable"
+                        reflow="true"
+                        rowKey="#{req.id}"
+                        paginator="true"
+                        rows="10"
+                        paginatorPosition="bottom"
+                        styleClass="w-full border rounded-md mt-2"
+                        filteredValue="#{visitRequestsController.filteredRequests}"
+                        globalFilterFunction="#{visitRequestsController.globalFilterFunction}"
+                        editable="true"
+                        editMode="row"
+                        selection="#{visitRequestsController.selectedRequests}"
+                        selectionRowMode="add">
+
+                <!-- Selection column -->
+                <p:column selectionMode="multiple" style="width: 1px;"/>
+
+                <!-- Global search bar -->
+                <f:facet name="header">
+                    <div class="flex justify-between">
+                        <span class="filter-container ui-input-icon-left">
+                            <i class="pi pi-search"></i>
+                            <p:inputText id="globalFilter"
+                                       onkeyup="PF('requestsTable').filter()"
+                                       placeholder="Search all fields"/>
+                        </span>
+                    </div>
+                </f:facet>
+
+                <!-- Username -->
+                <p:column headerText="Username" sortBy="#{req.userId.username}">
+                    <h:outputText value="#{req.userId.username}"/>
+                </p:column>
+
+                <p:column headerText="User Email" sortBy="#{req.userId.email}">
+                    <h:outputText value="#{req.userId.email}"/>
+                </p:column>
+
+                <!-- Verification Code -->
+                <p:column headerText="Verification Code" sortBy="#{req.verificationCode}">
+                    <p:cellEditor>
+                        <f:facet name="output">
+                            <h:outputText value="#{req.verificationCode}"/>
+                        </f:facet>
+                        <f:facet name="input">
+                            <p:inputText value="#{req.verificationCode}"/>
+                        </f:facet>
+                    </p:cellEditor>
+                </p:column>
+
+                <!-- Visit Date/Time -->
+                <p:column headerText="Visit Date/Time" sortBy="#{req.visitDateTime}">
+                    <p:cellEditor>
+                        <f:facet name="output">
+                            <h:outputText value="#{req.visitDateTime}">
+                                <f:convertDateTime pattern="MM/dd/yy HH:mm"/>
+                            </h:outputText>
+                        </f:facet>
+                        <f:facet name="input">
+                            <p:datePicker id="visitDateTime"
+                                          value="#{req.visitDateTime}"
+                                          pattern="MM/dd/yy HH:mm"
+                                          showTime="true"
+                                          showIcon="true"
+                                          converter="timestampConverter"
+                                          required="true" />
+                        </f:facet>
+                    </p:cellEditor>
+                </p:column>
+
+                <!-- Purpose -->
+                <p:column headerText="Purpose" sortBy="#{req.purpose}">
+                    <p:cellEditor>
+                        <f:facet name="output">
+                            <h:outputText value="#{req.purpose}"/>
+                        </f:facet>
+                        <f:facet name="input">
+                            <p:inputText value="#{req.purpose}"/>
+                        </f:facet>
+                    </p:cellEditor>
+                </p:column>
+
+                <!-- Status -->
+                <p:column headerText="Status" sortBy="#{req.status}">
+                    <p:cellEditor>
+                        <f:facet name="output">
+                            <p:tag severity="#{req.status eq 'PENDING' ? 'warning' : 
+                                              req.status eq 'APPROVED' ? 'info' : 
+                                              req.status eq 'COMPLETED' ? 'success' : 
+                                              req.status eq 'CANCELLED' ? 'info' : 'danger'}"
+                                  value="#{req.status}"/>
+                        </f:facet>
+                        <f:facet name="input">
+                            <p:selectOneMenu value="#{req.status}">
+                                <f:selectItem itemLabel="Pending" itemValue="PENDING"/>
+                                <f:selectItem itemLabel="Approved" itemValue="APPROVED"/>
+                                <f:selectItem itemLabel="Rejected" itemValue="REJECTED"/>
+                                <f:selectItem itemLabel="Completed" itemValue="COMPLETED"/>
+                                <f:selectItem itemLabel="Cancelled" itemValue="CANCELLED"/>
+                            </p:selectOneMenu>
+                        </f:facet>
+                    </p:cellEditor>
+                </p:column>
+
+                <!-- Remarks -->
+                <p:column headerText="Remarks" sortBy="#{req.remarks}">
+                    <p:cellEditor>
+                        <f:facet name="output">
+                            <h:outputText value="#{req.remarks}"/>
+                        </f:facet>
+                        <f:facet name="input">
+                            <p:inputTextarea value="#{req.remarks}" rows="2"/>
+                        </f:facet>
+                    </p:cellEditor>
+                </p:column>
+
+                <!-- Created At -->
+                <p:column headerText="Created At" sortBy="#{req.createdAt}">
+                    <h:outputText value="#{req.createdAt}">
+                        <f:convertDateTime pattern="MM/dd/yy HH:mm"/>
+                    </h:outputText>
+                </p:column>
+
+                <!-- Updated At -->
+                <p:column headerText="Updated At" sortBy="#{req.updatedAt}">
+                    <h:outputText value="#{req.updatedAt}">
+                        <f:convertDateTime pattern="MM/dd/yy HH:mm"/>
+                    </h:outputText>
+                </p:column>
+
+                <!-- Actions -->
+                <p:column headerText="Actions" style="width:100px">
+                    <p:rowEditor editTitle="Edit Row"
+                               cancelTitle="Cancel Edit"
+                               saveTitle="Save Row"/>
+                </p:column>
+
+                <!-- Selection Events -->
+                <p:ajax event="rowSelect" update=":requestsTableForm:delete-requests-button :requestsTableForm:clearSelectionButton"/>
+                <p:ajax event="rowUnselect" update=":requestsTableForm:delete-requests-button :requestsTableForm:clearSelectionButton"/>
+                <p:ajax event="rowSelectCheckbox" update=":requestsTableForm:delete-requests-button :requestsTableForm:clearSelectionButton"/>
+                <p:ajax event="rowUnselectCheckbox" update=":requestsTableForm:delete-requests-button :requestsTableForm:clearSelectionButton"/>
+                <p:ajax event="toggleSelect" update=":requestsTableForm:delete-requests-button :requestsTableForm:clearSelectionButton"/>
+
+                <!-- Row Edit Events -->
+                <p:ajax event="rowEdit"
+                        listener="#{visitRequestsController.onRowEdit}"
+                        update=":requestsTableForm:requestsTable :messages"/>
+                <p:ajax event="rowEditCancel"
+                        listener="#{visitRequestsController.onRowCancel}"
+                        update=":requestsTableForm:requestsTable :messages"/>
+
+            </p:dataTable>
+
+            <!-- Confirmation Dialog -->
+            <p:confirmDialog global="true" showEffect="fade" hideEffect="fade" responsive="true">
+                <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no ui-button-flat"/>
+                <p:commandButton value="Yes" type="button" styleClass="ui-confirmdialog-yes"/>
+            </p:confirmDialog>
+        </h:form>
+    </ui:define>
 </ui:composition>

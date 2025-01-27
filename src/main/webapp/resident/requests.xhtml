@@ -129,9 +129,7 @@
                     <p:cellEditor>
                         <f:facet name="output">
                             <h:outputText value="#{req.visitDateTime}">
-                                <!-- optional date-time formatting:
-                                <f:convertDateTime pattern="MM/dd/yy HH:mm" />
-                                -->
+                                <f:convertDateTime pattern="MM/dd/yy HH:mm"/>
                             </h:outputText>
                         </f:facet>
                         <f:facet name="input">
@@ -162,7 +160,11 @@
                 <p:column headerText="Status" sortBy="#{req.status}">
                     <p:cellEditor disabled="true">
                         <f:facet name="output">
-                            <h:outputText value="#{req.status}" />
+                            <p:tag severity="#{req.status eq 'PENDING' ? 'warning' :
+                                              req.status eq 'APPROVED' ? 'info' :
+                                              req.status eq 'COMPLETED' ? 'success' :
+                                              req.status eq 'CANCELLED' ? 'info' : 'danger'}"
+                                   value="#{req.status}"/>
                         </f:facet>
                         <f:facet name="input">
                             <p:inputText value="#{req.status}" />
