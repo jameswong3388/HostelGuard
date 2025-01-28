@@ -7,18 +7,14 @@ import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 import org.example.hvvs.commonClasses.CustomPart;
 import org.example.hvvs.model.Medias;
-import org.example.hvvs.model.VisitRequest;
-import org.example.hvvs.model.VisitorRecord;
+import org.example.hvvs.model.VisitRequests;
+import org.example.hvvs.model.VisitorRecords;
 import org.example.hvvs.modules.common.service.MediaService;
 import org.primefaces.model.file.UploadedFile;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.sql.Timestamp;
-import java.util.UUID;
 
 @Stateless
 public class OnboardVisitorsServiceImpl implements OnboardVisitorsService {
@@ -30,15 +26,15 @@ public class OnboardVisitorsServiceImpl implements OnboardVisitorsService {
     private MediaService mediaService;
 
     @Override
-    public VisitRequest verifyVisitRequest(String verificationCode) {
-        TypedQuery<VisitRequest> query = entityManager.createQuery(
-                "SELECT v FROM VisitRequest v WHERE v.verification_code = :code AND v.status = 'APPROVED'",
-                VisitRequest.class
+    public VisitRequests verifyVisitRequest(String verificationCode) {
+        TypedQuery<VisitRequests> query = entityManager.createQuery(
+                "SELECT v FROM VisitRequests v WHERE v.verification_code = :code AND v.status = 'APPROVED'",
+                VisitRequests.class
         );
         query.setParameter("code", verificationCode);
 
         try {
-            VisitRequest request = query.getSingleResult();
+            VisitRequests request = query.getSingleResult();
             request.setStatus("PROGRESS");
             entityManager.merge(request);
             return request;
@@ -48,7 +44,7 @@ public class OnboardVisitorsServiceImpl implements OnboardVisitorsService {
     }
 
     @Override
-    public void registerVisitor(VisitorRecord visitorRecord, UploadedFile tempVisitorPhoto) {
+    public void registerVisitor(VisitorRecords visitorRecord, UploadedFile tempVisitorPhoto) {
         try {
             // First persist the visitor record to get an ID
             entityManager.persist(visitorRecord);
@@ -70,7 +66,7 @@ public class OnboardVisitorsServiceImpl implements OnboardVisitorsService {
             }
 
             // Update visit request status
-            VisitRequest request = visitorRecord.getRequestId();
+            VisitRequests request = visitorRecord.getRequestId();
             request.setStatus("PROGRESS");
             entityManager.merge(request);
 
@@ -80,14 +76,14 @@ public class OnboardVisitorsServiceImpl implements OnboardVisitorsService {
     }
 
     @Override
-    public VisitorRecord findVisitorForCheckout(String verificationCode) {
-        TypedQuery<VisitorRecord> query = entityManager.createQuery(
-            "SELECT vr FROM VisitorRecord vr " +
+    public VisitorRecords findVisitorForCheckout(String verificationCode) {
+        TypedQuery<VisitorRecords> query = entityManager.createQuery(
+            "SELECT vr FROM VisitorRecords vr " +
             "JOIN vr.request_id r " +
             "WHERE r.verification_code = :code " +
             "AND r.status = 'PROGRESS' " +
             "AND vr.check_out_time IS NULL",
-            VisitorRecord.class
+            VisitorRecords.class
         );
         query.setParameter("code", verificationCode);
         
@@ -99,7 +95,7 @@ public class OnboardVisitorsServiceImpl implements OnboardVisitorsService {
     }
 
     @Override
-    public void checkoutVisitor(VisitorRecord visitorRecord) {
+    public void checkoutVisitor(VisitorRecords visitorRecord) {
         // Set checkout time
         visitorRecord.setCheckOutTime(new Timestamp(System.currentTimeMillis()));
         visitorRecord.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
@@ -108,7 +104,7 @@ public class OnboardVisitorsServiceImpl implements OnboardVisitorsService {
         entityManager.merge(visitorRecord);
 
         // Update visit request status
-        VisitRequest request = visitorRecord.getRequestId();
+        VisitRequests request = visitorRecord.getRequestId();
         request.setStatus("COMPLETED");
         entityManager.merge(request);
     }

@@ -5,16 +5,16 @@ import org.example.hvvs.commonClasses.BaseEntity;
 import java.sql.Timestamp;
 
 @Entity
-@Table(name = "resident_profile")
+@Table(name = "resident_profiles")
 @NamedQueries({
-        @NamedQuery(name = "ResidentProfile.findAll", query = "SELECT r FROM ResidentProfile r"),
-        @NamedQuery(name = "ResidentProfile.findByUserId", query = "SELECT r FROM ResidentProfile r WHERE r.user_id = :user_id"),
-        @NamedQuery(name = "ResidentProfile.findByRoomNumber", query = "SELECT r FROM ResidentProfile r WHERE r.unit_number = :room_number"),
+        @NamedQuery(name = "ResidentProfile.findAll", query = "SELECT r FROM ResidentProfiles r"),
+        @NamedQuery(name = "ResidentProfile.findByUserId", query = "SELECT r FROM ResidentProfiles r WHERE r.user_id = :user_id"),
+        @NamedQuery(name = "ResidentProfile.findByRoomNumber", query = "SELECT r FROM ResidentProfiles r WHERE r.unit_number = :room_number"),
 })
-public class ResidentProfile extends BaseEntity {
+public class ResidentProfiles extends BaseEntity {
     @OneToOne
     @JoinColumn(name = "user_id", nullable = false)
-    private User user_id;
+    private Users user_id;
 
     @Column(name = "unit_number", nullable = false)
     private String unit_number;
@@ -25,18 +25,18 @@ public class ResidentProfile extends BaseEntity {
     @Column(name = "updated_at", nullable = false)
     private Timestamp updated_at;
 
-    public ResidentProfile() {
+    public ResidentProfiles() {
         super();
     }
 
-    public ResidentProfile(User user_id, String unit_number, Timestamp created_at, Timestamp updated_at) {
+    public ResidentProfiles(Users user_id, String unit_number, Timestamp created_at, Timestamp updated_at) {
         this.user_id = user_id;
         this.unit_number = unit_number;
         this.created_at = created_at;
         this.updated_at = updated_at;
     }
 
-    public User getUserId() {
+    public Users getUserId() {
         return user_id;
     }
 
@@ -52,7 +52,7 @@ public class ResidentProfile extends BaseEntity {
         return updated_at;
     }
 
-    public void setUserId(User user_id) {
+    public void setUserId(Users user_id) {
         this.user_id = user_id;
     }
 

@@ -8,21 +8,21 @@
     <!-- Page Title -->
     <ui:define name="title">Users</ui:define>
 
-    <!-- Navigation links -->
-    <ui:define name="navigation">
-        <h:link outcome="/security/settings/general.xhtml"
-                styleClass="py-2 text-blue-600 font-medium focus:outline-none">
-            General
-        </h:link>
-        <h:link outcome="/security/settings/account.xhtml"
-                styleClass="py-2 text-gray-500 hover:text-gray-700 focus:outline-none">
-            Account
-        </h:link>
-        <h:link outcome="/security/settings/authentication-security.xhtml"
-                styleClass="py-2 text-gray-500 hover:text-gray-700 focus:outline-none">
-            Authentication &amp; Security
-        </h:link>
-    </ui:define>
+<!--    &lt;!&ndash; Navigation links &ndash;&gt;-->
+<!--    <ui:define name="navigation">-->
+<!--        <h:link outcome="/security/settings/general.xhtml"-->
+<!--                styleClass="py-2 text-blue-600 font-medium focus:outline-none">-->
+<!--            General-->
+<!--        </h:link>-->
+<!--        <h:link outcome="/security/settings/account.xhtml"-->
+<!--                styleClass="py-2 text-gray-500 hover:text-gray-700 focus:outline-none">-->
+<!--            Account-->
+<!--        </h:link>-->
+<!--        <h:link outcome="/security/settings/authentication-security.xhtml"-->
+<!--                styleClass="py-2 text-gray-500 hover:text-gray-700 focus:outline-none">-->
+<!--            Authentication &amp; Security-->
+<!--        </h:link>-->
+<!--    </ui:define>-->
 
     <!-- Replace only the content block with the new design -->
     <ui:define name="content">
@@ -82,6 +82,7 @@
 
             <!-- Personal Information Section -->
             <section aria-labelledby="personal-information">
+                <h:form>
                 <div class="grid grid-cols-1 gap-x-14 gap-y-8 md:grid-cols-3">
                     <div>
                         <h2 id="personal-information" class="scroll-mt-10 font-semibold text-gray-900">
@@ -156,6 +157,7 @@
                         </div>
                     </div>
                 </div>
+                </h:form>
             </section>
 
             <!-- Divider -->
@@ -163,6 +165,7 @@
 
             <!-- Additinal Information Section -->
             <section aria-labelledby="additional-information">
+                <h:form>
                 <div class="grid grid-cols-1 gap-x-14 gap-y-8 md:grid-cols-3">
                     <div>
                         <h2 id="additional-information" class="scroll-mt-10 font-semibold text-gray-900">
@@ -204,6 +207,7 @@
                         </div>
                     </div>
                 </div>
+                </h:form>
             </section>
 
             <!-- Divider -->
@@ -211,6 +215,7 @@
 
             <!-- Notification Settings Section -->
             <section aria-labelledby="notification-settings">
+                <h:form>
                 <div class="grid grid-cols-1 gap-x-14 gap-y-8 md:grid-cols-3">
                     <div>
                         <h2 id="notification-settings"
@@ -285,6 +290,7 @@
                         </div>
                     </div>
                 </div>
+                </h:form>
             </section>
         </div>
     </ui:define>

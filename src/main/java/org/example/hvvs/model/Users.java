@@ -10,22 +10,22 @@ import org.example.hvvs.commonClasses.BaseEntity;
 import java.sql.Timestamp;
 
 @Entity
-@Table(name = "user")
+@Table(name = "users")
 @NamedQueries({
-        @NamedQuery(name = "User.findAll", query = "SELECT u FROM User u"),
-        @NamedQuery(name = "User.findByUsername", query = "SELECT u FROM User u WHERE u.username = :username"),
-        @NamedQuery(name = "User.findByEmail", query = "SELECT u FROM User u WHERE u.email = :email"),
-        @NamedQuery(name = "User.findByFirstName", query = "SELECT u FROM User u WHERE u.first_name = :firstName"),
-        @NamedQuery(name = "User.findByLastName", query = "SELECT u FROM User u WHERE u.last_name = :lastName"),
-        @NamedQuery(name = "User.findByPhoneNumber", query = "SELECT u FROM User u WHERE u.phone_number = :phone_number"),
-        @NamedQuery(name = "User.findByIsActive", query = "SELECT u FROM User u WHERE u.is_active = :is_active"),
-        @NamedQuery(name = "User.findByRole", query = "SELECT u FROM User u WHERE u.role = :role"),
-        @NamedQuery(name = "User.findByCreatedAt", query = "SELECT u FROM User u WHERE u.created_at = :created_at"),
-        @NamedQuery(name = "User.findByUpdatedAt", query = "SELECT u FROM User u WHERE u.updated_at = :updated_at"),
+        @NamedQuery(name = "User.findAll", query = "SELECT u FROM Users u"),
+        @NamedQuery(name = "User.findByUsername", query = "SELECT u FROM Users u WHERE u.username = :username"),
+        @NamedQuery(name = "User.findByEmail", query = "SELECT u FROM Users u WHERE u.email = :email"),
+        @NamedQuery(name = "User.findByFirstName", query = "SELECT u FROM Users u WHERE u.first_name = :firstName"),
+        @NamedQuery(name = "User.findByLastName", query = "SELECT u FROM Users u WHERE u.last_name = :lastName"),
+        @NamedQuery(name = "User.findByPhoneNumber", query = "SELECT u FROM Users u WHERE u.phone_number = :phone_number"),
+        @NamedQuery(name = "User.findByIsActive", query = "SELECT u FROM Users u WHERE u.is_active = :is_active"),
+        @NamedQuery(name = "User.findByRole", query = "SELECT u FROM Users u WHERE u.role = :role"),
+        @NamedQuery(name = "User.findByCreatedAt", query = "SELECT u FROM Users u WHERE u.created_at = :created_at"),
+        @NamedQuery(name = "User.findByUpdatedAt", query = "SELECT u FROM Users u WHERE u.updated_at = :updated_at"),
 })
 
 
-public class User extends BaseEntity {
+public class Users extends BaseEntity {
     @Column(name = "username", nullable = false, unique = true)
     private String username;
 
@@ -59,13 +59,13 @@ public class User extends BaseEntity {
     @Column(name = "updated_at", nullable = false)
     private Timestamp updated_at;
 
-    public User() {
+    public Users() {
         super();
     }
 
-    public User(String username, String salt, String password, String email, 
-                String first_name, String last_name, String phone_number,
-                boolean is_active, String role, Timestamp created_at, Timestamp updated_at) {
+    public Users(String username, String salt, String password, String email,
+                 String first_name, String last_name, String phone_number,
+                 boolean is_active, String role, Timestamp created_at, Timestamp updated_at) {
         this.username = username;
         this.salt = salt;
         this.password = password;

@@ -8,7 +8,7 @@ import jakarta.inject.Named;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import org.example.hvvs.model.User;
+import org.example.hvvs.model.Users;
 import org.example.hvvs.modules.auth.service.AuthServices;
 import org.example.hvvs.utils.CommonParam;
 import org.example.hvvs.utils.ServiceResult;
@@ -28,7 +28,7 @@ public class SignInController implements Serializable {
 
     public String login() {
         try {
-            ServiceResult<User> serviceResult = authServices.signIn(identifier, password, rememberMe);
+            ServiceResult<Users> serviceResult = authServices.signIn(identifier, password, rememberMe);
 
             if (!serviceResult.isSuccess()) {
                 // Failed authentication: show the error message
@@ -39,7 +39,7 @@ public class SignInController implements Serializable {
             }
 
             // If success, retrieve the authenticated user
-            User user = serviceResult.getData();
+            Users user = serviceResult.getData();
 
             // Store in session
             FacesContext context = FacesContext.getCurrentInstance();

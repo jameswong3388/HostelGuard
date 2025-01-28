@@ -1,13 +1,13 @@
 package org.example.hvvs.modules.auth.service;
 
-import org.example.hvvs.model.User;
+import org.example.hvvs.model.Users;
 import org.example.hvvs.utils.ServiceResult;
 
 public interface AuthServices {
 
-    User findUser(int id);
+    Users findUser(int id);
 
-    ServiceResult<User> signIn(String identifier, String password, Boolean rememberMe);
+    ServiceResult<Users> signIn(String identifier, String password, Boolean rememberMe);
 
     String getAutoLoginCookieValue(int id);
 

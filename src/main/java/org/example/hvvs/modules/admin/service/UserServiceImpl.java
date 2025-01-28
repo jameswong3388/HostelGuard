@@ -5,10 +5,10 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
-import org.example.hvvs.model.User;
-import org.example.hvvs.model.ResidentProfile;
-import org.example.hvvs.model.SecurityStaffProfile;
-import org.example.hvvs.model.ManagingStaffProfile;
+import org.example.hvvs.model.Users;
+import org.example.hvvs.model.ResidentProfiles;
+import org.example.hvvs.model.SecurityStaffProfiles;
+import org.example.hvvs.model.ManagingStaffProfiles;
 import org.example.hvvs.utils.DigestUtils;
 
 import java.sql.Timestamp;
@@ -24,13 +24,13 @@ public class UserServiceImpl implements UsersService {
     private EntityManager entityManager;
 
     @Override
-    public List<User> getAllUsers() {
-        TypedQuery<User> query = entityManager.createNamedQuery("User.findAll", User.class);
+    public List<Users> getAllUsers() {
+        TypedQuery<Users> query = entityManager.createNamedQuery("User.findAll", Users.class);
         return query.getResultList();
     }
 
     @Override
-    public User createUser(User user) {
+    public Users createUser(Users user) {
         // Generate salt using SecureRandom
         SecureRandom random = new SecureRandom();
         byte[] saltBytes = new byte[16];
@@ -59,24 +59,24 @@ public class UserServiceImpl implements UsersService {
     }
 
     @Override
-    public User updateUser(User user) {
+    public Users updateUser(Users user) {
         // Update timestamp
         user.setUpdatedAt(Timestamp.from(Instant.now()));
         return entityManager.merge(user);
     }
 
     @Override
-    public void deleteUser(User user) {
-        User managedUser = entityManager.find(User.class, user.getId());
+    public void deleteUser(Users user) {
+        Users managedUser = entityManager.find(Users.class, user.getId());
         if (managedUser != null) {
             entityManager.remove(managedUser);
         }
     }
 
     @Override
-    public User findByUsername(String username) {
+    public Users findByUsername(String username) {
         try {
-            TypedQuery<User> query = entityManager.createNamedQuery("User.findByUsername", User.class);
+            TypedQuery<Users> query = entityManager.createNamedQuery("User.findByUsername", Users.class);
             query.setParameter("username", username);
             return query.getSingleResult();
         } catch (NoResultException e) {
@@ -85,9 +85,9 @@ public class UserServiceImpl implements UsersService {
     }
 
     @Override
-    public User findByEmail(String email) {
+    public Users findByEmail(String email) {
         try {
-            TypedQuery<User> query = entityManager.createNamedQuery("User.findByEmail", User.class);
+            TypedQuery<Users> query = entityManager.createNamedQuery("User.findByEmail", Users.class);
             query.setParameter("email", email);
             return query.getSingleResult();
         } catch (NoResultException e) {
@@ -96,8 +96,8 @@ public class UserServiceImpl implements UsersService {
     }
 
     @Override
-    public List<User> findByRole(String role) {
-        TypedQuery<User> query = entityManager.createNamedQuery("User.findByRole", User.class);
+    public List<Users> findByRole(String role) {
+        TypedQuery<Users> query = entityManager.createNamedQuery("User.findByRole", Users.class);
         query.setParameter("role", role);
         return query.getResultList();
     }
@@ -113,19 +113,19 @@ public class UserServiceImpl implements UsersService {
     }
 
     @Override
-    public ResidentProfile createResidentProfile(ResidentProfile profile) {
+    public ResidentProfiles createResidentProfile(ResidentProfiles profile) {
         entityManager.persist(profile);
         return profile;
     }
 
     @Override
-    public SecurityStaffProfile createSecurityStaffProfile(SecurityStaffProfile profile) {
+    public SecurityStaffProfiles createSecurityStaffProfile(SecurityStaffProfiles profile) {
         entityManager.persist(profile);
         return profile;
     }
 
     @Override
-    public ManagingStaffProfile createManagingStaffProfile(ManagingStaffProfile profile) {
+    public ManagingStaffProfiles createManagingStaffProfile(ManagingStaffProfiles profile) {
         entityManager.persist(profile);
         return profile;
     }

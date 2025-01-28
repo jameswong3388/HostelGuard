@@ -5,17 +5,17 @@ import org.example.hvvs.commonClasses.BaseEntity;
 import java.sql.Timestamp;
 
 @Entity
-@Table(name = "security_staff_profile")
+@Table(name = "security_staff_profiles")
 @NamedQueries({
-        @NamedQuery(name = "SecurityStaffProfile.findAll", query = "SELECT s FROM SecurityStaffProfile s"),
-        @NamedQuery(name = "SecurityStaffProfile.findByUserId", query = "SELECT s FROM SecurityStaffProfile s WHERE s.user_id = :user_id"),
-        @NamedQuery(name = "SecurityStaffProfile.findByBadgeNumber", query = "SELECT s FROM SecurityStaffProfile s WHERE s.badge_number = :badge_number"),
-        @NamedQuery(name = "SecurityStaffProfile.findByShift", query = "SELECT s FROM SecurityStaffProfile s WHERE s.shift = :shift")
+        @NamedQuery(name = "SecurityStaffProfile.findAll", query = "SELECT s FROM SecurityStaffProfiles s"),
+        @NamedQuery(name = "SecurityStaffProfile.findByUserId", query = "SELECT s FROM SecurityStaffProfiles s WHERE s.user_id = :user_id"),
+        @NamedQuery(name = "SecurityStaffProfile.findByBadgeNumber", query = "SELECT s FROM SecurityStaffProfiles s WHERE s.badge_number = :badge_number"),
+        @NamedQuery(name = "SecurityStaffProfile.findByShift", query = "SELECT s FROM SecurityStaffProfiles s WHERE s.shift = :shift")
 })
-public class SecurityStaffProfile extends BaseEntity {
+public class SecurityStaffProfiles extends BaseEntity {
     @OneToOne
     @JoinColumn(name = "user_id", nullable = false)
-    private User user_id;
+    private Users user_id;
 
     @Column(name = "badge_number", nullable = false, unique = true)
     private String badge_number;
@@ -29,11 +29,11 @@ public class SecurityStaffProfile extends BaseEntity {
     @Column(name = "updated_at", nullable = false)
     private Timestamp updated_at;
 
-    public SecurityStaffProfile() {
+    public SecurityStaffProfiles() {
         super();
     }
 
-    public SecurityStaffProfile(User user_id, String badge_number, String shift, Timestamp created_at, Timestamp updated_at) {
+    public SecurityStaffProfiles(Users user_id, String badge_number, String shift, Timestamp created_at, Timestamp updated_at) {
         this.user_id = user_id;
         this.badge_number = badge_number;
         this.shift = shift;
@@ -41,7 +41,7 @@ public class SecurityStaffProfile extends BaseEntity {
         this.updated_at = updated_at;
     }
 
-    public User getUserId() {
+    public Users getUserId() {
         return user_id;
     }
 
@@ -61,8 +61,8 @@ public class SecurityStaffProfile extends BaseEntity {
         return updated_at;
     }
 
-    public void setUserId(User user_id) {
-        this.user_id = user_id;
+    public void setUserId(Users users_id) {
+        this.user_id = users_id;
     }
 
     public void setBadgeNumber(String badge_number) {

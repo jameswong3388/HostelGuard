@@ -1,34 +1,34 @@
 package org.example.hvvs.modules.admin.service;
 
-import org.example.hvvs.model.User;
-import org.example.hvvs.model.ResidentProfile;
-import org.example.hvvs.model.SecurityStaffProfile;
-import org.example.hvvs.model.ManagingStaffProfile;
+import org.example.hvvs.model.ManagingStaffProfiles;
+import org.example.hvvs.model.ResidentProfiles;
+import org.example.hvvs.model.SecurityStaffProfiles;
+import org.example.hvvs.model.Users;
 
 import java.util.List;
 
 public interface UsersService {
-    List<User> getAllUsers();
+    List<Users> getAllUsers();
 
-    User createUser(User user);
+    Users createUser(Users user);
 
-    User updateUser(User user);
+    Users updateUser(Users user);
 
-    void deleteUser(User user);
+    void deleteUser(Users user);
 
-    User findByUsername(String username);
+    Users findByUsername(String username);
 
-    User findByEmail(String email);
+    Users findByEmail(String email);
 
-    List<User> findByRole(String role);
+    List<Users> findByRole(String role);
 
     boolean isUsernameExists(String username);
 
     boolean isEmailExists(String email);
 
-    ResidentProfile createResidentProfile(ResidentProfile profile);
+    ResidentProfiles createResidentProfile(ResidentProfiles profile);
 
-    SecurityStaffProfile createSecurityStaffProfile(SecurityStaffProfile profile);
+    SecurityStaffProfiles createSecurityStaffProfile(SecurityStaffProfiles profile);
 
-    ManagingStaffProfile createManagingStaffProfile(ManagingStaffProfile profile);
+    ManagingStaffProfiles createManagingStaffProfile(ManagingStaffProfiles profile);
 } 

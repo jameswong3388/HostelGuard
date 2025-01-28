@@ -1,13 +1,13 @@
 package org.example.hvvs.modules.admin.service;
 
-import org.example.hvvs.model.VisitRequest;
+import org.example.hvvs.model.VisitRequests;
 
 import java.util.List;
 
 public interface VisitRequestsService {
-    List<VisitRequest> getAllRequests();
+    List<VisitRequests> getAllRequests();
 
-    void updateRequest(VisitRequest request);
+    void updateRequest(VisitRequests request);
 
-    void deleteRequests(List<VisitRequest> requests);
+    void deleteRequests(List<VisitRequests> requests);
 } 

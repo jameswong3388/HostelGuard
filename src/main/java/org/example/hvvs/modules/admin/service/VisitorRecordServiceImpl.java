@@ -3,7 +3,8 @@ package org.example.hvvs.modules.admin.service;
 import jakarta.ejb.Stateless;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import org.example.hvvs.model.VisitorRecord;
+import org.example.hvvs.model.VisitorRecords;
+
 import java.util.List;
 
 @Stateless
@@ -13,28 +14,28 @@ public class VisitorRecordServiceImpl implements VisitorRecordService {
     private EntityManager entityManager;
     
     @Override
-    public List<VisitorRecord> getAllVisitorRecords() {
-        return entityManager.createNamedQuery("VisitorRecord.findAll", VisitorRecord.class)
+    public List<VisitorRecords> getAllVisitorRecords() {
+        return entityManager.createNamedQuery("VisitorRecord.findAll", VisitorRecords.class)
                 .getResultList();
     }
     
     @Override
-    public VisitorRecord getVisitorRecordById(Long id) {
-        return entityManager.find(VisitorRecord.class, id);
+    public VisitorRecords getVisitorRecordById(Long id) {
+        return entityManager.find(VisitorRecords.class, id);
     }
     
     @Override
-    public void createVisitorRecord(VisitorRecord record) {
+    public void createVisitorRecord(VisitorRecords record) {
         entityManager.persist(record);
     }
     
     @Override
-    public void updateVisitorRecord(VisitorRecord record) {
+    public void updateVisitorRecord(VisitorRecords record) {
         entityManager.merge(record);
     }
     
     @Override
-    public void deleteVisitorRecord(VisitorRecord record) {
+    public void deleteVisitorRecord(VisitorRecords record) {
         entityManager.remove(entityManager.contains(record) ? record : entityManager.merge(record));
     }
 } 

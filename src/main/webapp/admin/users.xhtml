@@ -95,15 +95,9 @@
                         <!-- Resident Fields -->
                         <h:panelGroup rendered="#{usersController.newUser.role == 'RESIDENT'}">
                             <div class="field mb-4">
-                                <p:outputLabel for="blockNumber" value="Block Number"/>
-                                <p:inputText id="blockNumber"
-                                             value="#{usersController.residentProfile.blockNumber}"
-                                             required="true"/>
-                            </div>
-                            <div class="field mb-4">
-                                <p:outputLabel for="roomNumber" value="Room Number"/>
-                                <p:inputText id="roomNumber"
-                                             value="#{usersController.residentProfile.roomNumber}"
+                                <p:outputLabel for="unitNumber" value="Unit Number"/>
+                                <p:inputText id="unitNumber"
+                                             value="#{usersController.residentProfile.unitNumber}"
                                              required="true"/>
                             </div>
                         </h:panelGroup>
@@ -218,11 +212,11 @@
             </p:toolbar>
 
             <p:dataTable id="usersTable"
-                         var="user"
+                         var="users"
                          value="#{usersController.users}"
                          widgetVar="usersTable"
                          reflow="true"
-                         rowKey="#{user.id}"
+                         rowKey="#{users.id}"
                          paginator="true"
                          rows="10"
                          paginatorPosition="bottom"
@@ -250,73 +244,73 @@
                 </f:facet>
 
                 <!-- Username -->
-                <p:column headerText="Username" sortBy="#{user.username}">
+                <p:column headerText="Username" sortBy="#{users.username}">
                     <p:cellEditor>
                         <f:facet name="output">
-                            <h:outputText value="#{user.username}"/>
+                            <h:outputText value="#{users.username}"/>
                         </f:facet>
                         <f:facet name="input">
-                            <p:inputText value="#{user.username}"/>
+                            <p:inputText value="#{users.username}"/>
                         </f:facet>
                     </p:cellEditor>
                 </p:column>
 
                 <!-- Email -->
-                <p:column headerText="Email" sortBy="#{user.email}">
+                <p:column headerText="Email" sortBy="#{users.email}">
                     <p:cellEditor>
                         <f:facet name="output">
-                            <h:outputText value="#{user.email}"/>
+                            <h:outputText value="#{users.email}"/>
                         </f:facet>
                         <f:facet name="input">
-                            <p:inputText value="#{user.email}"/>
+                            <p:inputText value="#{users.email}"/>
                         </f:facet>
                     </p:cellEditor>
                 </p:column>
 
                 <!-- First Name -->
-                <p:column headerText="First Name" sortBy="#{user.firstName}">
+                <p:column headerText="First Name" sortBy="#{users.firstName}">
                     <p:cellEditor>
                         <f:facet name="output">
-                            <h:outputText value="#{user.firstName}"/>
+                            <h:outputText value="#{users.firstName}"/>
                         </f:facet>
                         <f:facet name="input">
-                            <p:inputText value="#{user.firstName}"/>
+                            <p:inputText value="#{users.firstName}"/>
                         </f:facet>
                     </p:cellEditor>
                 </p:column>
 
                 <!-- Last Name -->
-                <p:column headerText="Last Name" sortBy="#{user.lastName}">
+                <p:column headerText="Last Name" sortBy="#{users.lastName}">
                     <p:cellEditor>
                         <f:facet name="output">
-                            <h:outputText value="#{user.lastName}"/>
+                            <h:outputText value="#{users.lastName}"/>
                         </f:facet>
                         <f:facet name="input">
-                            <p:inputText value="#{user.lastName}"/>
+                            <p:inputText value="#{users.lastName}"/>
                         </f:facet>
                     </p:cellEditor>
                 </p:column>
 
                 <!-- Phone Number -->
-                <p:column headerText="Phone Number" sortBy="#{user.phoneNumber}">
+                <p:column headerText="Phone Number" sortBy="#{users.phoneNumber}">
                     <p:cellEditor>
                         <f:facet name="output">
-                            <h:outputText value="#{user.phoneNumber}"/>
+                            <h:outputText value="#{users.phoneNumber}"/>
                         </f:facet>
                         <f:facet name="input">
-                            <p:inputText value="#{user.phoneNumber}"/>
+                            <p:inputText value="#{users.phoneNumber}"/>
                         </f:facet>
                     </p:cellEditor>
                 </p:column>
 
                 <!-- Role -->
-                <p:column headerText="Role" sortBy="#{user.role}">
+                <p:column headerText="Role" sortBy="#{users.role}">
                     <p:cellEditor>
                         <f:facet name="output">
-                            <h:outputText value="#{user.role}"/>
+                            <h:outputText value="#{users.role}"/>
                         </f:facet>
                         <f:facet name="input">
-                            <p:selectOneMenu value="#{user.role}">
+                            <p:selectOneMenu value="#{users.role}">
                                 <f:selectItem itemLabel="Resident" itemValue="RESIDENT"/>
                                 <f:selectItem itemLabel="Security Staff" itemValue="SECURITY_STAFF"/>
                                 <f:selectItem itemLabel="Managing Staff" itemValue="MANAGING_STAFF"/>
@@ -326,14 +320,14 @@
                 </p:column>
 
                 <!-- Active Status -->
-                <p:column headerText="Status" sortBy="#{user.isActive}">
+                <p:column headerText="Status" sortBy="#{users.isActive}">
                     <p:cellEditor>
                         <f:facet name="output">
-                            <p:tag severity="#{user.isActive ? 'success' : 'danger'}"
-                                   value="#{user.isActive ? 'Active' : 'Inactive'}"/>
+                            <p:tag severity="#{users.isActive ? 'success' : 'danger'}"
+                                   value="#{users.isActive ? 'Active' : 'Inactive'}"/>
                         </f:facet>
                         <f:facet name="input">
-                            <p:selectBooleanButton value="#{user.isActive}"
+                            <p:selectBooleanButton value="#{users.isActive}"
                                                    onLabel="Active"
                                                    offLabel="Inactive"
                                                    onIcon="pi pi-check"
@@ -343,8 +337,8 @@
                 </p:column>
 
                 <!-- Created At -->
-                <p:column headerText="Created At" sortBy="#{user.createdAt}">
-                    <h:outputText value="#{user.createdAt}">
+                <p:column headerText="Created At" sortBy="#{users.createdAt}">
+                    <h:outputText value="#{users.createdAt}">
                         <f:convertDateTime pattern="MM/dd/yy HH:mm"/>
                     </h:outputText>
                 </p:column>

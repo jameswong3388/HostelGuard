@@ -6,12 +6,11 @@ import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
-import jakarta.servlet.http.Part;
 import jakarta.transaction.Transactional;
 import org.example.hvvs.commonClasses.CustomPart;
-import org.example.hvvs.model.ManagingStaffProfile;
+import org.example.hvvs.model.ManagingStaffProfiles;
 import org.example.hvvs.model.Medias;
-import org.example.hvvs.model.User;
+import org.example.hvvs.model.Users;
 import org.example.hvvs.modules.admin.service.SettingsServiceAdmin;
 import org.example.hvvs.modules.common.service.MediaService;
 import org.example.hvvs.utils.CommonParam;
@@ -28,8 +27,8 @@ import java.util.List;
 @SessionScoped
 public class SettingsControllerAdmin implements Serializable {
 
-    private User user;
-    private ManagingStaffProfile managingStaffProfile;
+    private Users user;
+    private ManagingStaffProfiles managingStaffProfile;
     private String oldPassword;
     private String newPassword;
     private String confirmNewPassword;
@@ -44,7 +43,7 @@ public class SettingsControllerAdmin implements Serializable {
 
     @PostConstruct
     public void init() {
-        User currentUser = (User) FacesContext.getCurrentInstance()
+        Users currentUser = (Users) FacesContext.getCurrentInstance()
                 .getExternalContext()
                 .getSessionMap()
                 .get(CommonParam.SESSION_SELF);
@@ -153,7 +152,7 @@ public class SettingsControllerAdmin implements Serializable {
      * Helper method to reset user data from database
      */
     private void resetUserData() {
-        User currentUser = (User) FacesContext
+        Users currentUser = (Users) FacesContext
                 .getCurrentInstance()
                 .getExternalContext()
                 .getSessionMap()
@@ -309,19 +308,19 @@ public class SettingsControllerAdmin implements Serializable {
         this.tempUploadedFile = tempUploadedFile;
     }
 
-    public User getUser() {
+    public Users getUser() {
         return user;
     }
 
-    public void setUser(User user) {
+    public void setUser(Users user) {
         this.user = user;
     }
 
-    public ManagingStaffProfile getManagingStaffProfile() {
+    public ManagingStaffProfiles getManagingStaffProfile() {
         return managingStaffProfile;
     }
 
-    public void setManagingStaffProfile(ManagingStaffProfile managingStaffProfile) {
+    public void setManagingStaffProfile(ManagingStaffProfiles managingStaffProfile) {
         this.managingStaffProfile = managingStaffProfile;
     }
 

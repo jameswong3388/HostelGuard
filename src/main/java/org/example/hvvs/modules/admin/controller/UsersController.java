@@ -6,10 +6,10 @@ import jakarta.faces.context.FacesContext;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
-import org.example.hvvs.model.User;
-import org.example.hvvs.model.ResidentProfile;
-import org.example.hvvs.model.SecurityStaffProfile;
-import org.example.hvvs.model.ManagingStaffProfile;
+import org.example.hvvs.model.ManagingStaffProfiles;
+import org.example.hvvs.model.ResidentProfiles;
+import org.example.hvvs.model.SecurityStaffProfiles;
+import org.example.hvvs.model.Users;
 import org.example.hvvs.modules.admin.service.UsersService;
 import org.primefaces.event.RowEditEvent;
 
@@ -24,39 +24,39 @@ public class UsersController implements Serializable {
     @Inject
     private UsersService userService;
 
-    private List<User> users;
-    private List<User> filteredUsers;
-    private User newUser;
-    private List<User> selectedUsers;
-    private ResidentProfile residentProfile;
-    private SecurityStaffProfile securityStaffProfile;
-    private ManagingStaffProfile managingStaffProfile;
+    private List<Users> users;
+    private List<Users> filteredUsers;
+    private Users newUser;
+    private List<Users> selectedUsers;
+    private ResidentProfiles residentProfile;
+    private SecurityStaffProfiles securityStaffProfile;
+    private ManagingStaffProfiles managingStaffProfile;
 
     @PostConstruct
     public void init() {
         users = userService.getAllUsers();
-        newUser = new User();
-        residentProfile = new ResidentProfile();
-        securityStaffProfile = new SecurityStaffProfile();
-        managingStaffProfile = new ManagingStaffProfile();
+        newUser = new Users();
+        residentProfile = new ResidentProfiles();
+        securityStaffProfile = new SecurityStaffProfiles();
+        managingStaffProfile = new ManagingStaffProfiles();
     }
 
     public void onRoleChange() {
         if ("RESIDENT".equals(newUser.getRole())) {
             if (residentProfile == null) {
-                residentProfile = new ResidentProfile();
+                residentProfile = new ResidentProfiles();
             }
             securityStaffProfile = null;
             managingStaffProfile = null;
         } else if ("SECURITY_STAFF".equals(newUser.getRole())) {
             if (securityStaffProfile == null) {
-                securityStaffProfile = new SecurityStaffProfile();
+                securityStaffProfile = new SecurityStaffProfiles();
             }
             residentProfile = null;
             managingStaffProfile = null;
         } else if ("MANAGING_STAFF".equals(newUser.getRole())) {
             if (managingStaffProfile == null) {
-                managingStaffProfile = new ManagingStaffProfile();
+                managingStaffProfile = new ManagingStaffProfiles();
             }
             residentProfile = null;
             securityStaffProfile = null;
@@ -79,7 +79,7 @@ public class UsersController implements Serializable {
                 return;
             }
 
-            User createdUser = userService.createUser(newUser);
+            Users createdUser = userService.createUser(newUser);
 
             // Create role-specific profile
             Timestamp now = new Timestamp(System.currentTimeMillis());
@@ -114,19 +114,19 @@ public class UsersController implements Serializable {
             }
 
             users = userService.getAllUsers(); // Refresh the list
-            newUser = new User(); // Reset the form
-            residentProfile = new ResidentProfile(); // Reset profiles
-            securityStaffProfile = new SecurityStaffProfile();
-            managingStaffProfile = new ManagingStaffProfile();
+            newUser = new Users(); // Reset the form
+            residentProfile = new ResidentProfiles(); // Reset profiles
+            securityStaffProfile = new SecurityStaffProfiles();
+            managingStaffProfile = new ManagingStaffProfiles();
             addMessage("Success", "User created successfully");
         } catch (Exception e) {
             addErrorMessage("Error creating user: " + e.getMessage());
         }
     }
 
-    public void onRowEdit(RowEditEvent<User> event) {
+    public void onRowEdit(RowEditEvent<Users> event) {
         try {
-            User editedUser = event.getObject();
+            Users editedUser = event.getObject();
             userService.updateUser(editedUser);
             addMessage("Success", "User updated successfully");
         } catch (Exception e) {
@@ -134,14 +134,14 @@ public class UsersController implements Serializable {
         }
     }
 
-    public void onRowCancel(RowEditEvent<User> event) {
+    public void onRowCancel(RowEditEvent<Users> event) {
         addMessage("Cancelled", "Edit cancelled");
     }
 
     public void deleteSelectedUsers() {
         try {
             if (selectedUsers != null && !selectedUsers.isEmpty()) {
-                for (User user : selectedUsers) {
+                for (Users user : selectedUsers) {
                     userService.deleteUser(user);
                 }
                 // Remove from the local list so that the table UI updates
@@ -173,13 +173,13 @@ public class UsersController implements Serializable {
             return true;
         }
 
-        User user = (User) value;
-        return user.getUsername().toLowerCase().contains(filterText)
-                || user.getEmail().toLowerCase().contains(filterText)
-                || user.getFirstName().toLowerCase().contains(filterText)
-                || user.getLastName().toLowerCase().contains(filterText)
-                || user.getPhoneNumber().toLowerCase().contains(filterText)
-                || user.getRole().toLowerCase().contains(filterText);
+        Users users = (Users) value;
+        return users.getUsername().toLowerCase().contains(filterText)
+                || users.getEmail().toLowerCase().contains(filterText)
+                || users.getFirstName().toLowerCase().contains(filterText)
+                || users.getLastName().toLowerCase().contains(filterText)
+                || users.getPhoneNumber().toLowerCase().contains(filterText)
+                || users.getRole().toLowerCase().contains(filterText);
     }
 
     public void clearSelection() {
@@ -200,59 +200,59 @@ public class UsersController implements Serializable {
 
 
     // Getters and Setters
-    public List<User> getUsers() {
+    public List<Users> getUsers() {
         return users;
     }
 
-    public void setUsers(List<User> users) {
+    public void setUsers(List<Users> users) {
         this.users = users;
     }
 
-    public List<User> getFilteredUsers() {
+    public List<Users> getFilteredUsers() {
         return filteredUsers;
     }
 
-    public void setFilteredUsers(List<User> filteredUsers) {
+    public void setFilteredUsers(List<Users> filteredUsers) {
         this.filteredUsers = filteredUsers;
     }
 
-    public User getNewUser() {
+    public Users getNewUser() {
         return newUser;
     }
 
-    public void setNewUser(User newUser) {
+    public void setNewUser(Users newUser) {
         this.newUser = newUser;
     }
 
-    public List<User> getSelectedUsers() {
+    public List<Users> getSelectedUsers() {
         return selectedUsers;
     }
 
-    public void setSelectedUsers(List<User> selectedUsers) {
+    public void setSelectedUsers(List<Users> selectedUsers) {
         this.selectedUsers = selectedUsers;
     }
 
-    public ResidentProfile getResidentProfile() {
+    public ResidentProfiles getResidentProfile() {
         return residentProfile;
     }
 
-    public void setResidentProfile(ResidentProfile residentProfile) {
+    public void setResidentProfile(ResidentProfiles residentProfile) {
         this.residentProfile = residentProfile;
     }
 
-    public SecurityStaffProfile getSecurityStaffProfile() {
+    public SecurityStaffProfiles getSecurityStaffProfile() {
         return securityStaffProfile;
     }
 
-    public void setSecurityStaffProfile(SecurityStaffProfile securityStaffProfile) {
+    public void setSecurityStaffProfile(SecurityStaffProfiles securityStaffProfile) {
         this.securityStaffProfile = securityStaffProfile;
     }
 
-    public ManagingStaffProfile getManagingStaffProfile() {
+    public ManagingStaffProfiles getManagingStaffProfile() {
         return managingStaffProfile;
     }
 
-    public void setManagingStaffProfile(ManagingStaffProfile managingStaffProfile) {
+    public void setManagingStaffProfile(ManagingStaffProfiles managingStaffProfile) {
         this.managingStaffProfile = managingStaffProfile;
     }
 } 

@@ -3,8 +3,9 @@ package org.example.hvvs.modules.admin.service;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import org.example.hvvs.model.ManagingStaffProfile;
-import org.example.hvvs.model.User;
+import org.example.hvvs.model.ManagingStaffProfiles;
+import org.example.hvvs.model.Users;
+
 import java.util.List;
 
 @ApplicationScoped
@@ -16,31 +17,31 @@ public class SettingsServiceAdmin {
     /**
      * Find a User by ID.
      */
-    public User findUserById(Integer userId) {
-        return em.find(User.class, userId);
+    public Users findUserById(Integer userId) {
+        return em.find(Users.class, userId);
     }
 
     /**
      * Update User entity.
      */
-    public void updateUser(User user) {
+    public void updateUser(Users user) {
         em.merge(user);
     }
 
     /**
      * Find ManagingStaffProfile by associated user ID.
      */
-    public ManagingStaffProfile findManagingStaffProfileByUserId(Integer userId) {
-        return em.createNamedQuery("ManagingStaffProfile.findByUserId", ManagingStaffProfile.class)
-                .setParameter("user_id", em.find(User.class, userId))
+    public ManagingStaffProfiles findManagingStaffProfileByUserId(Integer userId) {
+        return em.createNamedQuery("ManagingStaffProfile.findByUserId", ManagingStaffProfiles.class)
+                .setParameter("user_id", em.find(Users.class, userId))
                 .getSingleResult();
     }
 
     /**
      * Update or merge the ManagingStaffProfile entity.
      */
-    public void updateManagingStaffProfile(ManagingStaffProfile managingStaffProfile) {
-        em.merge(managingStaffProfile);
+    public void updateManagingStaffProfile(ManagingStaffProfiles managingStaffProfiles) {
+        em.merge(managingStaffProfiles);
     }
 
     /**
@@ -48,7 +49,7 @@ public class SettingsServiceAdmin {
      */
     public boolean isUsernameExists(String username, Integer currentUserId) {
         try {
-            List<User> users = em.createNamedQuery("User.findByUsername", User.class)
+            List<Users> users = em.createNamedQuery("User.findByUsername", Users.class)
                     .setParameter("username", username)
                     .getResultList();
 
@@ -65,7 +66,7 @@ public class SettingsServiceAdmin {
      */
     public boolean isEmailExists(String email, Integer currentUserId) {
         try {
-            List<User> users = em.createNamedQuery("User.findByEmail", User.class)
+            List<Users> users = em.createNamedQuery("User.findByEmail", Users.class)
                     .setParameter("email", email)
                     .getResultList();
 

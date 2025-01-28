@@ -7,9 +7,9 @@ import jakarta.faces.context.FacesContext;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.transaction.Transactional;
-import org.example.hvvs.model.VisitRequest;
-import org.example.hvvs.model.User;
-import org.example.hvvs.model.ResidentProfile;
+import org.example.hvvs.model.ResidentProfiles;
+import org.example.hvvs.model.Users;
+import org.example.hvvs.model.VisitRequests;
 import org.example.hvvs.modules.resident.services.VisitRequestService;
 import org.example.hvvs.modules.resident.services.SettingsServiceResident;
 import org.example.hvvs.utils.CommonParam;
@@ -26,9 +26,9 @@ import java.util.UUID;
 @SessionScoped
 public class VisitRequestController implements Serializable {
 
-    private VisitRequest newRequest;
-    private List<VisitRequest> userRequests;
-    private ResidentProfile residentProfile;
+    private VisitRequests newRequest;
+    private List<VisitRequests> userRequests;
+    private ResidentProfiles residentProfile;
 
     @Inject
     private VisitRequestService visitRequestService;
@@ -36,14 +36,14 @@ public class VisitRequestController implements Serializable {
     @Inject
     private SettingsServiceResident settingsService;
 
-    private List<VisitRequest> selectedRequests;
-    private List<VisitRequest> filteredRequests;
+    private List<VisitRequests> selectedRequests;
+    private List<VisitRequests> filteredRequests;
 
-    public List<VisitRequest> getFilteredRequests() {
+    public List<VisitRequests> getFilteredRequests() {
         return filteredRequests;
     }
 
-    public void setFilteredRequests(List<VisitRequest> filteredRequests) {
+    public void setFilteredRequests(List<VisitRequests> filteredRequests) {
         this.filteredRequests = filteredRequests;
     }
 
@@ -53,7 +53,7 @@ public class VisitRequestController implements Serializable {
             return true;
         }
 
-        VisitRequest request = (VisitRequest) value;
+        VisitRequests request = (VisitRequests) value;
         return request.getVerificationCode().toLowerCase().contains(filterText)
                 || request.getPurpose().toLowerCase().contains(filterText)
                 || request.getStatus().toLowerCase().contains(filterText)
@@ -64,14 +64,14 @@ public class VisitRequestController implements Serializable {
     @PostConstruct
     public void init() {
         // Prepare the 'newRequest' object for the dialog
-        this.newRequest = new VisitRequest();
+        this.newRequest = new VisitRequests();
         String verificationCode = UUID.randomUUID().toString().substring(0, 6).toUpperCase();
         newRequest.setStatus("PENDING");
         newRequest.setRemarks("Awaiting approval");
         newRequest.setVerificationCode(verificationCode);
 
         // Get current user from session
-        User currentUser = (User) FacesContext
+        Users currentUser = (Users) FacesContext
                 .getCurrentInstance()
                 .getExternalContext()
                 .getSessionMap()
@@ -86,31 +86,31 @@ public class VisitRequestController implements Serializable {
         loadUserRequests();
     }
 
-    public VisitRequest getNewRequest() {
+    public VisitRequests getNewRequest() {
         return newRequest;
     }
 
-    public void setNewRequest(VisitRequest newRequest) {
+    public void setNewRequest(VisitRequests newRequest) {
         this.newRequest = newRequest;
     }
 
-    public List<VisitRequest> getUserRequests() {
+    public List<VisitRequests> getUserRequests() {
         return userRequests;
     }
 
-    public List<VisitRequest> getSelectedRequests() {
+    public List<VisitRequests> getSelectedRequests() {
         return selectedRequests;
     }
 
-    public void setSelectedRequests(List<VisitRequest> selectedRequests) {
+    public void setSelectedRequests(List<VisitRequests> selectedRequests) {
         this.selectedRequests = selectedRequests;
     }
 
-    public ResidentProfile getResidentProfile() {
+    public ResidentProfiles getResidentProfile() {
         return residentProfile;
     }
 
-    public void setResidentProfile(ResidentProfile residentProfile) {
+    public void setResidentProfile(ResidentProfiles residentProfile) {
         this.residentProfile = residentProfile;
     }
 
@@ -118,7 +118,7 @@ public class VisitRequestController implements Serializable {
      * Called in @PostConstruct or whenever you need to refresh the table data
      */
     private void loadUserRequests() {
-        User currentUser = (User) FacesContext
+        Users currentUser = (Users) FacesContext
                 .getCurrentInstance()
                 .getExternalContext()
                 .getSessionMap()
@@ -142,7 +142,7 @@ public class VisitRequestController implements Serializable {
                 return;
             }
             // Get current user from session
-            User currentUser = (User) FacesContext
+            Users currentUser = (Users) FacesContext
                     .getCurrentInstance()
                     .getExternalContext()
                     .getSessionMap()
@@ -165,7 +165,7 @@ public class VisitRequestController implements Serializable {
             visitRequestService.create(newRequest);
 
             // Reset the form for next time
-            newRequest = new VisitRequest();
+            newRequest = new VisitRequests();
             newRequest.setVerificationCode(UUID.randomUUID().toString().substring(0, 6).toUpperCase());
             newRequest.setStatus("PENDING");
             newRequest.setRemarks("Awaiting approval");
@@ -187,9 +187,9 @@ public class VisitRequestController implements Serializable {
      * Called by PrimeFaces rowEdit event when a row is saved (after inline editing).
      */
     @Transactional
-    public void onRowEdit(RowEditEvent<VisitRequest> event) {
+    public void onRowEdit(RowEditEvent<VisitRequests> event) {
         try {
-            VisitRequest editedRequest = event.getObject();
+            VisitRequests editedRequest = event.getObject();
             editedRequest.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
             visitRequestService.update(editedRequest);
 
@@ -204,13 +204,13 @@ public class VisitRequestController implements Serializable {
     /**
      * Called by PrimeFaces rowEdit event when a row edit is canceled.
      */
-    public void onRowCancel(RowEditEvent<VisitRequest> event) {
+    public void onRowCancel(RowEditEvent<VisitRequests> event) {
         FacesContext.getCurrentInstance().addMessage(null,
                 new FacesMessage(FacesMessage.SEVERITY_INFO, "Cancelled", "No changes were saved"));
     }
 
     @Transactional
-    public String cancelRequest(VisitRequest request) {
+    public String cancelRequest(VisitRequests request) {
         try {
             // Mark as canceled (or any other logic you need)
             request.setStatus("CANCELLED");

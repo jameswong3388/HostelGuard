@@ -47,15 +47,18 @@
         </h:form>
     </header>
 
+    <!-- Messages -->
+    <p:growl id="messages" showDetail="true" />
+
     <!-- Secondary Tab Nav -->
     <ui:insert name="navigation">
         <nav class="flex items-center space-x-8 px-12 py-2 bg-white border-b">
-            <h:link outcome="/security/dashboard.xhtml"
-                    styleClass="py-2 text-gray-500 hover:text-gray-700 focus:outline-none">Dashboard</h:link>
-            <h:link outcome="/security/users.xhtml"
-                    styleClass="py-2 text-gray-500 hover:text-gray-700 focus:outline-none">Users</h:link>
-            <h:link outcome="/security/requests.xhtml"
-                    styleClass="py-2 text-gray-500 hover:text-gray-700 focus:outline-none">Requests</h:link>
+            <h:link outcome="/security/settings/general.xhtml"
+                    styleClass="py-2 text-blue-600 font-medium focus:outline-none">General</h:link>
+            <h:link outcome="/security/settings/account.xhtml"
+                    styleClass="py-2 text-gray-500 hover:text-gray-700 focus:outline-none">Accounts</h:link>
+            <h:link outcome="/security/settings/authentication-security.xhtml"
+                    styleClass="py-2 text-gray-500 hover:text-gray-700 focus:outline-none">Authentication &amp; Security</h:link>
         </nav>
     </ui:insert>
 

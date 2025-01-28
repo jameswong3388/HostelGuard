@@ -10,18 +10,20 @@
 
     <!-- Navigation links -->
     <ui:define name="navigation">
-        <h:link outcome="/security/settings/general.xhtml"
-                styleClass="py-2 text-gray-500 hover:text-gray-700 focus:outline-none">
-            General
-        </h:link>
-        <h:link outcome="/security/settings/account.xhtml"
-                styleClass="py-2 text-gray-500 hover:text-gray-700 focus:outline-none">
-            Account
-        </h:link>
-        <h:link outcome="/security/settings/authentication-security.xhtml"
-                styleClass="py-2 text-blue-600 font-medium focus:outline-none">
-            Authentication &amp; Security
-        </h:link>
+        <nav class="flex items-center space-x-8 px-12 py-2 bg-white border-b">
+            <h:link outcome="/security/settings/general.xhtml"
+                    styleClass="py-2 text-gray-500 hover:text-gray-700 focus:outline-none">
+                General
+            </h:link>
+            <h:link outcome="/security/settings/account.xhtml"
+                    styleClass="py-2 text-gray-500 hover:text-gray-700 focus:outline-none">
+                Account
+            </h:link>
+            <h:link outcome="/security/settings/authentication-security.xhtml"
+                    styleClass="py-2 text-blue-600 font-medium focus:outline-none">
+                Authentication &amp; Security
+            </h:link>
+        </nav>
     </ui:define>
 
     <!-- Main content -->
@@ -79,7 +81,8 @@
 
                             <!-- Confirm New Password -->
                             <div class="mb-4">
-                                <h:outputLabel for="confirmNewPassword" value="Confirm new password" styleClass="font-medium"/>
+                                <h:outputLabel for="confirmNewPassword" value="Confirm new password"
+                                               styleClass="font-medium"/>
                                 <p:password id="confirmNewPassword"
                                             value="#{SettingsControllerSecurity.confirmNewPassword}"
                                             styleClass="mt-2 w-full"
@@ -98,7 +101,7 @@
                 </section>
 
                 <!-- Divider -->
-                <hr class="border-gray-300" />
+                <hr class="border-gray-300"/>
 
                 <!-- Two-Factor Authentication Section -->
                 <section aria-labelledby="two-factor-authentication">
@@ -128,10 +131,10 @@
                                 </h4>
                                 <p:selectOneMenu id="preferred2fa"
                                                  styleClass="w-full max-w-xs">
-                                    <f:selectItem itemLabel="Authenticator App" itemValue="AUTH_APP" />
-                                    <f:selectItem itemLabel="SMS/Text Message" itemValue="SMS" />
-                                    <f:selectItem itemLabel="GitHub Mobile" itemValue="GITHUB_MOBILE" />
-                                    <f:selectItem itemLabel="Security Keys" itemValue="SECURITY_KEYS" />
+                                    <f:selectItem itemLabel="Authenticator App" itemValue="AUTH_APP"/>
+                                    <f:selectItem itemLabel="SMS/Text Message" itemValue="SMS"/>
+                                    <f:selectItem itemLabel="GitHub Mobile" itemValue="GITHUB_MOBILE"/>
+                                    <f:selectItem itemLabel="Security Keys" itemValue="SECURITY_KEYS"/>
                                 </p:selectOneMenu>
                                 <p class="mt-2 text-sm text-gray-500">
                                     Set your preferred method to use for two-factor authentication.
@@ -157,7 +160,7 @@
                                             <p:commandButton value="Edit"
                                                              action="#{SettingsControllerSecurity.editAuthApp}"
                                                              update="@form messages"
-                                                             styleClass="p-button-text p-button-sm" />
+                                                             styleClass="p-button-text p-button-sm"/>
                                         </li>
                                         <!-- SMS/Text message -->
                                         <li class="flex justify-between">
@@ -170,7 +173,7 @@
                                             <p:commandButton value="Add"
                                                              action="#{SettingsControllerSecurity.addSmsMethod}"
                                                              update="@form messages"
-                                                             styleClass="p-button-text p-button-sm" />
+                                                             styleClass="p-button-text p-button-sm"/>
                                         </li>
                                         <!-- Security keys -->
                                         <li class="flex justify-between">
@@ -183,7 +186,7 @@
                                             <p:commandButton value="Edit"
                                                              action="#{SettingsControllerSecurity.editSecurityKeys}"
                                                              update="@form messages"
-                                                             styleClass="p-button-text p-button-sm" />
+                                                             styleClass="p-button-text p-button-sm"/>
                                         </li>
                                         <!-- GitHub Mobile -->
                                         <li class="flex justify-between">
@@ -197,7 +200,7 @@
                                             <p:commandButton value="Show"
                                                              action="#{SettingsControllerSecurity.showGithubMobileDevices}"
                                                              update="@form messages"
-                                                             styleClass="p-button-text p-button-sm" />
+                                                             styleClass="p-button-text p-button-sm"/>
                                         </li>
                                         <!-- Recovery codes -->
                                         <li class="flex justify-between">
@@ -211,7 +214,7 @@
                                             <p:commandButton value="View"
                                                              action="#{SettingsControllerSecurity.viewRecoveryCodes}"
                                                              update="@form messages"
-                                                             styleClass="p-button-text p-button-sm" />
+                                                             styleClass="p-button-text p-button-sm"/>
                                         </li>
                                     </ul>
                                 </div>
@@ -226,7 +229,7 @@
                 </section>
 
                 <!-- Divider -->
-                <hr class="border-gray-300" />
+                <hr class="border-gray-300"/>
 
                 <!-- Web Sessions Section -->
                 <section aria-labelledby="web-sessions">
@@ -260,7 +263,7 @@
                                 <p:commandButton value="See more"
                                                  action="#{SettingsControllerSecurity.viewSessionDetails}"
                                                  update="@form messages"
-                                                 styleClass="p-button-text p-button-sm" />
+                                                 styleClass="p-button-text p-button-sm"/>
                             </div>
                             <!-- Add more session items as needed... -->
                         </div>
@@ -268,7 +271,7 @@
                 </section>
 
                 <!-- Divider -->
-                <hr class="border-gray-300" />
+                <hr class="border-gray-300"/>
 
                 <!-- GitHub Mobile Sessions Section -->
                 <section aria-labelledby="github-mobile-sessions">
@@ -309,7 +312,7 @@
                                 <p:commandButton value="Revoke"
                                                  action="#{SettingsControllerSecurity.revokeMobileSession}"
                                                  update="@form messages"
-                                                 styleClass="p-button-danger p-button-text p-button-sm" />
+                                                 styleClass="p-button-danger p-button-text p-button-sm"/>
                             </div>
 
                             <!-- Example device 2 -->
@@ -331,14 +334,14 @@
                                 <p:commandButton value="Revoke"
                                                  action="#{SettingsControllerSecurity.revokeMobileSession}"
                                                  update="@form messages"
-                                                 styleClass="p-button-danger p-button-text p-button-sm" />
+                                                 styleClass="p-button-danger p-button-text p-button-sm"/>
                             </div>
                         </div>
                     </div>
                 </section>
 
                 <!-- Divider -->
-                <hr class="border-gray-300" />
+                <hr class="border-gray-300"/>
 
                 <!-- (Optional) Danger Zone Section -->
                 <section aria-labelledby="danger-zone">
@@ -367,7 +370,7 @@
                                 <p:commandButton value="Sign out everywhere"
                                                  action="#{SettingsControllerSecurity.revokeAllSessions}"
                                                  update="@form messages"
-                                                 styleClass="p-button-danger" />
+                                                 styleClass="p-button-danger"/>
                             </div>
                         </div>
                     </div>

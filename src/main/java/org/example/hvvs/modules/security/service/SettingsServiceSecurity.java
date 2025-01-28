@@ -3,8 +3,8 @@ package org.example.hvvs.modules.security.service;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import org.example.hvvs.model.SecurityStaffProfile;
-import org.example.hvvs.model.User;
+import org.example.hvvs.model.SecurityStaffProfiles;
+import org.example.hvvs.model.Users;
 
 @ApplicationScoped
 public class SettingsServiceSecurity {
@@ -15,23 +15,23 @@ public class SettingsServiceSecurity {
     /**
      * Find a User by ID.
      */
-    public User findUserById(Integer userId) {
-        return em.find(User.class, userId);
+    public Users findUserById(Integer userId) {
+        return em.find(Users.class, userId);
     }
 
     /**
      * Update User entity.
      */
-    public void updateUser(User user) {
+    public void updateUser(Users user) {
         em.merge(user);
     }
 
     /**
      * Find SecurityStaffProfile by associated user ID.
      */
-    public SecurityStaffProfile findSecurityStaffProfileByUserId(Integer userId) {
-        return em.createNamedQuery("SecurityStaffProfile.findByUserId", SecurityStaffProfile.class)
-                .setParameter("user_id", em.find(User.class, userId))
+    public SecurityStaffProfiles findSecurityStaffProfileByUserId(Integer userId) {
+        return em.createNamedQuery("SecurityStaffProfile.findByUserId", SecurityStaffProfiles.class)
+                .setParameter("user_id", em.find(Users.class, userId))
                 .getSingleResult();
     }
 
@@ -39,7 +39,7 @@ public class SettingsServiceSecurity {
      * Check if email exists for another user
      */
     public boolean isEmailExists(String email, Integer currentUserId) {
-        Long count = em.createQuery("SELECT COUNT(u) FROM User u WHERE u.email = :email AND u.id != :userId", Long.class)
+        Long count = em.createQuery("SELECT COUNT(u) FROM Users u WHERE u.email = :email AND u.id != :userId", Long.class)
                 .setParameter("email", email)
                 .setParameter("userId", currentUserId)
                 .getSingleResult();
@@ -50,7 +50,7 @@ public class SettingsServiceSecurity {
      * Check if username exists for another user
      */
     public boolean isUsernameExists(String username, Integer currentUserId) {
-        Long count = em.createQuery("SELECT COUNT(u) FROM User u WHERE u.username = :username AND u.id != :userId", Long.class)
+        Long count = em.createQuery("SELECT COUNT(u) FROM Users u WHERE u.username = :username AND u.id != :userId", Long.class)
                 .setParameter("username", username)
                 .setParameter("userId", currentUserId)
                 .getSingleResult();
@@ -60,7 +60,7 @@ public class SettingsServiceSecurity {
     /**
      * Update SecurityStaffProfile entity.
      */
-    public void updateSecurityStaffProfile(SecurityStaffProfile profile) {
+    public void updateSecurityStaffProfile(SecurityStaffProfiles profile) {
         em.merge(profile);
     }
 }

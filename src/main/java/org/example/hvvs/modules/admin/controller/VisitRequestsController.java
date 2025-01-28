@@ -5,7 +5,7 @@ import jakarta.faces.context.FacesContext;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
-import org.example.hvvs.model.VisitRequest;
+import org.example.hvvs.model.VisitRequests;
 import org.example.hvvs.modules.admin.service.VisitRequestsService;
 import org.primefaces.event.RowEditEvent;
 
@@ -20,9 +20,9 @@ public class VisitRequestsController implements Serializable {
     @Inject
     private VisitRequestsService requestService;
 
-    private List<VisitRequest> requests;
-    private List<VisitRequest> filteredRequests;
-    private List<VisitRequest> selectedRequests;
+    private List<VisitRequests> requests;
+    private List<VisitRequests> filteredRequests;
+    private List<VisitRequests> selectedRequests;
 
     public void init() {
         requests = requestService.getAllRequests();
@@ -58,7 +58,7 @@ public class VisitRequestsController implements Serializable {
         }
     }
 
-    public void onRowEdit(RowEditEvent<VisitRequest> event) {
+    public void onRowEdit(RowEditEvent<VisitRequests> event) {
         try {
             requestService.updateRequest(event.getObject());
             FacesContext.getCurrentInstance().addMessage(null,
@@ -69,7 +69,7 @@ public class VisitRequestsController implements Serializable {
         }
     }
 
-    public void onRowCancel(RowEditEvent<VisitRequest> event) {
+    public void onRowCancel(RowEditEvent<VisitRequests> event) {
         FacesContext.getCurrentInstance().addMessage(null,
                 new FacesMessage(FacesMessage.SEVERITY_INFO, "Cancelled", "Edit cancelled"));
     }
@@ -80,7 +80,7 @@ public class VisitRequestsController implements Serializable {
             return true;
         }
 
-        VisitRequest request = (VisitRequest) value;
+        VisitRequests request = (VisitRequests) value;
         return request.getUserId().getUsername().toLowerCase().contains(filterText)
                 || request.getUserId().getEmail().toLowerCase().contains(filterText)
                 || request.getVerificationCode().toLowerCase().contains(filterText)
@@ -91,30 +91,30 @@ public class VisitRequestsController implements Serializable {
     }
 
     // Getters and Setters
-    public List<VisitRequest> getRequests() {
+    public List<VisitRequests> getRequests() {
         if (requests == null) {
             init();
         }
         return requests;
     }
 
-    public void setRequests(List<VisitRequest> requests) {
+    public void setRequests(List<VisitRequests> requests) {
         this.requests = requests;
     }
 
-    public List<VisitRequest> getFilteredRequests() {
+    public List<VisitRequests> getFilteredRequests() {
         return filteredRequests;
     }
 
-    public void setFilteredRequests(List<VisitRequest> filteredRequests) {
+    public void setFilteredRequests(List<VisitRequests> filteredRequests) {
         this.filteredRequests = filteredRequests;
     }
 
-    public List<VisitRequest> getSelectedRequests() {
+    public List<VisitRequests> getSelectedRequests() {
         return selectedRequests;
     }
 
-    public void setSelectedRequests(List<VisitRequest> selectedRequests) {
+    public void setSelectedRequests(List<VisitRequests> selectedRequests) {
         this.selectedRequests = selectedRequests;
     }
 } 

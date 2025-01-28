@@ -1,15 +1,15 @@
 package org.example.hvvs.modules.security.service;
 
-import org.example.hvvs.model.VisitRequest;
-import org.example.hvvs.model.VisitorRecord;
+import org.example.hvvs.model.VisitRequests;
+import org.example.hvvs.model.VisitorRecords;
 import org.primefaces.model.file.UploadedFile;
 
 public interface OnboardVisitorsService {
-    VisitRequest verifyVisitRequest(String verificationCode);
+    VisitRequests verifyVisitRequest(String verificationCode);
 
-    void registerVisitor(VisitorRecord visitorRecord, UploadedFile visitorPhoto);
+    void registerVisitor(VisitorRecords visitorRecord, UploadedFile visitorPhoto);
 
-    VisitorRecord findVisitorForCheckout(String verificationCode);
+    VisitorRecords findVisitorForCheckout(String verificationCode);
 
-    void checkoutVisitor(VisitorRecord visitorRecord);
+    void checkoutVisitor(VisitorRecords visitorRecord);
 } 

@@ -6,7 +6,7 @@ import jakarta.faces.context.FacesContext;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
-import org.example.hvvs.model.VisitorRecord;
+import org.example.hvvs.model.VisitorRecords;
 import org.example.hvvs.modules.admin.service.VisitorRecordService;
 import org.primefaces.event.RowEditEvent;
 
@@ -20,9 +20,9 @@ public class VisitorRecordController implements Serializable {
     @Inject
     private VisitorRecordService visitorRecordService;
     
-    private List<VisitorRecord> records;
-    private List<VisitorRecord> filteredRecords;
-    private List<VisitorRecord> selectedRecords;
+    private List<VisitorRecords> records;
+    private List<VisitorRecords> filteredRecords;
+    private List<VisitorRecords> selectedRecords;
     
     @PostConstruct
     public void init() {
@@ -31,7 +31,7 @@ public class VisitorRecordController implements Serializable {
     
     public void deleteSelectedRecords() {
         if (selectedRecords != null && !selectedRecords.isEmpty()) {
-            for (VisitorRecord record : selectedRecords) {
+            for (VisitorRecords record : selectedRecords) {
                 visitorRecordService.deleteVisitorRecord(record);
             }
             records = visitorRecordService.getAllVisitorRecords();
@@ -45,14 +45,14 @@ public class VisitorRecordController implements Serializable {
         selectedRecords = null;
     }
     
-    public void onRowEdit(RowEditEvent<VisitorRecord> event) {
-        VisitorRecord record = event.getObject();
+    public void onRowEdit(RowEditEvent<VisitorRecords> event) {
+        VisitorRecords record = event.getObject();
         visitorRecordService.updateVisitorRecord(record);
         FacesContext.getCurrentInstance().addMessage(null,
             new FacesMessage(FacesMessage.SEVERITY_INFO, "Success", "Record updated"));
     }
     
-    public void onRowCancel(RowEditEvent<VisitorRecord> event) {
+    public void onRowCancel(RowEditEvent<VisitorRecords> event) {
         FacesContext.getCurrentInstance().addMessage(null,
             new FacesMessage(FacesMessage.SEVERITY_INFO, "Cancelled", "Edit cancelled"));
     }
@@ -63,7 +63,7 @@ public class VisitorRecordController implements Serializable {
             return true;
         }
 
-        VisitorRecord record = (VisitorRecord) value;
+        VisitorRecords record = (VisitorRecords) value;
         return record.getVisitorName().toLowerCase().contains(filterText)
             || record.getVisitorIc().toLowerCase().contains(filterText)
             || record.getVisitorPhone().toLowerCase().contains(filterText)
@@ -78,27 +78,27 @@ public class VisitorRecordController implements Serializable {
     }
     
     // Getters and Setters
-    public List<VisitorRecord> getRecords() {
+    public List<VisitorRecords> getRecords() {
         return records;
     }
     
-    public void setRecords(List<VisitorRecord> records) {
+    public void setRecords(List<VisitorRecords> records) {
         this.records = records;
     }
     
-    public List<VisitorRecord> getFilteredRecords() {
+    public List<VisitorRecords> getFilteredRecords() {
         return filteredRecords;
     }
     
-    public void setFilteredRecords(List<VisitorRecord> filteredRecords) {
+    public void setFilteredRecords(List<VisitorRecords> filteredRecords) {
         this.filteredRecords = filteredRecords;
     }
     
-    public List<VisitorRecord> getSelectedRecords() {
+    public List<VisitorRecords> getSelectedRecords() {
         return selectedRecords;
     }
     
-    public void setSelectedRecords(List<VisitorRecord> selectedRecords) {
+    public void setSelectedRecords(List<VisitorRecords> selectedRecords) {
         this.selectedRecords = selectedRecords;
     }
 } 

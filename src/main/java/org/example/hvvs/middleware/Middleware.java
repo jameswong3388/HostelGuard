@@ -14,7 +14,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
-import org.example.hvvs.model.User;
+import org.example.hvvs.model.Users;
 import org.example.hvvs.modules.auth.service.AuthServices;
 import org.example.hvvs.utils.CommonParam;
 
@@ -61,10 +61,10 @@ public class Middleware implements Filter {
         }
 
         HttpSession session = req.getSession(false);
-        User user = null;
+        Users user = null;
 
         if (session != null) {
-            user = (User) session.getAttribute(CommonParam.SESSION_SELF);
+            user = (Users) session.getAttribute(CommonParam.SESSION_SELF);
         }
 
         // ---------------------------------------------------------------------
@@ -226,7 +226,7 @@ public class Middleware implements Filter {
             return CommonParam.SESSION_ROLE_MANAGING_STAFF.equals(role);
         }
         // If none of the above prefixes, you can decide whether it's open
-        // to all authenticated users or no one. For simplicity, let's allow
+        // to all authenticated user or no one. For simplicity, let's allow
         // any authenticated user if it doesn't match any prefix:
         return true;
     }

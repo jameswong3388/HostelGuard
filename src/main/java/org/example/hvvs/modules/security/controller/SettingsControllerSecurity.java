@@ -8,8 +8,8 @@ import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.transaction.Transactional;
 import org.example.hvvs.commonClasses.CustomPart;
-import org.example.hvvs.model.SecurityStaffProfile;
-import org.example.hvvs.model.User;
+import org.example.hvvs.model.SecurityStaffProfiles;
+import org.example.hvvs.model.Users;
 import org.example.hvvs.modules.common.service.MediaService;
 import org.example.hvvs.modules.security.service.SettingsServiceSecurity;
 import org.example.hvvs.utils.CommonParam;
@@ -26,8 +26,8 @@ import java.util.List;
 @SessionScoped
 public class SettingsControllerSecurity implements Serializable {
 
-    private User user;
-    private SecurityStaffProfile securityStaffProfile;
+    private Users user;
+    private SecurityStaffProfiles securityStaffProfile;
     private String oldPassword;
     private String newPassword;
     private String confirmNewPassword;
@@ -42,7 +42,7 @@ public class SettingsControllerSecurity implements Serializable {
 
     @PostConstruct
     public void init() {
-        User currentUser = (User) FacesContext
+        Users currentUser = (Users) FacesContext
                 .getCurrentInstance()
                 .getExternalContext()
                 .getSessionMap()
@@ -151,7 +151,7 @@ public class SettingsControllerSecurity implements Serializable {
      * Helper method to reset user data from database
      */
     private void resetUserData() {
-        User currentUser = (User) FacesContext
+        Users currentUser = (Users) FacesContext
                 .getCurrentInstance()
                 .getExternalContext()
                 .getSessionMap()
@@ -288,21 +288,21 @@ public class SettingsControllerSecurity implements Serializable {
 
         return null;
     }
-    
+
     /* Getters and setters */
-    public User getUser() {
+    public Users getUser() {
         return user;
     }
 
-    public void setUser(User user) {
+    public void setUser(Users user) {
         this.user = user;
     }
 
-    public SecurityStaffProfile getSecurityStaffProfile() {
+    public SecurityStaffProfiles getSecurityStaffProfile() {
         return securityStaffProfile;
     }
 
-    public void setSecurityStaffProfile(SecurityStaffProfile securityStaffProfile) {
+    public void setSecurityStaffProfile(SecurityStaffProfiles securityStaffProfile) {
         this.securityStaffProfile = securityStaffProfile;
     }
 

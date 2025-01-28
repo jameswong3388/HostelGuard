@@ -5,21 +5,21 @@ import org.example.hvvs.commonClasses.BaseEntity;
 import java.sql.Timestamp;
 
 @Entity
-@Table(name = "visitor_record")
+@Table(name = "visitor_records")
 @NamedQueries({
-        @NamedQuery(name = "VisitorRecord.findAll", query = "SELECT v FROM VisitorRecord v"),
-        @NamedQuery(name = "VisitorRecord.findByRequestId", query = "SELECT v FROM VisitorRecord v WHERE v.request_id = :request_id"),
-        @NamedQuery(name = "VisitorRecord.findBySecurityStaffId", query = "SELECT v FROM VisitorRecord v WHERE v.security_staff_id = :security_staff_id"),
-        @NamedQuery(name = "VisitorRecord.findByVisitorName", query = "SELECT v FROM VisitorRecord v WHERE v.visitor_name = :visitor_name")
+        @NamedQuery(name = "VisitorRecord.findAll", query = "SELECT v FROM VisitorRecords v"),
+        @NamedQuery(name = "VisitorRecord.findByRequestId", query = "SELECT v FROM VisitorRecords v WHERE v.request_id = :request_id"),
+        @NamedQuery(name = "VisitorRecord.findBySecurityStaffId", query = "SELECT v FROM VisitorRecords v WHERE v.security_staff_id = :security_staff_id"),
+        @NamedQuery(name = "VisitorRecord.findByVisitorName", query = "SELECT v FROM VisitorRecords v WHERE v.visitor_name = :visitor_name")
 })
-public class VisitorRecord extends BaseEntity {
+public class VisitorRecords extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "request_id", nullable = false)
-    private VisitRequest request_id;
+    private VisitRequests request_id;
 
     @ManyToOne
     @JoinColumn(name = "security_staff_id", nullable = false)
-    private User security_staff_id;
+    private Users security_staff_id;
 
     @Column(name = "visitor_name", nullable = false)
     private String visitor_name;
@@ -45,13 +45,13 @@ public class VisitorRecord extends BaseEntity {
     @Column(name = "updated_at", nullable = false)
     private Timestamp updated_at;
 
-    public VisitorRecord() {
+    public VisitorRecords() {
         super();
     }
 
-    public VisitorRecord(VisitRequest request_id, User security_staff_id, String visitor_name,
-                        String visitor_ic, String visitor_phone, Timestamp check_in_time, Timestamp check_out_time, 
-                        String remarks, Timestamp created_at, Timestamp updated_at) {
+    public VisitorRecords(VisitRequests request_id, Users security_staff_id, String visitor_name,
+                          String visitor_ic, String visitor_phone, Timestamp check_in_time, Timestamp check_out_time,
+                          String remarks, Timestamp created_at, Timestamp updated_at) {
         this.request_id = request_id;
         this.security_staff_id = security_staff_id;
         this.visitor_name = visitor_name;
@@ -64,11 +64,11 @@ public class VisitorRecord extends BaseEntity {
         this.updated_at = updated_at;
     }
 
-    public VisitRequest getRequestId() {
+    public VisitRequests getRequestId() {
         return request_id;
     }
 
-    public User getSecurityStaffId() {
+    public Users getSecurityStaffId() {
         return security_staff_id;
     }
 
@@ -104,11 +104,11 @@ public class VisitorRecord extends BaseEntity {
         return updated_at;
     }
 
-    public void setRequestId(VisitRequest request_id) {
+    public void setRequestId(VisitRequests request_id) {
         this.request_id = request_id;
     }
 
-    public void setSecurityStaffId(User security_staff_id) {
+    public void setSecurityStaffId(Users security_staff_id) {
         this.security_staff_id = security_staff_id;
     }
 

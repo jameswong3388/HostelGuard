@@ -5,10 +5,9 @@ import jakarta.faces.context.FacesContext;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
-import org.example.hvvs.model.Medias;
-import org.example.hvvs.model.User;
-import org.example.hvvs.model.VisitRequest;
-import org.example.hvvs.model.VisitorRecord;
+import org.example.hvvs.model.Users;
+import org.example.hvvs.model.VisitRequests;
+import org.example.hvvs.model.VisitorRecords;
 import org.example.hvvs.modules.security.service.OnboardVisitorsService;
 import org.example.hvvs.utils.CommonParam;
 import org.primefaces.model.file.UploadedFile;
@@ -25,13 +24,13 @@ public class OnboardVisitorsController implements Serializable {
     
     private int currentStep = 1;
     private String verificationCode;
-    private VisitRequest visitRequest;
-    private VisitorRecord visitorRecord;
+    private VisitRequests visitRequest;
+    private VisitorRecords visitorRecord;
     private UploadedFile tempVisitorPhoto;
     private boolean isCheckIn = true;
 
     public OnboardVisitorsController() {
-        visitorRecord = new VisitorRecord();
+        visitorRecord = new VisitorRecords();
     }
 
     public void selectCheckIn() {
@@ -96,7 +95,7 @@ public class OnboardVisitorsController implements Serializable {
         currentStep = 1;
         verificationCode = null;
         visitRequest = null;
-        visitorRecord = new VisitorRecord();
+        visitorRecord = new VisitorRecords();
         tempVisitorPhoto = null;
         isCheckIn = true;
     }
@@ -107,7 +106,7 @@ public class OnboardVisitorsController implements Serializable {
                 throw new IllegalStateException("No valid visit request found");
             }
 
-            User currentUser = (User) FacesContext
+            Users currentUser = (Users) FacesContext
                     .getCurrentInstance()
                     .getExternalContext()
                     .getSessionMap()
@@ -181,11 +180,11 @@ public class OnboardVisitorsController implements Serializable {
         this.verificationCode = verificationCode;
     }
 
-    public VisitorRecord getVisitorRecord() {
+    public VisitorRecords getVisitorRecord() {
         return visitorRecord;
     }
 
-    public void setVisitorRecord(VisitorRecord visitorRecord) {
+    public void setVisitorRecord(VisitorRecords visitorRecord) {
         this.visitorRecord = visitorRecord;
     }
 

@@ -9,8 +9,8 @@ import jakarta.inject.Named;
 import jakarta.transaction.Transactional;
 import org.example.hvvs.commonClasses.CustomPart;
 import org.example.hvvs.model.Medias;
-import org.example.hvvs.model.ResidentProfile;
-import org.example.hvvs.model.User;
+import org.example.hvvs.model.ResidentProfiles;
+import org.example.hvvs.model.Users;
 import org.example.hvvs.modules.common.service.MediaService;
 import org.example.hvvs.modules.resident.services.SettingsServiceResident;
 import org.example.hvvs.utils.CommonParam;
@@ -27,8 +27,8 @@ import java.util.List;
 @SessionScoped
 public class SettingsControllerResident implements Serializable {
 
-    private User user;
-    private ResidentProfile residentProfile;
+    private Users user;
+    private ResidentProfiles residentProfile;
     private String oldPassword;
     private String newPassword;
     private String confirmNewPassword;
@@ -44,7 +44,7 @@ public class SettingsControllerResident implements Serializable {
     @PostConstruct
     public void init() {
         // Example: load user by some logic, e.g., from session or a dummy userId=1
-        User currentUser = (User) FacesContext
+        Users currentUser = (Users) FacesContext
                 .getCurrentInstance()
                 .getExternalContext()
                 .getSessionMap()
@@ -153,7 +153,7 @@ public class SettingsControllerResident implements Serializable {
      * Helper method to reset user data from database
      */
     private void resetUserData() {
-        User currentUser = (User) FacesContext
+        Users currentUser = (Users) FacesContext
                 .getCurrentInstance()
                 .getExternalContext()
                 .getSessionMap()
@@ -309,19 +309,19 @@ public class SettingsControllerResident implements Serializable {
         this.tempUploadedFile = tempUploadedFile;
     }
 
-    public User getUser() {
+    public Users getUser() {
         return user;
     }
 
-    public void setUser(User user) {
+    public void setUser(Users user) {
         this.user = user;
     }
 
-    public ResidentProfile getResidentProfile() {
+    public ResidentProfiles getResidentProfile() {
         return residentProfile;
     }
 
-    public void setResidentProfile(ResidentProfile residentProfile) {
+    public void setResidentProfile(ResidentProfiles residentProfile) {
         this.residentProfile = residentProfile;
     }
 

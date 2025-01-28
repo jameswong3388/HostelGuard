@@ -3,8 +3,9 @@ package org.example.hvvs.modules.resident.services;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import org.example.hvvs.model.ResidentProfile;
-import org.example.hvvs.model.User;
+import org.example.hvvs.model.ResidentProfiles;
+import org.example.hvvs.model.Users;
+
 import java.util.List;
 
 @ApplicationScoped
@@ -16,32 +17,32 @@ public class SettingsServiceResident {
     /**
      * Find a User by ID.
      */
-    public User findUserById(Integer userId) {
-        return em.find(User.class, userId);
+    public Users findUserById(Integer userId) {
+        return em.find(Users.class, userId);
     }
 
     /**
      * Update User entity.
      */
-    public void updateUser(User user) {
+    public void updateUser(Users user) {
         em.merge(user);
     }
 
     /**
      * Find ResidentProfile by associated user ID.
      */
-    public ResidentProfile findResidentProfileByUserId(Integer userId) {
+    public ResidentProfiles findResidentProfileByUserId(Integer userId) {
         // Example approach:
-        return em.createNamedQuery("ResidentProfile.findByUserId", ResidentProfile.class)
-                .setParameter("user_id", em.find(User.class, userId))
+        return em.createNamedQuery("ResidentProfile.findByUserId", ResidentProfiles.class)
+                .setParameter("user_id", em.find(Users.class, userId))
                 .getSingleResult();
     }
 
     /**
      * Update or merge the ResidentProfile entity.
      */
-    public void updateResidentProfile(ResidentProfile residentProfile) {
-        em.merge(residentProfile);
+    public void updateResidentProfile(ResidentProfiles residentProfiles) {
+        em.merge(residentProfiles);
     }
 
     /**
@@ -49,7 +50,7 @@ public class SettingsServiceResident {
      */
     public boolean isUsernameExists(String username, Integer currentUserId) {
         try {
-            List<User> users = em.createNamedQuery("User.findByUsername", User.class)
+            List<Users> users = em.createNamedQuery("User.findByUsername", Users.class)
                     .setParameter("username", username)
                     .getResultList();
 
@@ -66,7 +67,7 @@ public class SettingsServiceResident {
      */
     public boolean isEmailExists(String email, Integer currentUserId) {
         try {
-            List<User> users = em.createNamedQuery("User.findByEmail", User.class)
+            List<Users> users = em.createNamedQuery("User.findByEmail", Users.class)
                     .setParameter("email", email)
                     .getResultList();
 

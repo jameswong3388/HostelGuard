@@ -1,14 +1,15 @@
 -- Drop tables if they exist (in reverse order of dependencies)
-DROP TABLE IF EXISTS visitor_record;
-DROP TABLE IF EXISTS visit_request;
-DROP TABLE IF EXISTS security_staff_profile;
-DROP TABLE IF EXISTS resident_profile;
-DROP TABLE IF EXISTS managing_staff_profile;
-DROP TABLE IF EXISTS user;
+DROP TABLE IF EXISTS visitor_records;
+DROP TABLE IF EXISTS visit_requests;
+DROP TABLE IF EXISTS security_staff_profiles;
+DROP TABLE IF EXISTS resident_profiles;
+DROP TABLE IF EXISTS managing_staff_profiles;
+DROP TABLE IF EXISTS user_sessions;
+DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS medias;
 
--- Create user table
-CREATE TABLE user
+-- Create users table
+CREATE TABLE users
 (
     id           INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     username     VARCHAR(50)  NOT NULL UNIQUE,
@@ -25,19 +26,19 @@ CREATE TABLE user
     CHECK (role IN ('RESIDENT', 'SECURITY_STAFF', 'MANAGING_STAFF'))
 );
 
--- Create resident_profile table
-CREATE TABLE resident_profile
+-- Create resident_profiles table
+CREATE TABLE resident_profiles
 (
     id          INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     user_id     INT UNSIGNED NOT NULL,
     unit_number VARCHAR(10) NOT NULL,
     created_at  TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at  TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES user (id) ON DELETE CASCADE
+    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
 );
 
--- Create security_staff_profile table
-CREATE TABLE security_staff_profile
+-- Create security_staff_profiles table
+CREATE TABLE security_staff_profiles
 (
     id           INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     user_id      INT UNSIGNED NOT NULL,
@@ -45,12 +46,12 @@ CREATE TABLE security_staff_profile
     shift        VARCHAR(20) NOT NULL,
     created_at   TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at   TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES user (id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
     CHECK (shift IN ('MORNING', 'AFTERNOON', 'NIGHT'))
 );
 
--- Create managing_staff_profile table
-CREATE TABLE managing_staff_profile
+-- Create managing_staff_profiles table
+CREATE TABLE managing_staff_profiles
 (
     id         INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     user_id    INT UNSIGNED NOT NULL,
@@ -58,11 +59,11 @@ CREATE TABLE managing_staff_profile
     position   VARCHAR(50) NOT NULL,
     created_at TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES user (id) ON DELETE CASCADE
+    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
 );
 
--- Create visit_request table
-CREATE TABLE visit_request
+-- Create visit_requests table
+CREATE TABLE visit_requests
 (
     id                INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     user_id           INT UNSIGNED NOT NULL,
@@ -74,12 +75,12 @@ CREATE TABLE visit_request
     unit_number       VARCHAR(10) NOT NULL,
     created_at        TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at        TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES user (id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
     CHECK (status IN ('PENDING', 'APPROVED', 'REJECTED', 'PROGRESS', 'COMPLETED', 'CANCELLED'))
 );
 
--- Create visitor_record table
-CREATE TABLE visitor_record
+-- Create visitor_records table
+CREATE TABLE visitor_records
 (
     id                INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     request_id        INT UNSIGNED NOT NULL,
@@ -87,13 +88,13 @@ CREATE TABLE visitor_record
     visitor_name      VARCHAR(100) NOT NULL,
     visitor_ic        VARCHAR(20)  NOT NULL,
     visitor_phone     VARCHAR(20)  NOT NULL,
-    check_in_time     TIMESTAMP NULL,
-    check_out_time    TIMESTAMP NULL,
+    check_in_time     TIMESTAMP    NULL,
+    check_out_time    TIMESTAMP    NULL,
     remarks           TEXT,
     created_at        TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at        TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (request_id) REFERENCES visit_request (id) ON DELETE CASCADE,
-    FOREIGN KEY (security_staff_id) REFERENCES user (id) ON DELETE CASCADE
+    FOREIGN KEY (request_id) REFERENCES visit_requests (id) ON DELETE CASCADE,
+    FOREIGN KEY (security_staff_id) REFERENCES users (id) ON DELETE CASCADE
 );
 
 CREATE TABLE medias
@@ -105,18 +106,32 @@ CREATE TABLE medias
     file_name  VARCHAR(255) NOT NULL,
     mime_type  VARCHAR(255),
     disk       VARCHAR(255),
-    size DOUBLE,
+    size       DOUBLE,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
+CREATE TABLE user_sessions
+(
+    session_id  CHAR(36) PRIMARY KEY,
+    user_id     INT UNSIGNED NOT NULL,
+    ip_address  VARCHAR(45)  NOT NULL,
+    user_agent  VARCHAR(512) NOT NULL,
+    login_time  DATETIME     NOT NULL,
+    last_access DATETIME     NOT NULL,
+    expires_at  DATETIME     NOT NULL,
+    is_active   BOOLEAN DEFAULT true,
+    device_info VARCHAR(255),
+    FOREIGN KEY (user_id) REFERENCES users (id)
+);
+
 -- Create indexes for better query performance
-CREATE INDEX idx_visit_request_user ON visit_request (user_id);
-CREATE INDEX idx_visitor_record_request ON visitor_record (request_id);
-CREATE INDEX idx_security_staff_badge ON security_staff_profile (badge_number);
+CREATE INDEX idx_visit_request_user ON visit_requests (user_id);
+CREATE INDEX idx_visitor_record_request ON visitor_records (request_id);
+CREATE INDEX idx_security_staff_badge ON security_staff_profiles (badge_number);
 
 -- Insert initial users, all pass: admin
-INSERT INTO user (username, salt, password, email, first_name, last_name, phone_number, is_active, role)
+INSERT INTO users (username, salt, password, email, first_name, last_name, phone_number, is_active, role)
 VALUES ('managing_staff', 'FTUa8P#OT7N8d>o3', 'F3A90A00BF8D619364F2059DED59AB2DD1FE4EA7B527A2713D2F876403A863E1',
         'managingstaff@hvvs.com', 'MANAGING', 'STAFF', '+60123456789', TRUE, 'MANAGING_STAFF'),
        ('security_staff1', 'FTUa8P#OT7N8d>o3', 'F3A90A00BF8D619364F2059DED59AB2DD1FE4EA7B527A2713D2F876403A863E1',
@@ -167,7 +182,7 @@ VALUES ('managing_staff', 'FTUa8P#OT7N8d>o3', 'F3A90A00BF8D619364F2059DED59AB2DD
         'resident20@hvvs.com', 'Jessica', 'Thompson', '+60123456020', TRUE, 'RESIDENT');
 
 
-INSERT INTO visit_request (user_id, verification_code, visit_datetime, purpose, status, remarks, unit_number)
+INSERT INTO visit_requests (user_id, verification_code, visit_datetime, purpose, status, remarks, unit_number)
 VALUES
     -- Request #1 by resident1 (user_id=5)
     (5, 'VERIF001', '2025-01-10 10:00:00', 'Friend Gathering', 'COMPLETED', 'No issues', 'A-12-3'),
@@ -192,26 +207,26 @@ VALUES
 
 
 -- Request #1 (2 visitors)
-INSERT INTO visitor_record
+INSERT INTO visitor_records
 (request_id, security_staff_id, visitor_name, visitor_ic, visitor_phone, check_in_time, check_out_time, remarks)
 VALUES (1, 2, 'Alice Lim', 'IC100001', '60100001111', '2025-01-10 10:05:00', '2025-01-10 12:00:00', 'No issues'),
        (1, 3, 'Ben Chen', 'IC100002', '60100002222', '2025-01-10 10:10:00', '2025-01-10 12:05:00', 'Friend of Alice');
 
 -- Request #2 (1 visitor)
-INSERT INTO visitor_record
+INSERT INTO visitor_records
 (request_id, security_staff_id, visitor_name, visitor_ic, visitor_phone, check_in_time, check_out_time, remarks)
 VALUES (2, 4, 'DHL Courier', 'IC200001', '60100003333', '2025-01-11 09:35:00', '2025-01-11 09:50:00',
         'Delivered package');
 
 -- Request #3 (3 visitors)
-INSERT INTO visitor_record
+INSERT INTO visitor_records
 (request_id, security_staff_id, visitor_name, visitor_ic, visitor_phone, check_in_time, check_out_time, remarks)
 VALUES (3, 2, 'Sarah Wong', 'IC300001', '60100004444', '2025-01-12 15:05:00', '2025-01-12 17:00:00', 'Birthday friend'),
        (3, 2, 'Tom Lee', 'IC300002', '60100005555', '2025-01-12 15:10:00', '2025-01-12 17:10:00', 'Close friend'),
        (3, 3, 'Monica Tan', 'IC300003', '60100006666', '2025-01-12 15:15:00', '2025-01-12 17:20:00', 'Bringing cake');
 
 -- Request #4 (2 visitors)
-INSERT INTO visitor_record
+INSERT INTO visitor_records
 (request_id, security_staff_id, visitor_name, visitor_ic, visitor_phone, check_in_time, check_out_time, remarks)
 VALUES (4, 3, 'Maintenance Tech1', 'IC400001', '60100007777', '2025-01-13 14:20:00', '2025-01-13 15:20:00',
         'Checked AC'),
@@ -219,19 +234,19 @@ VALUES (4, 3, 'Maintenance Tech1', 'IC400001', '60100007777', '2025-01-13 14:20:
         'Assisted AC check');
 
 -- Request #5 (1 visitor)
-INSERT INTO visitor_record
+INSERT INTO visitor_records
 (request_id, security_staff_id, visitor_name, visitor_ic, visitor_phone, check_in_time, check_out_time, remarks)
 VALUES (5, 4, 'Emily Davis', 'IC500001', '60100009999', '2025-01-14 08:50:00', '2025-01-14 10:00:00',
         'Old college friend');
 
 -- Request #6 (1 visitor)
-INSERT INTO visitor_record
+INSERT INTO visitor_records
 (request_id, security_staff_id, visitor_name, visitor_ic, visitor_phone, check_in_time, check_out_time, remarks)
 VALUES (6, 2, 'FoodPanda Rider', 'IC600001', '60100000001', '2025-01-15 10:35:00', '2025-01-15 10:45:00',
         'Delivered lunch');
 
 -- Request #7 (10 visitors)
-INSERT INTO visitor_record
+INSERT INTO visitor_records
 (request_id, security_staff_id, visitor_name, visitor_ic, visitor_phone, check_in_time, check_out_time, remarks)
 VALUES (7, 2, 'Family Member 1', 'IC700001', '60100000002', '2025-01-16 16:05:00', '2025-01-16 19:00:00',
         'Close relative'),
@@ -255,7 +270,7 @@ VALUES (7, 2, 'Family Member 1', 'IC700001', '60100000002', '2025-01-16 16:05:00
         'Close relative');
 
 -- Request #8 (2 visitors)
-INSERT INTO visitor_record
+INSERT INTO visitor_records
 (request_id, security_staff_id, visitor_name, visitor_ic, visitor_phone, check_in_time, check_out_time, remarks)
 VALUES (8, 3, 'Jessica Brown', 'IC800001', '60100000111', '2025-01-17 11:05:00', '2025-01-17 12:30:00',
         'Project discussion'),
@@ -263,13 +278,13 @@ VALUES (8, 3, 'Jessica Brown', 'IC800001', '60100000111', '2025-01-17 11:05:00',
         'Meeting resident12');
 
 -- Request #9 (1 visitor)
-INSERT INTO visitor_record
+INSERT INTO visitor_records
 (request_id, security_staff_id, visitor_name, visitor_ic, visitor_phone, check_in_time, check_out_time, remarks)
 VALUES (9, 2, 'Chris Black', 'IC900001', '60100000113', '2025-01-18 18:50:00', '2025-01-18 22:00:00',
         'Invited for party');
 
 -- Request #10 (3 visitors)
-INSERT INTO visitor_record
+INSERT INTO visitor_records
 (request_id, security_staff_id, visitor_name, visitor_ic, visitor_phone, check_in_time, check_out_time, remarks)
 VALUES (10, 3, 'George Wilson', 'IC100001', '60100000114', '2025-01-19 13:25:00', '2025-01-19 15:00:00', 'Lunch buddy'),
        (10, 3, 'Hannah Kim', 'IC100002', '60100000115', '2025-01-19 13:30:00', '2025-01-19 15:05:00',
@@ -279,17 +294,17 @@ VALUES (10, 3, 'George Wilson', 'IC100001', '60100000114', '2025-01-19 13:25:00'
 
 
 -- Insert profile for the managing staff (user_id = 1)
-INSERT INTO managing_staff_profile (user_id, department, position, created_at, updated_at)
+INSERT INTO managing_staff_profiles (user_id, department, position, created_at, updated_at)
 VALUES (1, 'Administration', 'Manager', NOW(), NOW());
 
 -- Insert profiles for security staff (user_id = 2, 3, 4)
-INSERT INTO security_staff_profile (user_id, badge_number, shift, created_at, updated_at)
+INSERT INTO security_staff_profiles (user_id, badge_number, shift, created_at, updated_at)
 VALUES (2, 'SEC001', 'MORNING', NOW(), NOW()),
        (3, 'SEC002', 'AFTERNOON', NOW(), NOW()),
        (4, 'SEC003', 'NIGHT', NOW(), NOW());
 
 -- Insert profiles for residents (user_id = 5 to 24)
-INSERT INTO resident_profile (user_id, unit_number, created_at, updated_at)
+INSERT INTO resident_profiles (user_id, unit_number, created_at, updated_at)
 VALUES (5, 'A-12-3', NOW(), NOW()),
        (6, 'A-11-7', NOW(), NOW()),
        (7, 'B-09-3', NOW(), NOW()),

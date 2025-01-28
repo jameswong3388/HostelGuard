@@ -1,6 +1,6 @@
 package org.example.hvvs.utils;
 
-import org.example.hvvs.model.User;
+import org.example.hvvs.model.Users;
 
 import java.util.List;
 
@@ -24,14 +24,14 @@ public class UserPaging {
 	/*
 	 * 决定分页数据
 	 */
-	private List<User> data;		// not null, 如果没有数据，data为一个空List
+	private List<Users> data;		// not null, 如果没有数据，data为一个空List
 	private boolean hasData;		// data.size() > 0
 	private int recordNum;			// data.size()
 	
 	/**
 	 * @param data not null, 如果没有数据，data为一个空List
 	 */
-	public UserPaging(int totalRecord, int totalPage, int pageSize, int pageNum, List<User> data) {
+	public UserPaging(int totalRecord, int totalPage, int pageSize, int pageNum, List<Users> data) {
 		this.totalRecord = totalRecord;
 		this.totalPage = totalPage;
 		this.pageSize = pageSize;
@@ -53,7 +53,7 @@ public class UserPaging {
 		return totalPage;
 	}
 
-	public List<User> getData() {
+	public List<Users> getData() {
 		return data;
 	}
 

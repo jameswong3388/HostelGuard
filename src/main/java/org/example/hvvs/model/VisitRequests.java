@@ -6,16 +6,16 @@ import org.example.hvvs.commonClasses.BaseEntity;
 import java.sql.Timestamp;
 
 @Entity
-@Table(name = "visit_request")
+@Table(name = "visit_requests")
 @NamedQueries({
-        @NamedQuery(name = "VisitRequest.findAll", query = "SELECT v FROM VisitRequest v"),
-        @NamedQuery(name = "VisitRequest.findByUserId", query = "SELECT v FROM VisitRequest v WHERE v.user_id = :user_id"),
-        @NamedQuery(name = "VisitRequest.findByVisitDate", query = "SELECT v FROM VisitRequest v WHERE v.visit_datetime = :visit_date")
+        @NamedQuery(name = "VisitRequest.findAll", query = "SELECT v FROM VisitRequests v"),
+        @NamedQuery(name = "VisitRequest.findByUserId", query = "SELECT v FROM VisitRequests v WHERE v.user_id = :user_id"),
+        @NamedQuery(name = "VisitRequest.findByVisitDate", query = "SELECT v FROM VisitRequests v WHERE v.visit_datetime = :visit_date")
 })
-public class VisitRequest extends BaseEntity {
+public class VisitRequests extends BaseEntity {
     @OneToOne
     @JoinColumn(name = "user_id", nullable = false)
-    private User user_id;
+    private Users user_id;
 
     @Column(name = "verification_code", nullable = false)
     private String verification_code;
@@ -41,12 +41,12 @@ public class VisitRequest extends BaseEntity {
     @Column(name = "updated_at", nullable = false)
     private Timestamp updated_at;
 
-    public VisitRequest() {
+    public VisitRequests() {
         super();
     }
 
-    public VisitRequest(User user_id, String verification_code, Timestamp visit_datetime, String purpose, String status,
-                        String remarks, String unit_number, Timestamp created_at, Timestamp updated_at) {
+    public VisitRequests(Users user_id, String verification_code, Timestamp visit_datetime, String purpose, String status,
+                         String remarks, String unit_number, Timestamp created_at, Timestamp updated_at) {
         this.user_id = user_id;
         this.verification_code = verification_code;
         this.visit_datetime = visit_datetime;
@@ -58,7 +58,7 @@ public class VisitRequest extends BaseEntity {
         this.updated_at = updated_at;
     }
 
-    public User getUserId() {
+    public Users getUserId() {
         return user_id;
     }
 
@@ -94,7 +94,7 @@ public class VisitRequest extends BaseEntity {
         return updated_at;
     }
 
-    public void setUserId(User user_id) {
+    public void setUserId(Users user_id) {
         this.user_id = user_id;
     }
 

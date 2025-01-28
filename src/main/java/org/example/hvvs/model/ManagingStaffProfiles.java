@@ -5,17 +5,17 @@ import org.example.hvvs.commonClasses.BaseEntity;
 import java.sql.Timestamp;
 
 @Entity
-@Table(name = "managing_staff_profile")
+@Table(name = "managing_staff_profiles")
 @NamedQueries({
-        @NamedQuery(name = "ManagingStaffProfile.findAll", query = "SELECT m FROM ManagingStaffProfile m"),
-        @NamedQuery(name = "ManagingStaffProfile.findByUserId", query = "SELECT m FROM ManagingStaffProfile m WHERE m.user_id = :user_id"),
-        @NamedQuery(name = "ManagingStaffProfile.findByDepartment", query = "SELECT m FROM ManagingStaffProfile m WHERE m.department = :department"),
-        @NamedQuery(name = "ManagingStaffProfile.findByPosition", query = "SELECT m FROM ManagingStaffProfile m WHERE m.position = :position")
+        @NamedQuery(name = "ManagingStaffProfile.findAll", query = "SELECT m FROM ManagingStaffProfiles m"),
+        @NamedQuery(name = "ManagingStaffProfile.findByUserId", query = "SELECT m FROM ManagingStaffProfiles m WHERE m.user_id = :user_id"),
+        @NamedQuery(name = "ManagingStaffProfile.findByDepartment", query = "SELECT m FROM ManagingStaffProfiles m WHERE m.department = :department"),
+        @NamedQuery(name = "ManagingStaffProfile.findByPosition", query = "SELECT m FROM ManagingStaffProfiles m WHERE m.position = :position")
 })
-public class ManagingStaffProfile extends BaseEntity {
+public class ManagingStaffProfiles extends BaseEntity {
     @OneToOne
     @JoinColumn(name = "user_id", nullable = false)
-    private User user_id;
+    private Users user_id;
 
     @Column(name = "department", nullable = false)
     private String department;
@@ -29,11 +29,11 @@ public class ManagingStaffProfile extends BaseEntity {
     @Column(name = "updated_at", nullable = false)
     private Timestamp updated_at;
 
-    public ManagingStaffProfile() {
+    public ManagingStaffProfiles() {
         super();
     }
 
-    public ManagingStaffProfile(User user_id, String department, String position, Timestamp created_at, Timestamp updated_at) {
+    public ManagingStaffProfiles(Users user_id, String department, String position, Timestamp created_at, Timestamp updated_at) {
         this.user_id = user_id;
         this.department = department;
         this.position = position;
@@ -41,7 +41,7 @@ public class ManagingStaffProfile extends BaseEntity {
         this.updated_at = updated_at;
     }
 
-    public User getUserId() {
+    public Users getUserId() {
         return user_id;
     }
 
@@ -61,7 +61,7 @@ public class ManagingStaffProfile extends BaseEntity {
         return updated_at;
     }
 
-    public void setUserId(User user_id) {
+    public void setUserId(Users user_id) {
         this.user_id = user_id;
     }
 
