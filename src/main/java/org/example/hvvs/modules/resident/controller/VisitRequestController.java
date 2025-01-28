@@ -157,6 +157,7 @@ public class VisitRequestController implements Serializable {
             // Set additional fields
             Timestamp now = new Timestamp(System.currentTimeMillis());
             newRequest.setUserId(currentUser);
+            newRequest.setUnitNumber(residentProfile.getUnitNumber());
             newRequest.setCreatedAt(now);
             newRequest.setUpdatedAt(now);
 

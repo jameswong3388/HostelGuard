@@ -5,6 +5,7 @@ import jakarta.faces.context.FacesContext;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
+import org.example.hvvs.model.Medias;
 import org.example.hvvs.model.User;
 import org.example.hvvs.model.VisitRequest;
 import org.example.hvvs.model.VisitorRecord;
@@ -26,7 +27,7 @@ public class OnboardVisitorsController implements Serializable {
     private String verificationCode;
     private VisitRequest visitRequest;
     private VisitorRecord visitorRecord;
-    private UploadedFile visitorPhoto;
+    private UploadedFile tempVisitorPhoto;
     private boolean isCheckIn = true;
 
     public OnboardVisitorsController() {
@@ -96,7 +97,7 @@ public class OnboardVisitorsController implements Serializable {
         verificationCode = null;
         visitRequest = null;
         visitorRecord = new VisitorRecord();
-        visitorPhoto = null;
+        tempVisitorPhoto = null;
         isCheckIn = true;
     }
 
@@ -124,7 +125,7 @@ public class OnboardVisitorsController implements Serializable {
             visitorRecord.setCreatedAt(new Timestamp(System.currentTimeMillis()));
             visitorRecord.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
 
-            securityVisitorService.registerVisitor(visitorRecord, visitorPhoto);
+            securityVisitorService.registerVisitor(visitorRecord, tempVisitorPhoto);
             
             FacesContext.getCurrentInstance().addMessage(null, 
                 new FacesMessage(FacesMessage.SEVERITY_INFO, "Success", "Visitor check-in completed"));
@@ -188,12 +189,12 @@ public class OnboardVisitorsController implements Serializable {
         this.visitorRecord = visitorRecord;
     }
 
-    public UploadedFile getVisitorPhoto() {
-        return visitorPhoto;
+    public UploadedFile getTempVisitorPhoto() {
+        return tempVisitorPhoto;
     }
 
-    public void setVisitorPhoto(UploadedFile visitorPhoto) {
-        this.visitorPhoto = visitorPhoto;
+    public void setTempVisitorPhoto(UploadedFile tempVisitorPhoto) {
+        this.tempVisitorPhoto = tempVisitorPhoto;
     }
 
     public boolean isCheckIn() {

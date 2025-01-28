@@ -1,14 +1,19 @@
 package org.example.hvvs.modules.security.service;
 
 import jakarta.ejb.Stateless;
+import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
+import org.example.hvvs.commonClasses.CustomPart;
+import org.example.hvvs.model.Medias;
 import org.example.hvvs.model.VisitRequest;
 import org.example.hvvs.model.VisitorRecord;
+import org.example.hvvs.modules.common.service.MediaService;
 import org.primefaces.model.file.UploadedFile;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -20,6 +25,9 @@ public class OnboardVisitorsServiceImpl implements OnboardVisitorsService {
 
     @PersistenceContext
     private EntityManager entityManager;
+
+    @Inject
+    private MediaService mediaService;
 
     @Override
     public VisitRequest verifyVisitRequest(String verificationCode) {
@@ -40,23 +48,26 @@ public class OnboardVisitorsServiceImpl implements OnboardVisitorsService {
     }
 
     @Override
-    public void registerVisitor(VisitorRecord visitorRecord, UploadedFile visitorPhoto) {
+    public void registerVisitor(VisitorRecord visitorRecord, UploadedFile tempVisitorPhoto) {
         try {
-            // Save visitor photo
-            if (visitorPhoto != null && visitorPhoto.getContent() != null) {
-                String fileName = UUID.randomUUID().toString() + getFileExtension(visitorPhoto.getFileName());
-                Path uploadPath = Paths.get(System.getProperty("jboss.server.data.dir"), "visitor-photos");
-                Files.createDirectories(uploadPath);
-
-                Path filePath = uploadPath.resolve(fileName);
-                Files.write(filePath, visitorPhoto.getContent());
-
-                // Store the photo path in the database
-                // You might want to add a photo_path field to VisitorRecord
-            }
-
-            // Save visitor record
+            // First persist the visitor record to get an ID
             entityManager.persist(visitorRecord);
+            entityManager.flush(); // Force the persistence to get the ID
+
+            // Now save visitor photo if provided
+            if (tempVisitorPhoto != null && tempVisitorPhoto.getContent() != null) {
+                mediaService.deleteByModelAndModelId("visitor-record", visitorRecord.getId().toString());
+
+                InputStream input = tempVisitorPhoto.getInputStream();
+                CustomPart part = new CustomPart(
+                        tempVisitorPhoto.getFileName(),
+                        tempVisitorPhoto.getContentType(),
+                        tempVisitorPhoto.getSize(),
+                        input
+                );
+
+                Medias media = mediaService.uploadFile(part, "visitor-record", visitorRecord.getId().toString(), "visitor-images");
+            }
 
             // Update visit request status
             VisitRequest request = visitorRecord.getRequestId();

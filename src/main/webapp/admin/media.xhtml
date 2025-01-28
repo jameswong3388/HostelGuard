@@ -32,6 +32,7 @@
                             <f:selectItem itemLabel="Profile Pictures" itemValue="profile-pictures"/>
                             <f:selectItem itemLabel="Documents" itemValue="documents"/>
                             <f:selectItem itemLabel="Reports" itemValue="reports"/>
+                            <f:selectItem itemLabel="Visitor Images" itemValue="visitor-images"/>
                             <f:selectItem itemLabel="Others" itemValue="others"/>
                         </p:selectOneMenu>
                     </div>
@@ -151,6 +152,38 @@
                         </p:tab>
                         <p:tab title="Reports">
                             <p:dataTable value="#{mediaManagementController.reportsMedia}" var="media"
+                                         styleClass="mt-2" rowKey="#{media.id}"
+                                         selection="#{mediaManagementController.selectedMedia}">
+                                <p:ajax event="rowSelect" update=":mediaDetailsForm" />
+                                <p:column headerText="Preview" styleClass="w-24">
+                                    <h:graphicImage value="#{media.disk}"
+                                                    rendered="#{media.mimeType.startsWith('image/')}"
+                                                    styleClass="max-w-24 max-h-24 object-cover rounded"/>
+                                </p:column>
+                                <p:column headerText="File Name">
+                                    <h:outputText value="#{media.fileName}" />
+                                </p:column>
+                                <p:column headerText="Size">
+                                    <h:outputText value="#{mediaManagementController.formatFileSize(media.size)}" />
+                                </p:column>
+                                <p:column headerText="Actions" styleClass="w-24">
+                                    <div class="flex gap-2">
+                                        <p:commandButton icon="pi pi-eye"
+                                                         action="#{mediaManagementController.previewMedia(media)}"
+                                                         oncomplete="PF('mediaPreviewDialog').show()"
+                                                         update=":previewForm:previewImage"
+                                                         styleClass="p-button-secondary p-button-sm"/>
+                                        <p:commandButton icon="pi pi-trash"
+                                                         action="#{mediaManagementController.deleteMedia(media.id)}"
+                                                         update="collectionsForm"
+                                                         styleClass="p-button-danger p-button-sm"
+                                                         onclick="return confirm('Are you sure?')"/>
+                                    </div>
+                                </p:column>
+                            </p:dataTable>
+                        </p:tab>
+                        <p:tab title="Visitor Images">
+                            <p:dataTable value="#{mediaManagementController.visitorImagesMedia}" var="media"
                                          styleClass="mt-2" rowKey="#{media.id}"
                                          selection="#{mediaManagementController.selectedMedia}">
                                 <p:ajax event="rowSelect" update=":mediaDetailsForm" />

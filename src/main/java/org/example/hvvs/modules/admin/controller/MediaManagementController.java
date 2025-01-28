@@ -32,6 +32,7 @@ public class MediaManagementController implements Serializable {
     private List<Medias> profilePictureMedia;
     private List<Medias> documentsMedia;
     private List<Medias> reportsMedia;
+    private List<Medias> visitorImagesMedia;
     private List<Medias> othersMedia;
     private List<String> availableModels;
     private Medias selectedPreviewMedia;
@@ -54,6 +55,7 @@ public class MediaManagementController implements Serializable {
         profilePictureMedia = mediaService.findByCollection("profile-pictures");
         documentsMedia = mediaService.findByCollection("documents");
         reportsMedia = mediaService.findByCollection("reports");
+        visitorImagesMedia = mediaService.findByCollection("visitor-images");
         othersMedia = mediaService.findByCollection("others");
     }
 
@@ -169,6 +171,10 @@ public class MediaManagementController implements Serializable {
 
     public List<Medias> getReportsMedia() {
         return reportsMedia;
+    }
+
+    public List<Medias> getVisitorImagesMedia() {
+        return visitorImagesMedia;
     }
 
     public List<Medias> getOthersMedia() {
