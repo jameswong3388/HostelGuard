@@ -7,14 +7,21 @@ import jakarta.faces.context.FacesContext;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.transaction.Transactional;
+import org.example.hvvs.commonClasses.CustomPart;
+import org.example.hvvs.model.Medias;
 import org.example.hvvs.model.ResidentProfile;
 import org.example.hvvs.model.User;
+import org.example.hvvs.modules.common.service.MediaService;
 import org.example.hvvs.modules.resident.services.SettingsServiceResident;
 import org.example.hvvs.utils.CommonParam;
 import org.example.hvvs.utils.DigestUtils;
+import org.primefaces.model.file.UploadedFile;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.util.List;
 
 @Named("SettingsControllerResident")
 @SessionScoped
@@ -25,9 +32,14 @@ public class SettingsControllerResident implements Serializable {
     private String oldPassword;
     private String newPassword;
     private String confirmNewPassword;
+    private Medias profileImage;
+    private UploadedFile tempUploadedFile;
 
     @Inject
     private SettingsServiceResident generalSettingsService;
+
+    @Inject
+    private MediaService mediaService;
 
     @PostConstruct
     public void init() {
@@ -46,6 +58,49 @@ public class SettingsControllerResident implements Serializable {
 
         this.user = generalSettingsService.findUserById(currentUser.getId());
         this.residentProfile = generalSettingsService.findResidentProfileByUserId(currentUser.getId());
+        loadProfileImage(); // Load existing profile image
+    }
+
+    private void loadProfileImage() {
+        List<Medias> profileMedias = mediaService.findByModelAndModelId("user", user.getId().toString());
+        if (!profileMedias.isEmpty()) {
+            this.profileImage = profileMedias.getFirst();
+        } else {
+            this.profileImage = null;
+        }
+    }
+
+    public void uploadProfileImage() {
+        if (tempUploadedFile == null) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "No file selected."));
+            return;
+        }
+
+        try {
+            String userId = user.getId().toString();
+            // Delete existing profile images
+            mediaService.deleteByModelAndModelId("user", userId);
+
+            InputStream input = tempUploadedFile.getInputStream();
+            CustomPart part = new CustomPart(
+                    tempUploadedFile.getFileName(),
+                    tempUploadedFile.getContentType(),
+                    tempUploadedFile.getSize(),
+                    input
+            );
+
+
+            // Upload new image
+            Medias media = mediaService.uploadFile(part, "user", userId, "profile-pictures");
+            loadProfileImage();
+
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_INFO, "Success", "Profile image uploaded successfully."));
+        } catch (IOException e) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Failed to upload profile image: " + e.getMessage()));
+        }
     }
 
     /**
@@ -237,6 +292,23 @@ public class SettingsControllerResident implements Serializable {
     }
 
     /* Getters and setters */
+    // Update getter/setter
+    public Medias getProfileImage() {
+        return profileImage;
+    }
+
+    public void setProfileImage(Medias profileImage) {
+        this.profileImage = profileImage;
+    }
+
+    public UploadedFile getTempUploadedFile() {
+        return tempUploadedFile;
+    }
+
+    public void setTempUploadedFile(UploadedFile tempUploadedFile) {
+        this.tempUploadedFile = tempUploadedFile;
+    }
+
     public User getUser() {
         return user;
     }

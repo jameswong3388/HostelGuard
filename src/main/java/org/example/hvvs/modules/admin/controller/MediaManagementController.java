@@ -6,6 +6,7 @@ import jakarta.faces.context.FacesContext;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
+import org.example.hvvs.commonClasses.CustomPart;
 import org.example.hvvs.model.Medias;
 import org.example.hvvs.modules.admin.service.DashboardService;
 import org.example.hvvs.modules.common.service.MediaService;
@@ -30,16 +31,28 @@ public class MediaManagementController implements Serializable {
 
     private UploadedFile file;
     private String selectedCollection;
+    private String model;
+    private String modelId;
     private LineChartModel visitorActivityChart;
     private Medias selectedMedia;
     private List<Medias> profilePictureMedia;
     private List<Medias> documentsMedia;
     private List<Medias> reportsMedia;
     private List<Medias> othersMedia;
+    private List<String> availableModels;
 
     @PostConstruct
     public void init() {
         loadAllMedia();
+        // Initialize available models
+        availableModels = List.of(
+                "visitor_record",
+                "visit_request",
+                "security_staff_profile",
+                "resident_profile",
+                "managing_staff_profile",
+                "user"
+        );
     }
 
     private void loadAllMedia() {
@@ -67,37 +80,37 @@ public class MediaManagementController implements Serializable {
 
         try (InputStream input = file.getInputStream()) {
             CustomPart part = new CustomPart(
-                file.getFileName(),
-                file.getContentType(),
-                file.getSize(),
-                input
+                    file.getFileName(),
+                    file.getContentType(),
+                    file.getSize(),
+                    input
             );
 
             Medias media = mediaService.uploadFile(
-                part,
-                "user", // model name
-                "1",    // model ID
-                selectedCollection
+                    part,
+                    model,
+                    modelId,
+                    selectedCollection
             );
 
             loadAllMedia();
-            addMessage(FacesMessage.SEVERITY_INFO, "Success", 
-                "File uploaded successfully: " + media.getFileName());
+            addMessage(FacesMessage.SEVERITY_INFO, "Success",
+                    "File uploaded successfully: " + media.getFileName());
 
         } catch (IOException e) {
-            addMessage(FacesMessage.SEVERITY_ERROR, "Error", 
-                "Failed to upload file: " + e.getMessage());
+            addMessage(FacesMessage.SEVERITY_ERROR, "Error",
+                    "Failed to upload file: " + e.getMessage());
         }
     }
 
     private void addMessage(FacesMessage.Severity severity, String summary, String detail) {
-        FacesContext.getCurrentInstance().addMessage(null, 
-            new FacesMessage(severity, summary, detail));
+        FacesContext.getCurrentInstance().addMessage(null,
+                new FacesMessage(severity, summary, detail));
     }
 
     public String formatFileSize(Double bytes) {
         if (bytes == null) return "0 B";
-        
+
         String[] units = new String[]{"B", "KB", "MB", "GB", "TB"};
         int unitIndex = 0;
         double size = bytes;
@@ -127,6 +140,21 @@ public class MediaManagementController implements Serializable {
         this.selectedCollection = selectedCollection;
     }
 
+    public String getModel() {
+        return model;
+    }
+
+    public void setModel(String model) {
+        this.model = model;
+    }
+
+    public String getModelId() {
+        return modelId;
+    }
+
+    public void setModelId(String modelId) {
+        this.modelId = modelId;
+    }
 
     public Medias getSelectedMedia() {
         return selectedMedia;
@@ -152,68 +180,7 @@ public class MediaManagementController implements Serializable {
         return othersMedia;
     }
 
-    // Custom Part implementation to bridge UploadedFile to Part
-    private static class CustomPart implements jakarta.servlet.http.Part {
-        private final String fileName;
-        private final String contentType;
-        private final long size;
-        private final InputStream content;
-
-        public CustomPart(String fileName, String contentType, long size, InputStream content) {
-            this.fileName = fileName;
-            this.contentType = contentType;
-            this.size = size;
-            this.content = content;
-        }
-
-        @Override
-        public InputStream getInputStream() throws IOException {
-            return content;
-        }
-
-        @Override
-        public String getContentType() {
-            return contentType;
-        }
-
-        @Override
-        public String getName() {
-            return "file";
-        }
-
-        @Override
-        public String getSubmittedFileName() {
-            return fileName;
-        }
-
-        @Override
-        public long getSize() {
-            return size;
-        }
-
-        @Override
-        public void write(String fileName) throws IOException {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public void delete() throws IOException {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public String getHeader(String name) {
-            return null;
-        }
-
-        @Override
-        public java.util.Collection<String> getHeaders(String name) {
-            return java.util.Collections.emptyList();
-        }
-
-        @Override
-        public java.util.Collection<String> getHeaderNames() {
-            return java.util.Collections.emptyList();
-        }
+    public List<String> getAvailableModels() {
+        return availableModels;
     }
 } 

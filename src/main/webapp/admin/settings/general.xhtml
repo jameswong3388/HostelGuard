@@ -25,11 +25,63 @@
     </ui:define>
     <!-- Replace only the content block with the new design -->
     <ui:define name="content">
-        <h:form>
-            <div class="space-y-10">
+        <!-- Profile Picture Section -->
+        <div class="space-y-10">
+            <section aria-labelledby="profiling-information">
+                <h:form enctype="multipart/form-data">
+                    <div class="grid grid-cols-1 gap-x-14 gap-y-8 md:grid-cols-3">
+                        <div>
+                            <h2 id="profiling" class="scroll-mt-10 font-semibold text-gray-900">
+                                Profiling
+                            </h2>
+                            <p class="mt-1 text-sm leading-6 text-gray-500">
+                                Manage your personal information, phone number, and residence details.
+                            </p>
+                        </div>
 
-                <!-- Personal Information Section -->
-                <section aria-labelledby="personal-information">
+                        <div class="md:col-span-2">
+                            <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
+                                <!-- Profile Picture -->
+                                <div class="col-span-full">
+                                    <label class="font-medium">Profile Picture</label>
+                                    <div class="mt-2 flex items-center gap-x-3">
+                                        <h:graphicImage value="#{SettingsControllerAdmin.profileImage.disk}"
+                                                        rendered="#{SettingsControllerAdmin.profileImage.disk != null}"
+                                                        styleClass="h-[8rem] w-[8rem] rounded-md object-cover"
+                                                        alt="Profile picture"/>
+
+                                        <p:avatar label="#{SettingsControllerAdmin.user.firstName.charAt(0)}"
+                                                  size="xlarge" style="height: 8rem; width: 8rem"
+                                                  rendered="#{SettingsControllerAdmin.profileImage == null}"/>
+                                    </div>
+                                    <p class="mt-2 text-xs text-gray-500">JPG, GIF or PNG. Max size of 2MB.</p>
+                                </div>
+
+                                <!-- Save button -->
+                                <div class="col-span-full mt-6 flex justify-end gap-2">
+                                    <p:fileUpload value="#{SettingsControllerAdmin.tempUploadedFile}"
+                                                  mode="simple"
+                                                  skinSimple="true"
+                                                  styleClass="p-button-secondary"
+                                                  accept="image/*"
+                                                  update="@form messages"/>
+                                    <p:commandButton value="Upload"
+                                                     action="#{SettingsControllerAdmin.uploadProfileImage}"
+                                                     styleClass="p-button-secondary"
+                                                     update="@form messages"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </h:form>
+            </section>
+
+            <!-- Divider -->
+            <hr class="border-gray-300"/>
+
+            <!-- Personal Information Section -->
+            <section aria-labelledby="personal-information">
+                <h:form>
                     <div class="grid grid-cols-1 gap-x-14 gap-y-8 md:grid-cols-3">
                         <div>
                             <h2 id="personal-information" class="scroll-mt-10 font-semibold text-gray-900">
@@ -104,13 +156,15 @@
                             </div>
                         </div>
                     </div>
-                </section>
+                </h:form>
+            </section>
 
-                <!-- Divider -->
-                <hr class="border-gray-300"/>
+            <!-- Divider -->
+            <hr class="border-gray-300"/>
 
-                <!-- Additinal Information Section -->
-                <section aria-labelledby="additional-information">
+            <!-- Additional Information Section -->
+            <section aria-labelledby="additional-information">
+                <h:form>
                     <div class="grid grid-cols-1 gap-x-14 gap-y-8 md:grid-cols-3">
                         <div>
                             <h2 id="additional-information" class="scroll-mt-10 font-semibold text-gray-900">
@@ -152,13 +206,15 @@
                             </div>
                         </div>
                     </div>
-                </section>
+                </h:form>
+            </section>
 
-                <!-- Divider -->
-                <hr class="border-gray-300"/>
+            <!-- Divider -->
+            <hr class="border-gray-300"/>
 
-                <!-- Notification Settings Section -->
-                <section aria-labelledby="notification-settings">
+            <!-- Notification Settings Section -->
+            <section aria-labelledby="notification-settings">
+                <h:form>
                     <div class="grid grid-cols-1 gap-x-14 gap-y-8 md:grid-cols-3">
                         <div>
                             <h2 id="notification-settings"
@@ -233,9 +289,8 @@
                             </div>
                         </div>
                     </div>
-                </section>
-            </div>
-        </h:form>
+                </h:form>
+            </section>
+        </div>
     </ui:define>
-
 </ui:composition>

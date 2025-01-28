@@ -7,14 +7,20 @@ import jakarta.faces.context.FacesContext;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.transaction.Transactional;
+import org.example.hvvs.commonClasses.CustomPart;
 import org.example.hvvs.model.SecurityStaffProfile;
 import org.example.hvvs.model.User;
+import org.example.hvvs.modules.common.service.MediaService;
 import org.example.hvvs.modules.security.service.SettingsServiceSecurity;
 import org.example.hvvs.utils.CommonParam;
 import org.example.hvvs.utils.DigestUtils;
+import org.example.hvvs.model.Medias;
+import org.primefaces.model.file.UploadedFile;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.io.InputStream;
+import java.util.List;
 
 @Named("SettingsControllerSecurity")
 @SessionScoped
@@ -25,9 +31,14 @@ public class SettingsControllerSecurity implements Serializable {
     private String oldPassword;
     private String newPassword;
     private String confirmNewPassword;
+    private UploadedFile tempUploadedFile;
+    private Medias profileImage;
 
     @Inject
     private SettingsServiceSecurity settingsServiceSecurity;
+
+    @Inject
+    private MediaService mediaService;
 
     @PostConstruct
     public void init() {
@@ -45,6 +56,48 @@ public class SettingsControllerSecurity implements Serializable {
 
         this.user = settingsServiceSecurity.findUserById(currentUser.getId());
         this.securityStaffProfile = settingsServiceSecurity.findSecurityStaffProfileByUserId(currentUser.getId());
+        loadProfileImage();
+    }
+
+    private void loadProfileImage() {
+        List<Medias> profileMedias = mediaService.findByModelAndModelId("user", user.getId().toString());
+        if (!profileMedias.isEmpty()) {
+            this.profileImage = profileMedias.getFirst();
+        } else {
+            this.profileImage = null;
+        }
+    }
+
+    public void uploadProfileImage() {
+        if (tempUploadedFile == null) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "No file selected."));
+            return;
+        }
+
+        try {
+            String userId = user.getId().toString();
+            // Delete existing profile images
+            mediaService.deleteByModelAndModelId("user", userId);
+
+            InputStream input = tempUploadedFile.getInputStream();
+            CustomPart part = new CustomPart(
+                    tempUploadedFile.getFileName(),
+                    tempUploadedFile.getContentType(),
+                    tempUploadedFile.getSize(),
+                    input
+            );
+
+            // Upload new image
+            Medias media = mediaService.uploadFile(part, "user", userId, "profile-pictures");
+            loadProfileImage();
+
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_INFO, "Success", "Profile picture updated successfully."));
+        } catch (Exception e) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Failed to upload profile picture."));
+        }
     }
 
     /**
@@ -235,55 +288,7 @@ public class SettingsControllerSecurity implements Serializable {
 
         return null;
     }
-
-    /**
-     * Action method to update security staff profile information
-     */
-    @Transactional
-    public String updateSecurityProfile() {
-        try {
-            // Basic validation for badge number
-            if (securityStaffProfile.getBadgeNumber() == null || securityStaffProfile.getBadgeNumber().trim().isEmpty()) {
-                FacesContext.getCurrentInstance().addMessage(null,
-                        new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                                "Error",
-                                "Badge number cannot be empty."));
-                resetUserData();
-                return null;
-            }
-
-            // Basic validation for shift
-            if (securityStaffProfile.getShift() == null || securityStaffProfile.getShift().trim().isEmpty()) {
-                FacesContext.getCurrentInstance().addMessage(null,
-                        new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                                "Error",
-                                "Shift cannot be empty."));
-                resetUserData();
-                return null;
-            }
-
-            // Update timestamp
-            securityStaffProfile.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
-            
-            // Save changes
-            settingsServiceSecurity.updateSecurityStaffProfile(securityStaffProfile);
-
-            FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_INFO,
-                            "Success",
-                            "Your security staff profile has been updated."));
-
-        } catch (Exception e) {
-            FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                            "Error",
-                            "An error occurred while updating your security staff profile. Please try again later."));
-            resetUserData();
-        }
-
-        return null;
-    }
-
+    
     /* Getters and setters */
     public User getUser() {
         return user;
@@ -323,5 +328,17 @@ public class SettingsControllerSecurity implements Serializable {
 
     public void setConfirmNewPassword(String confirmNewPassword) {
         this.confirmNewPassword = confirmNewPassword;
+    }
+
+    public UploadedFile getTempUploadedFile() {
+        return tempUploadedFile;
+    }
+
+    public void setTempUploadedFile(UploadedFile tempUploadedFile) {
+        this.tempUploadedFile = tempUploadedFile;
+    }
+
+    public Medias getProfileImage() {
+        return profileImage;
     }
 }

@@ -37,6 +37,26 @@
                     </div>
 
                     <div class="space-y-2">
+                        <p:outputLabel for="model" value="Model:" styleClass="block text-sm font-medium text-gray-700"/>
+                        <p:selectOneMenu id="model" 
+                                       value="#{mediaManagementController.model}"
+                                       styleClass="w-full">
+                            <f:selectItem itemLabel="Select Model" itemValue=""/>
+                            <f:selectItems value="#{mediaManagementController.availableModels}"
+                                         var="modelName"
+                                         itemLabel="#{modelName}"
+                                         itemValue="#{modelName}"/>
+                        </p:selectOneMenu>
+                    </div>
+
+                    <div class="space-y-2">
+                        <p:outputLabel for="modelId" value="Model ID:" styleClass="block text-sm font-medium text-gray-700"/>
+                        <p:inputText id="modelId" 
+                                   value="#{mediaManagementController.modelId}"
+                                   styleClass="w-full"/>
+                    </div>
+
+                    <div class="space-y-2">
                         <p:outputLabel for="fileUpload" value="Choose File:" styleClass="block text-sm font-medium text-gray-700"/>
                         <p:fileUpload id="fileUpload"
                                       value="#{mediaManagementController.file}"

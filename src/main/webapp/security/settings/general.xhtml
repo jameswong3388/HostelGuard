@@ -23,17 +23,17 @@
             Authentication &amp; Security
         </h:link>
     </ui:define>
+
     <!-- Replace only the content block with the new design -->
     <ui:define name="content">
-        <h:form>
-            <div class="space-y-10">
-
-                <!-- Personal Information Section -->
-                <section aria-labelledby="personal-information">
+        <div class="space-y-10">
+            <!-- Profile Picture Section -->
+            <section aria-labelledby="profiling-information">
+                <h:form enctype="multipart/form-data">
                     <div class="grid grid-cols-1 gap-x-14 gap-y-8 md:grid-cols-3">
                         <div>
-                            <h2 id="personal-information" class="scroll-mt-10 font-semibold text-gray-900">
-                                Personal information
+                            <h2 id="profiling" class="scroll-mt-10 font-semibold text-gray-900">
+                                Profiling
                             </h2>
                             <p class="mt-1 text-sm leading-6 text-gray-500">
                                 Manage your personal information, phone number, and residence details.
@@ -42,200 +42,251 @@
 
                         <div class="md:col-span-2">
                             <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
-                                <!-- First Name -->
-                                <div class="col-span-full sm:col-span-3">
-                                    <h:outputLabel for="firstName" value="First name" styleClass="font-medium"/>
-                                    <p:inputText id="firstName"
-                                                 value="#{SettingsControllerSecurity.user.firstName}"
-                                                 placeholder="Emma"
-                                                 styleClass="mt-2 w-full"
-                                                 autocomplete="given-name"/>
-                                </div>
-
-                                <!-- Last Name -->
-                                <div class="col-span-full sm:col-span-3">
-                                    <h:outputLabel for="lastName" value="Last name" styleClass="font-medium"/>
-                                    <p:inputText id="lastName"
-                                                 value="#{SettingsControllerSecurity.user.lastName}"
-                                                 placeholder="Stone"
-                                                 styleClass="mt-2 w-full"
-                                                 autocomplete="family-name"/>
-                                </div>
-
-                                <!-- Email -->
+                                <!-- Profile Picture -->
                                 <div class="col-span-full">
-                                    <h:outputLabel for="email" value="Email" styleClass="font-medium"/>
-                                    <p:inputText id="email"
-                                                 value="#{SettingsControllerSecurity.user.email}"
-                                                 type="email"
-                                                 placeholder="emma@acme.com"
-                                                 styleClass="mt-2 w-full"
-                                                 autocomplete="email"/>
-                                </div>
+                                    <label class="font-medium">Profile Picture</label>
+                                    <div class="mt-2 flex items-center gap-x-3">
+                                        <h:graphicImage value="#{SettingsControllerSecurity.profileImage.disk}"
+                                                      rendered="#{SettingsControllerSecurity.profileImage.disk != null}"
+                                                      styleClass="h-[8rem] w-[8rem] rounded-md object-cover"
+                                                      alt="Profile picture"/>
 
-                                <!-- Phone Number -->
-                                <div class="col-span-full">
-                                    <h:outputLabel for="phoneNumber" value="Phone Number" styleClass="font-medium"/>
-                                    <p:inputText id="phoneNumber"
-                                                 value="#{SettingsControllerSecurity.user.phoneNumber}"
-                                                 placeholder="+1 555 5555"
-                                                 styleClass="mt-2 w-full"
-                                                 autocomplete="tel"/>
-                                </div>
-
-                                <!-- Role -->
-                                <div class="col-span-2">
-                                    <h:outputLabel for="role" value="Role" styleClass="font-medium"/>
-                                    <p:inputText id="role" disabled="true"
-                                                 value="#{SettingsControllerSecurity.user.role}"
-                                                 styleClass="mt-2 w-full"/>
-                                    <p class="mt-2 text-xs text-gray-500">
-                                        Roles can only be changed by a system admin.
-                                    </p>
+                                        <p:avatar label="#{SettingsControllerSecurity.user.firstName.charAt(0)}"
+                                                size="xlarge" style="height: 8rem; width: 8rem"
+                                                rendered="#{SettingsControllerSecurity.profileImage == null}"/>
+                                    </div>
+                                    <p class="mt-2 text-xs text-gray-500">JPG, GIF or PNG. Max size of 2MB.</p>
                                 </div>
 
                                 <!-- Save button -->
-                                <div class="col-span-full mt-6 flex justify-end">
-                                    <p:commandButton value="Save settings"
-                                                     action="#{SettingsControllerSecurity.savePersonalInformation}"
-                                                     update="@form messages"
-                                                     styleClass="p-button-raised p-button-primary"/>
+                                <div class="col-span-full mt-6 flex justify-end gap-2">
+                                    <p:fileUpload value="#{SettingsControllerSecurity.tempUploadedFile}"
+                                                mode="simple"
+                                                skinSimple="true"
+                                                styleClass="p-button-secondary"
+                                                accept="image/*"
+                                                update="@form messages"/>
+                                    <p:commandButton value="Upload"
+                                                   action="#{SettingsControllerSecurity.uploadProfileImage}"
+                                                   styleClass="p-button-secondary"
+                                                   update="@form messages"/>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </section>
+                </h:form>
+            </section>
 
-                <!-- Divider -->
-                <hr class="border-gray-300"/>
+            <!-- Divider -->
+            <hr class="border-gray-300"/>
 
-                <!-- Additinal Information Section -->
-                <section aria-labelledby="additional-information">
-                    <div class="grid grid-cols-1 gap-x-14 gap-y-8 md:grid-cols-3">
-                        <div>
-                            <h2 id="additional-information" class="scroll-mt-10 font-semibold text-gray-900">
-                                Additional information
-                            </h2>
-                            <p class="mt-1 text-sm leading-6 text-gray-500">
-                                Manage your personal information, phone number, and residence details.
-                            </p>
-                        </div>
-
-                        <div class="md:col-span-2">
-                            <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
-
-                                <!-- Block Number -->
-                                <div class="col-span-full sm:col-span-3">
-                                    <h:outputLabel for="badgeNumber" value="Badge Number" styleClass="font-medium"/>
-                                    <p:inputText id="badgeNumber"
-                                                 value="#{SettingsControllerSecurity.securityStaffProfile.badgeNumber}"
-                                                 placeholder="Block A"
-                                                 disabled="true"
-                                                 styleClass="mt-2 w-full"/>
-                                    <p class="mt-2 text-xs text-gray-500">
-                                        Badge Number can only be changed by a system admin.
-                                    </p>
-                                </div>
-
-                                <!-- Room Number -->
-                                <div class="col-span-full sm:col-span-3">
-                                    <h:outputLabel for="shift" value="Shift" styleClass="font-medium"/>
-                                    <p:inputText id="shift"
-                                                 value="#{SettingsControllerSecurity.securityStaffProfile.shift}"
-                                                 placeholder="101"
-                                                 disabled="true"
-                                                 styleClass="mt-2 w-full"/>
-                                    <p class="mt-2 text-xs text-gray-500">
-                                        Shift can only be changed by a system admin.
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
+            <!-- Personal Information Section -->
+            <section aria-labelledby="personal-information">
+                <div class="grid grid-cols-1 gap-x-14 gap-y-8 md:grid-cols-3">
+                    <div>
+                        <h2 id="personal-information" class="scroll-mt-10 font-semibold text-gray-900">
+                            Personal information
+                        </h2>
+                        <p class="mt-1 text-sm leading-6 text-gray-500">
+                            Manage your personal information, phone number, and residence details.
+                        </p>
                     </div>
-                </section>
 
-                <!-- Divider -->
-                <hr class="border-gray-300"/>
+                    <div class="md:col-span-2">
+                        <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
+                            <!-- First Name -->
+                            <div class="col-span-full sm:col-span-3">
+                                <h:outputLabel for="firstName" value="First name" styleClass="font-medium"/>
+                                <p:inputText id="firstName"
+                                             value="#{SettingsControllerSecurity.user.firstName}"
+                                             placeholder="Emma"
+                                             styleClass="mt-2 w-full"
+                                             autocomplete="given-name"/>
+                            </div>
 
-                <!-- Notification Settings Section -->
-                <section aria-labelledby="notification-settings">
-                    <div class="grid grid-cols-1 gap-x-14 gap-y-8 md:grid-cols-3">
-                        <div>
-                            <h2 id="notification-settings"
-                                class="scroll-mt-10 font-semibold text-gray-900">
-                                Notification settings
-                            </h2>
-                            <p class="mt-1 text-sm leading-6 text-gray-500">
-                                Configure the types of notifications you want to receive.
-                            </p>
-                        </div>
+                            <!-- Last Name -->
+                            <div class="col-span-full sm:col-span-3">
+                                <h:outputLabel for="lastName" value="Last name" styleClass="font-medium"/>
+                                <p:inputText id="lastName"
+                                             value="#{SettingsControllerSecurity.user.lastName}"
+                                             placeholder="Stone"
+                                             styleClass="mt-2 w-full"
+                                             autocomplete="family-name"/>
+                            </div>
 
-                        <div class="md:col-span-2">
-                            <!-- Team Notifications -->
-                            <fieldset>
-                                <legend class="text-sm font-medium text-gray-900">
-                                    Team
-                                </legend>
-                                <p class="mt-1 text-sm leading-6 text-gray-500">
-                                    Configure the types of team alerts you want to receive.
+                            <!-- Email -->
+                            <div class="col-span-full">
+                                <h:outputLabel for="email" value="Email" styleClass="font-medium"/>
+                                <p:inputText id="email"
+                                             value="#{SettingsControllerSecurity.user.email}"
+                                             type="email"
+                                             placeholder="emma@acme.com"
+                                             styleClass="mt-2 w-full"
+                                             autocomplete="email"/>
+                            </div>
+
+                            <!-- Phone Number -->
+                            <div class="col-span-full">
+                                <h:outputLabel for="phoneNumber" value="Phone Number" styleClass="font-medium"/>
+                                <p:inputText id="phoneNumber"
+                                             value="#{SettingsControllerSecurity.user.phoneNumber}"
+                                             placeholder="+1 555 5555"
+                                             styleClass="mt-2 w-full"
+                                             autocomplete="tel"/>
+                            </div>
+
+                            <!-- Role -->
+                            <div class="col-span-2">
+                                <h:outputLabel for="role" value="Role" styleClass="font-medium"/>
+                                <p:inputText id="role" disabled="true"
+                                             value="#{SettingsControllerSecurity.user.role}"
+                                             styleClass="mt-2 w-full"/>
+                                <p class="mt-2 text-xs text-gray-500">
+                                    Roles can only be changed by a system admin.
                                 </p>
-                                <ul role="list" class="mt-4 divide-y divide-gray-200">
-                                    <li class="flex items-center gap-x-3 py-3">
-                                        <p:selectBooleanCheckbox id="teamRequests"
-                                                                 styleClass="mr-1"/>
-                                        <h:outputLabel for="teamRequests" value="Team join requests"/>
-                                    </li>
-                                    <li class="flex items-center gap-x-3 py-3">
-                                        <p:selectBooleanCheckbox id="teamDigest"
-                                                                 styleClass="mr-1"/>
-                                        <h:outputLabel for="teamDigest" value="Weekly team activity digest"/>
-                                    </li>
-                                </ul>
-                            </fieldset>
+                            </div>
 
-                            <!-- Usage Notifications -->
-                            <fieldset class="mt-6">
-                                <legend class="text-sm font-medium text-gray-900 ">
-                                    Usage
-                                </legend>
-                                <p class="mt-1 text-sm leading-6 text-gray-500">
-                                    Configure the types of usage alerts you want to receive.
-                                </p>
-                                <ul role="list" class="mt-4 divide-y divide-gray-200 ">
-                                    <li class="flex items-center gap-x-3 py-3">
-                                        <p:selectBooleanCheckbox id="apiRequests"
-                                                                 styleClass="mr-1"/>
-                                        <h:outputLabel for="apiRequests" value="API incidents"/>
-                                    </li>
-                                    <li class="flex items-center gap-x-3 py-3">
-                                        <p:selectBooleanCheckbox id="platformIncidents"
-                                                                 styleClass="mr-1"/>
-                                        <h:outputLabel for="platformIncidents" value="Platform incidents"/>
-                                    </li>
-                                    <li class="flex items-center gap-x-3 py-3">
-                                        <p:selectBooleanCheckbox id="paymentTransactions"
-                                                                 styleClass="mr-1"/>
-                                        <h:outputLabel for="paymentTransactions" value="Payment transactions"/>
-                                    </li>
-                                    <li class="flex items-center gap-x-3 py-3">
-                                        <p:selectBooleanCheckbox id="userBehavior"
-                                                                 styleClass="mr-1"/>
-                                        <h:outputLabel for="userBehavior" value="User behavior"/>
-                                    </li>
-                                </ul>
-                            </fieldset>
-
-                            <!-- Save Button for Notifications -->
+                            <!-- Save button -->
                             <div class="col-span-full mt-6 flex justify-end">
                                 <p:commandButton value="Save settings"
+                                                 action="#{SettingsControllerSecurity.savePersonalInformation}"
                                                  update="@form messages"
                                                  styleClass="p-button-raised p-button-primary"/>
                             </div>
                         </div>
                     </div>
-                </section>
-            </div>
-        </h:form>
+                </div>
+            </section>
+
+            <!-- Divider -->
+            <hr class="border-gray-300"/>
+
+            <!-- Additinal Information Section -->
+            <section aria-labelledby="additional-information">
+                <div class="grid grid-cols-1 gap-x-14 gap-y-8 md:grid-cols-3">
+                    <div>
+                        <h2 id="additional-information" class="scroll-mt-10 font-semibold text-gray-900">
+                            Additional information
+                        </h2>
+                        <p class="mt-1 text-sm leading-6 text-gray-500">
+                            Manage your personal information, phone number, and residence details.
+                        </p>
+                    </div>
+
+                    <div class="md:col-span-2">
+                        <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
+
+                            <!-- Block Number -->
+                            <div class="col-span-full sm:col-span-3">
+                                <h:outputLabel for="badgeNumber" value="Badge Number" styleClass="font-medium"/>
+                                <p:inputText id="badgeNumber"
+                                             value="#{SettingsControllerSecurity.securityStaffProfile.badgeNumber}"
+                                             placeholder="Block A"
+                                             disabled="true"
+                                             styleClass="mt-2 w-full"/>
+                                <p class="mt-2 text-xs text-gray-500">
+                                    Badge Number can only be changed by a system admin.
+                                </p>
+                            </div>
+
+                            <!-- Room Number -->
+                            <div class="col-span-full sm:col-span-3">
+                                <h:outputLabel for="shift" value="Shift" styleClass="font-medium"/>
+                                <p:inputText id="shift"
+                                             value="#{SettingsControllerSecurity.securityStaffProfile.shift}"
+                                             placeholder="101"
+                                             disabled="true"
+                                             styleClass="mt-2 w-full"/>
+                                <p class="mt-2 text-xs text-gray-500">
+                                    Shift can only be changed by a system admin.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Divider -->
+            <hr class="border-gray-300"/>
+
+            <!-- Notification Settings Section -->
+            <section aria-labelledby="notification-settings">
+                <div class="grid grid-cols-1 gap-x-14 gap-y-8 md:grid-cols-3">
+                    <div>
+                        <h2 id="notification-settings"
+                            class="scroll-mt-10 font-semibold text-gray-900">
+                            Notification settings
+                        </h2>
+                        <p class="mt-1 text-sm leading-6 text-gray-500">
+                            Configure the types of notifications you want to receive.
+                        </p>
+                    </div>
+
+                    <div class="md:col-span-2">
+                        <!-- Team Notifications -->
+                        <fieldset>
+                            <legend class="text-sm font-medium text-gray-900">
+                                Team
+                            </legend>
+                            <p class="mt-1 text-sm leading-6 text-gray-500">
+                                Configure the types of team alerts you want to receive.
+                            </p>
+                            <ul role="list" class="mt-4 divide-y divide-gray-200">
+                                <li class="flex items-center gap-x-3 py-3">
+                                    <p:selectBooleanCheckbox id="teamRequests"
+                                                             styleClass="mr-1"/>
+                                    <h:outputLabel for="teamRequests" value="Team join requests"/>
+                                </li>
+                                <li class="flex items-center gap-x-3 py-3">
+                                    <p:selectBooleanCheckbox id="teamDigest"
+                                                             styleClass="mr-1"/>
+                                    <h:outputLabel for="teamDigest" value="Weekly team activity digest"/>
+                                </li>
+                            </ul>
+                        </fieldset>
+
+                        <!-- Usage Notifications -->
+                        <fieldset class="mt-6">
+                            <legend class="text-sm font-medium text-gray-900 ">
+                                Usage
+                            </legend>
+                            <p class="mt-1 text-sm leading-6 text-gray-500">
+                                Configure the types of usage alerts you want to receive.
+                            </p>
+                            <ul role="list" class="mt-4 divide-y divide-gray-200 ">
+                                <li class="flex items-center gap-x-3 py-3">
+                                    <p:selectBooleanCheckbox id="apiRequests"
+                                                             styleClass="mr-1"/>
+                                    <h:outputLabel for="apiRequests" value="API incidents"/>
+                                </li>
+                                <li class="flex items-center gap-x-3 py-3">
+                                    <p:selectBooleanCheckbox id="platformIncidents"
+                                                             styleClass="mr-1"/>
+                                    <h:outputLabel for="platformIncidents" value="Platform incidents"/>
+                                </li>
+                                <li class="flex items-center gap-x-3 py-3">
+                                    <p:selectBooleanCheckbox id="paymentTransactions"
+                                                             styleClass="mr-1"/>
+                                    <h:outputLabel for="paymentTransactions" value="Payment transactions"/>
+                                </li>
+                                <li class="flex items-center gap-x-3 py-3">
+                                    <p:selectBooleanCheckbox id="userBehavior"
+                                                             styleClass="mr-1"/>
+                                    <h:outputLabel for="userBehavior" value="User behavior"/>
+                                </li>
+                            </ul>
+                        </fieldset>
+
+                        <!-- Save Button for Notifications -->
+                        <div class="col-span-full mt-6 flex justify-end">
+                            <p:commandButton value="Save settings"
+                                             update="@form messages"
+                                             styleClass="p-button-raised p-button-primary"/>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
     </ui:define>
 
 </ui:composition>
