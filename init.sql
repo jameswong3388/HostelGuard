@@ -5,6 +5,7 @@ DROP TABLE IF EXISTS security_staff_profile;
 DROP TABLE IF EXISTS resident_profile;
 DROP TABLE IF EXISTS managing_staff_profile;
 DROP TABLE IF EXISTS user;
+DROP TABLE IF EXISTS medias;
 
 -- Create user table
 CREATE TABLE user
@@ -95,6 +96,20 @@ CREATE TABLE visitor_record
     FOREIGN KEY (security_staff_id) REFERENCES user (id) ON DELETE CASCADE
 );
 
+CREATE TABLE medias
+(
+    id         CHAR(36) PRIMARY KEY,
+    model      VARCHAR(255) NOT NULL,
+    model_id   CHAR(36),
+    collection VARCHAR(255),
+    file_name  VARCHAR(255) NOT NULL,
+    mime_type  VARCHAR(255),
+    disk       VARCHAR(255),
+    size DOUBLE,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
 -- Create indexes for better query performance
 CREATE INDEX idx_visit_request_user ON visit_request (user_id);
 CREATE INDEX idx_visitor_record_request ON visitor_record (request_id);
@@ -155,25 +170,25 @@ VALUES ('managing_staff', 'FTUa8P#OT7N8d>o3', 'F3A90A00BF8D619364F2059DED59AB2DD
 INSERT INTO visit_request (user_id, verification_code, visit_datetime, purpose, status, remarks, unit_number)
 VALUES
     -- Request #1 by resident1 (user_id=5)
-    (5, 'VERIF001', '2025-01-10 10:00:00', 'Friend Gathering', 'COMPLETED', 'No issues',  'A-12-3'),
+    (5, 'VERIF001', '2025-01-10 10:00:00', 'Friend Gathering', 'COMPLETED', 'No issues', 'A-12-3'),
     -- Request #2 by resident2 (user_id=6)
-    (6, 'VERIF002', '2025-01-11 09:30:00', 'Package Delivery', 'COMPLETED', 'Package from courier',  'A-11-7'),
+    (6, 'VERIF002', '2025-01-11 09:30:00', 'Package Delivery', 'COMPLETED', 'Package from courier', 'A-11-7'),
     -- Request #3 by resident3 (user_id=7)
     (7, 'VERIF003', '2025-01-12 15:00:00', 'Birthday Visit', 'COMPLETED', 'Birthday celebration', 'B-09-3'),
     -- Request #4 by resident4 (user_id=8)
-    (8, 'VERIF004', '2025-01-13 14:15:00', 'Maintenance Check', 'COMPLETED', 'AC maintenance',  'C-18-15'),
+    (8, 'VERIF004', '2025-01-13 14:15:00', 'Maintenance Check', 'COMPLETED', 'AC maintenance', 'C-18-15'),
     -- Request #5 by resident5 (user_id=9)
-    (9, 'VERIF005', '2025-01-14 08:45:00', 'Friend Visit', 'COMPLETED', 'Visitor from out of town',  'A-01-2'),
+    (9, 'VERIF005', '2025-01-14 08:45:00', 'Friend Visit', 'COMPLETED', 'Visitor from out of town', 'A-01-2'),
     -- Request #6 by resident10 (user_id=14)
-    (14, 'VERIF006', '2025-01-15 10:30:00', 'Food Delivery', 'COMPLETED', 'Restaurant delivery',  'D-12-3'),
+    (14, 'VERIF006', '2025-01-15 10:30:00', 'Food Delivery', 'COMPLETED', 'Restaurant delivery', 'D-12-3'),
     -- Request #7 by resident11 (user_id=15)
-    (15, 'VERIF007', '2025-01-16 16:00:00', 'Family Reunion', 'COMPLETED', 'Large group',  'B-12-3'),
+    (15, 'VERIF007', '2025-01-16 16:00:00', 'Family Reunion', 'COMPLETED', 'Large group', 'B-12-3'),
     -- Request #8 by resident12 (user_id=16)
-    (16, 'VERIF008', '2025-01-17 11:00:00', 'Discussion', 'COMPLETED', 'Discussion about upcoming event',  'C-15-3'),
+    (16, 'VERIF008', '2025-01-17 11:00:00', 'Discussion', 'COMPLETED', 'Discussion about upcoming event', 'C-15-3'),
     -- Request #9 by resident19 (user_id=23)
-    (23, 'VERIF009', '2025-01-18 18:45:00', 'Party Visit', 'COMPLETED', 'Small gathering',  'A-17-6'),
+    (23, 'VERIF009', '2025-01-18 18:45:00', 'Party Visit', 'COMPLETED', 'Small gathering', 'A-17-6'),
     -- Request #10 by resident20 (user_id=24)
-    (24, 'VERIF010', '2025-01-19 13:20:00', 'Friend Hangout', 'COMPLETED', 'Lunch and hangout',  'A-04-8');
+    (24, 'VERIF010', '2025-01-19 13:20:00', 'Friend Hangout', 'COMPLETED', 'Lunch and hangout', 'A-04-8');
 
 
 -- Request #1 (2 visitors)
@@ -265,36 +280,33 @@ VALUES (10, 3, 'George Wilson', 'IC100001', '60100000114', '2025-01-19 13:25:00'
 
 -- Insert profile for the managing staff (user_id = 1)
 INSERT INTO managing_staff_profile (user_id, department, position, created_at, updated_at)
-VALUES
-    (1, 'Administration', 'Manager', NOW(), NOW());
+VALUES (1, 'Administration', 'Manager', NOW(), NOW());
 
 -- Insert profiles for security staff (user_id = 2, 3, 4)
 INSERT INTO security_staff_profile (user_id, badge_number, shift, created_at, updated_at)
-VALUES
-    (2, 'SEC001', 'MORNING', NOW(), NOW()),
-    (3, 'SEC002', 'AFTERNOON', NOW(), NOW()),
-    (4, 'SEC003', 'NIGHT', NOW(), NOW());
+VALUES (2, 'SEC001', 'MORNING', NOW(), NOW()),
+       (3, 'SEC002', 'AFTERNOON', NOW(), NOW()),
+       (4, 'SEC003', 'NIGHT', NOW(), NOW());
 
 -- Insert profiles for residents (user_id = 5 to 24)
 INSERT INTO resident_profile (user_id, unit_number, created_at, updated_at)
-VALUES
-    (5, 'A-12-3', NOW(), NOW()),
-    (6, 'A-11-7', NOW(), NOW()),
-    (7, 'B-09-3', NOW(), NOW()),
-    (8, 'C-18-15', NOW(), NOW()),
-    (9, 'A-01-2', NOW(), NOW()),
-    (10, 'D-12-3', NOW(), NOW()),
-    (11, 'B-12-3', NOW(), NOW()),
-    (12, 'C-15-3', NOW(), NOW()),
-    (13, 'A-17-6', NOW(), NOW()),
-    (14, 'A-04-8', NOW(), NOW()),
-    (15, 'A-05-4', NOW(), NOW()),
-    (16, 'B-07-2', NOW(), NOW()),
-    (17, 'C-10-9', NOW(), NOW()),
-    (18, 'D-08-5', NOW(), NOW()),
-    (19, 'E-03-1', NOW(), NOW()),
-    (20, 'F-06-4', NOW(), NOW()),
-    (21, 'G-02-7', NOW(), NOW()),
-    (22, 'H-09-3', NOW(), NOW()),
-    (23, 'I-04-6', NOW(), NOW()),
-    (24, 'J-11-8', NOW(), NOW());
+VALUES (5, 'A-12-3', NOW(), NOW()),
+       (6, 'A-11-7', NOW(), NOW()),
+       (7, 'B-09-3', NOW(), NOW()),
+       (8, 'C-18-15', NOW(), NOW()),
+       (9, 'A-01-2', NOW(), NOW()),
+       (10, 'D-12-3', NOW(), NOW()),
+       (11, 'B-12-3', NOW(), NOW()),
+       (12, 'C-15-3', NOW(), NOW()),
+       (13, 'A-17-6', NOW(), NOW()),
+       (14, 'A-04-8', NOW(), NOW()),
+       (15, 'A-05-4', NOW(), NOW()),
+       (16, 'B-07-2', NOW(), NOW()),
+       (17, 'C-10-9', NOW(), NOW()),
+       (18, 'D-08-5', NOW(), NOW()),
+       (19, 'E-03-1', NOW(), NOW()),
+       (20, 'F-06-4', NOW(), NOW()),
+       (21, 'G-02-7', NOW(), NOW()),
+       (22, 'H-09-3', NOW(), NOW()),
+       (23, 'I-04-6', NOW(), NOW()),
+       (24, 'J-11-8', NOW(), NOW());
