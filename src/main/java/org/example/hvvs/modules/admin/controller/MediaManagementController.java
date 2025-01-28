@@ -8,9 +8,7 @@ import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import org.example.hvvs.commonClasses.CustomPart;
 import org.example.hvvs.model.Medias;
-import org.example.hvvs.modules.admin.service.DashboardService;
 import org.example.hvvs.modules.common.service.MediaService;
-import org.primefaces.model.charts.line.LineChartModel;
 import org.primefaces.model.file.UploadedFile;
 
 import java.io.IOException;
@@ -24,22 +22,19 @@ import java.util.UUID;
 public class MediaManagementController implements Serializable {
 
     @Inject
-    private DashboardService dashboardService;
-
-    @Inject
     private MediaService mediaService;
 
     private UploadedFile file;
     private String selectedCollection;
     private String model;
     private String modelId;
-    private LineChartModel visitorActivityChart;
     private Medias selectedMedia;
     private List<Medias> profilePictureMedia;
     private List<Medias> documentsMedia;
     private List<Medias> reportsMedia;
     private List<Medias> othersMedia;
     private List<String> availableModels;
+    private Medias selectedPreviewMedia;
 
     @PostConstruct
     public void init() {
@@ -182,5 +177,18 @@ public class MediaManagementController implements Serializable {
 
     public List<String> getAvailableModels() {
         return availableModels;
+    }
+
+    // Getter and Setter
+    public Medias getSelectedPreviewMedia() {
+        return selectedPreviewMedia;
+    }
+
+    public void setSelectedPreviewMedia(Medias selectedPreviewMedia) {
+        this.selectedPreviewMedia = selectedPreviewMedia;
+    }
+
+    public void previewMedia(Medias media) {
+        this.selectedPreviewMedia = media;
     }
 } 

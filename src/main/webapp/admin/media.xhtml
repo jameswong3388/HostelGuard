@@ -38,7 +38,7 @@
 
                     <div class="space-y-2">
                         <p:outputLabel for="model" value="Model:" styleClass="block text-sm font-medium text-gray-700"/>
-                        <p:selectOneMenu id="model" 
+                        <p:selectOneMenu id="model"
                                        value="#{mediaManagementController.model}"
                                        styleClass="w-full">
                             <f:selectItem itemLabel="Select Model" itemValue=""/>
@@ -51,7 +51,7 @@
 
                     <div class="space-y-2">
                         <p:outputLabel for="modelId" value="Model ID:" styleClass="block text-sm font-medium text-gray-700"/>
-                        <p:inputText id="modelId" 
+                        <p:inputText id="modelId"
                                    value="#{mediaManagementController.modelId}"
                                    styleClass="w-full"/>
                     </div>
@@ -104,7 +104,9 @@
                                 <p:column headerText="Actions" styleClass="w-24">
                                     <div class="flex gap-2">
                                         <p:commandButton icon="pi pi-eye"
-                                                         onclick="window.open('http://localhost:8080/HVVS-1.0-SNAPSHOT/api/media/file/#{media.id}', '_blank')"
+                                                         action="#{mediaManagementController.previewMedia(media)}"
+                                                         oncomplete="PF('mediaPreviewDialog').show()"
+                                                         update=":previewForm:previewImage"
                                                          styleClass="p-button-secondary p-button-sm"/>
                                         <p:commandButton icon="pi pi-trash"
                                                          action="#{mediaManagementController.deleteMedia(media.id)}"
@@ -134,7 +136,9 @@
                                 <p:column headerText="Actions" styleClass="w-24">
                                     <div class="flex gap-2">
                                         <p:commandButton icon="pi pi-eye"
-                                                         onclick="window.open('/api/media/file/#{media.id}', '_blank')"
+                                                         action="#{mediaManagementController.previewMedia(media)}"
+                                                         oncomplete="PF('mediaPreviewDialog').show()"
+                                                         update=":previewForm:previewImage"
                                                          styleClass="p-button-secondary p-button-sm"/>
                                         <p:commandButton icon="pi pi-trash"
                                                          action="#{mediaManagementController.deleteMedia(media.id)}"
@@ -164,7 +168,9 @@
                                 <p:column headerText="Actions" styleClass="w-24">
                                     <div class="flex gap-2">
                                         <p:commandButton icon="pi pi-eye"
-                                                         onclick="window.open('/api/media/file/#{media.id}', '_blank')"
+                                                         action="#{mediaManagementController.previewMedia(media)}"
+                                                         oncomplete="PF('mediaPreviewDialog').show()"
+                                                         update=":previewForm:previewImage"
                                                          styleClass="p-button-secondary p-button-sm"/>
                                         <p:commandButton icon="pi pi-trash"
                                                          action="#{mediaManagementController.deleteMedia(media.id)}"
@@ -194,7 +200,9 @@
                                 <p:column headerText="Actions" styleClass="w-24">
                                     <div class="flex gap-2">
                                         <p:commandButton icon="pi pi-eye"
-                                                         onclick="window.open('/api/media/file/#{media.id}', '_blank')"
+                                                         action="#{mediaManagementController.previewMedia(media)}"
+                                                         oncomplete="PF('mediaPreviewDialog').show()"
+                                                         update=":previewForm:previewImage"
                                                          styleClass="p-button-secondary p-button-sm"/>
                                         <p:commandButton icon="pi pi-trash"
                                                          action="#{mediaManagementController.deleteMedia(media.id)}"
@@ -232,6 +240,10 @@
                                 <h:outputText value="#{mediaManagementController.selectedMedia.size}"/>
                             </div>
                             <div>
+                                <p:outputLabel value="Disk:" styleClass="font-semibold"/>
+                                <h:outputText value="#{mediaManagementController.selectedMedia.disk}"/>
+                            </div>
+                            <div>
                                 <p:outputLabel value="Created At:" styleClass="font-semibold"/>
                                 <h:outputText value="#{mediaManagementController.selectedMedia.createdAt}"/>
                             </div>
@@ -244,6 +256,23 @@
                 </h:form>
             </div>
         </div>
+
+        <!-- Media Preview Dialog -->
+        <p:dialog header="Media Preview" 
+                  widgetVar="mediaPreviewDialog" 
+                  modal="true" 
+                  responsive="true"
+                  width="90%" 
+                  height="90%" 
+                  closeOnEscape="true">
+            <h:form id="previewForm">
+                <div class="flex justify-center items-center w-full h-full">
+                    <h:graphicImage id="previewImage" 
+                                    value="#{mediaManagementController.selectedPreviewMedia.disk}"
+                                    styleClass="max-w-full max-h-full object-contain"/>
+                </div>
+            </h:form>
+        </p:dialog>
     </ui:define>
 
 </ui:composition>
