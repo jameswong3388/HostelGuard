@@ -26,11 +26,10 @@
 
     <!-- Replace only the content block with the new design -->
     <ui:define name="content">
-        <h:form>
-            <div class="space-y-10">
-
-                <!-- Change Username Section (replaces Personal Information Section) -->
-                <section aria-labelledby="change-username">
+        <div class="space-y-10">
+            <!-- Change Username Section (replaces Personal Information Section) -->
+            <section aria-labelledby="change-username">
+                <h:form>
                     <div class="grid grid-cols-1 gap-x-14 gap-y-8 md:grid-cols-3">
                         <div>
                             <h2 id="change-username" class="scroll-mt-10 font-semibold text-gray-900">
@@ -76,13 +75,15 @@
                             </div>
                         </div>
                     </div>
-                </section>
+                </h:form>
+            </section>
 
-                <!-- Divider -->
-                <hr class="border-gray-300"/>
+            <!-- Divider -->
+            <hr class="border-gray-300"/>
 
-                <!-- Danger Zone Section -->
-                <section aria-labelledby="danger-zone">
+            <!-- Danger Zone Section -->
+            <section aria-labelledby="danger-zone">
+                <h:form>
                     <div class="grid grid-cols-1 gap-x-14 gap-y-8 md:grid-cols-3">
                         <div>
                             <h2 id="danger-zone"
@@ -157,10 +158,8 @@
                             </div>
                         </div>
                     </div>
-                </section>
-
-            </div>
-        </h:form>
+                </h:form>
+            </section>
+        </div>
     </ui:define>
-
 </ui:composition>
