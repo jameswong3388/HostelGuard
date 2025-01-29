@@ -1,12 +1,17 @@
 package org.example.hvvs.modules.common.service;
 
 import com.maxmind.geoip2.exception.GeoIp2Exception;
+import eu.bitwalker.useragentutils.UserAgent;
+import jakarta.annotation.Resource;
+import jakarta.ejb.Asynchronous;
+import jakarta.enterprise.concurrent.ManagedExecutorService;
 import org.example.hvvs.model.UserSessions;
 import org.example.hvvs.model.Users;
 import org.example.hvvs.modules.common.repository.SessionRepository;
 import jakarta.ejb.Stateless;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
+import org.example.hvvs.utils.SessionCacheManager;
 
 import java.io.IOException;
 import java.sql.Timestamp;
@@ -20,47 +25,51 @@ public class SessionServiceImpl implements SessionService {
     private SessionRepository sessionRepository;
 
     @Inject
-    private GeoLocationService geoLocationService; // Assume this exists for IP geolocation
+    private GeoLocationService geoLocationService;
+
+    @Inject
+    private SessionCacheManager sessionCacheManager;
+
+    @Resource
+    private ManagedExecutorService executorService;
 
     @Override
     @Transactional
-    public UserSessions createSession(Users user, String ipAddress, String userAgent, String deviceInfo) {
+    public UserSessions createSession(Users user, String ipAddress, String userAgent) {
         Timestamp now = new Timestamp(System.currentTimeMillis());
         Timestamp expiresAt = new Timestamp(System.currentTimeMillis() + (8 * 60 * 60 * 1000)); // 8 hours
 
-        // Get geolocation data
-        String city = "Unknown";
-        String region = "Unknown";
-        String country = "Unknown";
+        UserSessions session = new UserSessions();
+        session.setUser_id(user);
+        session.setIpAddress(ipAddress);
+        session.setUserAgent(userAgent);
+        session.setDeviceInfo("Pending"); // Temporary value
+        session.setLoginTime(now);
+        session.setLastAccess(now);
+        session.setExpiresAt(expiresAt);
 
-        try {
-            String location = parseLocationFromIp(ipAddress);
-            if (location != null) {
-                String[] parts = location.split(", ");
-                if (parts.length >= 3) {
-                    city = parts[0];
-                    region = parts[1];
-                    country = parts[2];
-                }
+        // Async geolocation lookup
+        executorService.submit(() -> {
+            try {
+                String location = parseLocationFromIp(ipAddress);
+                String[] locParts = location.split(", ");
+                session.setCity(locParts[0]);
+                session.setRegion(locParts[1]);
+                session.setCountry(locParts[2]);
+            } catch (Exception e) {
+                // Set default values
+                session.setCity("Unknown");
+                session.setRegion("Unknown");
+                session.setCountry("Unknown");
             }
-        } catch (RuntimeException e) {
-            // Log error but continue with default values
-            e.printStackTrace();
-        }
 
-        UserSessions session = new UserSessions(
-                user,
-                ipAddress,
-                city,
-                region,
-                country,
-                userAgent,
-                now,
-                now,
-                expiresAt,
-                true,
-                deviceInfo
-        );
+            // Device detection with proper library
+            UserAgent agent = UserAgent.parseUserAgentString(userAgent);
+            session.setDeviceInfo(agent.getOperatingSystem().getName()
+                    + " - " + agent.getBrowser().getName());
+
+            sessionRepository.updateAsync(session);
+        });
 
         return sessionRepository.create(session);
     }
@@ -70,6 +79,7 @@ public class SessionServiceImpl implements SessionService {
     @Transactional
     public void revokeSession(UUID sessionId) {
         sessionRepository.revokeSession(sessionId);
+        sessionCacheManager.invalidateSession(sessionId);
     }
 
     @Override
@@ -86,7 +96,19 @@ public class SessionServiceImpl implements SessionService {
     @Override
     @Transactional
     public void updateLastAccess(UUID sessionId) {
-        sessionRepository.updateLastAccess(sessionId);
+        Timestamp now = new Timestamp(System.currentTimeMillis());
+        Timestamp newExpiresAt = new Timestamp(now.getTime() + (8 * 60 * 60 * 1000));
+        sessionRepository.updateSessionAccess(sessionId, now, newExpiresAt);
+    }
+
+    @Override
+    @Asynchronous
+    public void updateLastAccessAsync(UUID sessionId) {
+        updateLastAccess(sessionId);
+    }
+
+    public void updateSessionExpiration(UUID sessionId, Timestamp newExpiresAt) {
+        sessionRepository.updateSessionExpiration(sessionId, newExpiresAt);
     }
 
     @Override
@@ -111,16 +133,5 @@ public class SessionServiceImpl implements SessionService {
         } catch (IOException | GeoIp2Exception e) {
             throw new RuntimeException(e);
         }
-    }
-
-    @Override
-    public String parseDeviceInfo(String userAgent) {
-        // Implement user agent parsing logic
-        if (userAgent.contains("Mobile")) {
-            return "Mobile Device";
-        } else if (userAgent.contains("Tablet")) {
-            return "Tablet";
-        }
-        return "Desktop";
     }
 }

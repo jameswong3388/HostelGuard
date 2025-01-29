@@ -58,8 +58,25 @@
     </filter-mapping>
 
     <session-config>
-        <session-timeout>60</session-timeout>
+        <session-timeout>480</session-timeout>
+        <cookie-config>
+            <http-only>true</http-only>
+            <secure>true</secure>
+        </cookie-config>
     </session-config>
+
+    <!-- enforce HTTPS -->
+    <security-constraint>
+        <web-resource-collection>
+            <web-resource-name>Secure Pages</web-resource-name>
+            <url-pattern>/admin/*</url-pattern>
+            <url-pattern>/resident/*</url-pattern>
+            <url-pattern>/security/*</url-pattern>
+        </web-resource-collection>
+        <user-data-constraint>
+            <transport-guarantee>CONFIDENTIAL</transport-guarantee>
+        </user-data-constraint>
+    </security-constraint>
 
     <error-page>
         <error-code>404</error-code>

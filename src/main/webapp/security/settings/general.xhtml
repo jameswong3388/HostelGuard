@@ -120,6 +120,36 @@
                                                  autocomplete="tel"/>
                                 </div>
 
+                                <!-- Identity Number -->
+                                <div class="col-span-full">
+                                    <h:outputLabel for="identity_number" value="Identity Number" styleClass="font-medium"/>
+                                    <p:inputText id="identity_number"
+                                                 value="#{SettingsControllerSecurity.user.identity_number}"
+                                                 placeholder="+1 555 5555"
+                                                 styleClass="mt-2 w-full"
+                                                 autocomplete="tel"/>
+                                </div>
+
+                                <!-- Gender -->
+                                <div class="col-span-full">
+                                    <h:outputLabel for="gender" value="Gender" styleClass="font-medium"/>
+                                    <p:inputText id="gender"
+                                                 value="#{SettingsControllerSecurity.user.gender}"
+                                                 placeholder="MALE"
+                                                 styleClass="mt-2 w-full"
+                                                 autocomplete="tel"/>
+                                </div>
+
+                                <!-- Address -->
+                                <div class="col-span-full">
+                                    <h:outputLabel for="address" value="Address" styleClass="font-medium"/>
+                                    <p:inputText id="address"
+                                                 value="#{SettingsControllerSecurity.user.address}"
+                                                 placeholder="+1 555 5555"
+                                                 styleClass="mt-2 w-full"
+                                                 autocomplete="tel"/>
+                                </div>
+
                                 <!-- Role -->
                                 <div class="col-span-2">
                                     <h:outputLabel for="role" value="Role" styleClass="font-medium"/>

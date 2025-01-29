@@ -3,6 +3,7 @@ package org.example.hvvs.modules.auth.controller;
 import jakarta.ejb.EJB;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.faces.application.FacesMessage;
+import jakarta.faces.context.ExternalContext;
 import jakarta.faces.context.FacesContext;
 import jakarta.inject.Named;
 import jakarta.servlet.http.HttpSession;
@@ -34,51 +35,54 @@ public class SignInController implements Serializable {
             ServiceResult<Users> serviceResult = authServices.signIn(identifier, password);
 
             if (!serviceResult.isSuccess()) {
-                // Failed authentication: show the error message
+                FacesContext.getCurrentInstance().getExternalContext().getFlash().setKeepMessages(true);
                 FacesContext.getCurrentInstance().addMessage(null,
-                        new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                                "Error", serviceResult.getMessage()));
-                return null;
+                        new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", serviceResult.getMessage()));
+                return "/auth.xhtml?faces-redirect=true";
             }
 
-            // If success, retrieve the authenticated user
             Users user = serviceResult.getData();
+            FacesContext context = FacesContext.getCurrentInstance();
+            ExternalContext externalContext = context.getExternalContext();
 
-            // Create Server Session tracking record
-            HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance()
-                    .getExternalContext().getRequest();
-
-            String ipAddress = request.getRemoteAddr();
-            String userAgent = request.getHeader("User-Agent");
-            String deviceInfo = sessionService.parseDeviceInfo(userAgent);
+            // Invalidate existing session
+            HttpSession existingSession = (HttpSession) externalContext.getSession(false);
+            if (existingSession != null) {
+                existingSession.invalidate();
+            }
 
             // Create new session
-            UserSessions userSession = sessionService.createSession(user, ipAddress, userAgent, deviceInfo);
+            HttpSession newSession = (HttpSession) externalContext.getSession(true);
 
-            // Store in session
-            FacesContext context = FacesContext.getCurrentInstance();
+            HttpServletRequest request = (HttpServletRequest) externalContext.getRequest();
+            UserSessions userSession = sessionService.createSession(
+                    user,
+                    request.getRemoteAddr(),
+                    request.getHeader("User-Agent")
+            );
+
             HttpSession session = (HttpSession) context.getExternalContext().getSession(true);
             session.setAttribute(CommonParam.SESSION_ID, userSession.getSession_id());
             session.setAttribute(CommonParam.SESSION_ROLE, user.getRole());
             session.setAttribute(CommonParam.SESSION_SELF, user);
+            newSession.setAttribute(CommonParam.SESSION_EXPIRES_AT,
+                    userSession.getExpiresAt().getTime());
 
             // Now redirect or navigate based on the user's role
             return switch (user.getRole()) {
-                case CommonParam.SESSION_ROLE_RESIDENT -> "resident/requests";
-                case CommonParam.SESSION_ROLE_SECURITY_STAFF -> "onboard-visitors";
-                case CommonParam.SESSION_ROLE_MANAGING_STAFF -> "admin/dashboard";
-                default -> {
-                    FacesContext.getCurrentInstance().addMessage(null,
-                            new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                                    "Error", "Invalid user role: " + user.getRole()));
-                    yield null;
-                }
+                case CommonParam.SESSION_ROLE_RESIDENT -> "/resident/requests.xhtml?faces-redirect=true";
+                case CommonParam.SESSION_ROLE_SECURITY_STAFF -> "/security/onboard-visitors.xhtml?faces-redirect=true";
+                case CommonParam.SESSION_ROLE_MANAGING_STAFF -> "/admin/dashboard.xhtml?faces-redirect=true";
+                default -> throw new IllegalStateException("Invalid role: " + user.getRole());
             };
         } catch (Exception e) {
+            FacesContext.getCurrentInstance().getExternalContext().getFlash().setKeepMessages(true);
             FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                            "Error", "An error occurred during login: " + e.getMessage()));
-            return null;
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Login failed: " + e.getMessage()));
+            return "/auth.xhtml?faces-redirect=true";
+        } finally {
+            // Ensure password String is cleared from memory
+            password = null;
         }
     }
 

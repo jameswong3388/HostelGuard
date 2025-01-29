@@ -37,41 +37,45 @@
 
         <div class="mt-10 w-full">
             <!-- Login form -->
-            <h:form class="flex w-full flex-col gap-y-6">
-                <!-- Email/Username field -->
-                <div class="flex flex-col gap-y-2">
-                    <p:outputLabel for="identifier" value="Email or Username" styleClass="font-medium"/>
-                    <p:inputText id="identifier"
-                                 value="#{signInController.identifier}"
-                                 placeholder="Email or username"
-                                 required="true"
-                                 requiredMessage="Email or username is required"
-                                 styleClass="w-full"/>
-                </div>
+            <f:view transient="true">
+                <!-- Your login form content -->
 
-                <!-- Password field -->
-                <div class="flex flex-col gap-y-2">
-                    <p:outputLabel for="password" value="Password" styleClass="font-medium"/>
-                    <p:password id="password"
-                                value="#{signInController.password}"
-                                placeholder="Password"
-                                toggleMask="true"
-                                required="true"
-                                requiredMessage="Password is required"
-                                styleClass="w-full"/>
-                </div>
+                <h:form class="flex w-full flex-col gap-y-6">
+                    <!-- Email/Username field -->
+                    <div class="flex flex-col gap-y-2">
+                        <p:outputLabel for="identifier" value="Email or Username" styleClass="font-medium"/>
+                        <p:inputText id="identifier"
+                                     value="#{signInController.identifier}"
+                                     placeholder="Email or username"
+                                     required="true"
+                                     requiredMessage="Email or username is required"
+                                     styleClass="w-full"/>
+                    </div>
 
-                <!-- Continue button (Submit) -->
-                <p:commandButton value="Continue"
-                                 action="#{signInController.login}"
-                                 update="@form"
-                                 styleClass="w-full"/>
+                    <!-- Password field -->
+                    <div class="flex flex-col gap-y-2">
+                        <p:outputLabel for="password" value="Password" styleClass="font-medium"/>
+                        <p:password id="password"
+                                    value="#{signInController.password}"
+                                    placeholder="Password"
+                                    toggleMask="true"
+                                    required="true"
+                                    requiredMessage="Password is required"
+                                    styleClass="w-full"/>
+                    </div>
 
-                <!-- PrimeFaces Messages -->
-                <p:messages id="messages" showDetail="true" closable="true"
-                            autoUpdate="true"
-                            styleClass="mb-3"/>
-            </h:form>
+                    <!-- Continue button (Submit) -->
+                    <p:commandButton value="Continue"
+                                     action="#{signInController.login}"
+                                     update="@form"
+                                     styleClass="w-full"/>
+
+                    <!-- PrimeFaces Messages -->
+                    <p:messages id="messages" showDetail="true" closable="true"
+                                autoUpdate="true"
+                                styleClass="mb-3"/>
+                </h:form>
+            </f:view>
 
             <!-- Forgot password link -->
             <p class="text-sm text-gray-700">

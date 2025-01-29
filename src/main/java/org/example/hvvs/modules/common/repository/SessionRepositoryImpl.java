@@ -3,12 +3,11 @@ package org.example.hvvs.modules.common.repository;
 import jakarta.ejb.Stateless;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.TypedQuery;
 import org.example.hvvs.model.UserSessions;
 import org.example.hvvs.model.Users;
 
+import java.sql.Timestamp;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Stateless
@@ -25,6 +24,12 @@ public class SessionRepositoryImpl implements SessionRepository {
     @Override
     public UserSessions update(UserSessions session) {
         return em.merge(session);
+    }
+
+    @Override
+    public void updateAsync(UserSessions session) {
+        em.merge(session);
+        em.flush();
     }
 
     @Override
@@ -53,10 +58,10 @@ public class SessionRepositoryImpl implements SessionRepository {
         return em.find(UserSessions.class, sessionId);
     }
 
-    @Override
-    public void updateLastAccess(UUID sessionId) {
-        em.createQuery("UPDATE UserSessions s SET s.lastAccess = CURRENT_TIMESTAMP WHERE s.session_id = :sessionId")
+    public void updateSessionExpiration(UUID sessionId, Timestamp newExpiresAt) {
+        em.createQuery("UPDATE UserSessions s SET s.expiresAt = :newExpiresAt WHERE s.session_id = :sessionId")
                 .setParameter("sessionId", sessionId)
+                .setParameter("newExpiresAt", newExpiresAt)
                 .executeUpdate();
     }
 
@@ -67,5 +72,14 @@ public class SessionRepositoryImpl implements SessionRepository {
                         UserSessions.class)
                 .setParameter("user", user)
                 .getResultList();
+    }
+
+    @Override
+    public void updateSessionAccess(UUID sessionId, Timestamp lastAccess, Timestamp newExpiresAt) {
+        em.createQuery("UPDATE UserSessions s SET s.lastAccess = :lastAccess, s.expiresAt = :expiresAt WHERE s.id = :sessionId")
+                .setParameter("lastAccess", lastAccess)
+                .setParameter("expiresAt", newExpiresAt)
+                .setParameter("sessionId", sessionId)
+                .executeUpdate();
     }
 }

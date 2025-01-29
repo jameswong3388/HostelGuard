@@ -11,18 +11,21 @@ DROP TABLE IF EXISTS medias;
 -- Create users table
 CREATE TABLE users
 (
-    id           INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    username     VARCHAR(50)  NOT NULL UNIQUE,
-    salt         VARCHAR(255) NOT NULL,
-    password     VARCHAR(255) NOT NULL,
-    email        VARCHAR(100) NOT NULL UNIQUE,
-    first_name   VARCHAR(100),
-    last_name    VARCHAR(100),
-    phone_number VARCHAR(20)  NOT NULL,
-    is_active    BOOLEAN               DEFAULT TRUE,
-    role         VARCHAR(20)  NOT NULL,
-    created_at   TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at   TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    id              INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    username        VARCHAR(50)  NOT NULL UNIQUE,
+    salt            VARCHAR(255) NOT NULL,
+    password        VARCHAR(255) NOT NULL,
+    email           VARCHAR(100) NOT NULL UNIQUE,
+    first_name      VARCHAR(100),
+    last_name       VARCHAR(100),
+    phone_number    VARCHAR(20)  NOT NULL,
+    identity_number VARCHAR(12)  NOT NULL,
+    address         VARCHAR(100),
+    gender          VARCHAR(100),
+    is_active       BOOLEAN               DEFAULT TRUE,
+    role            VARCHAR(20)  NOT NULL,
+    created_at      TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at      TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     CHECK (role IN ('RESIDENT', 'SECURITY_STAFF', 'MANAGING_STAFF'))
 );
 
@@ -129,7 +132,9 @@ CREATE TABLE user_sessions
 );
 
 -- Create indexes for better query performance
-CREATE INDEX idx_user_sessions_user_id ON user_sessions (user_id);
+CREATE INDEX idx_user_sessions_user_active ON user_sessions (user_id, is_active);
+CREATE INDEX idx_user_sessions_expires_active ON user_sessions (expires_at, is_active);
+CREATE INDEX idx_user_sessions_last_access ON user_sessions (last_access);
 
 CREATE INDEX idx_visit_requests_verification_code ON visit_requests (verification_code);
 CREATE INDEX idx_visit_requests_status ON visit_requests (status);

@@ -18,15 +18,12 @@ import java.util.UUID;
 @SessionScoped
 public class SignOutController implements Serializable {
 
-    @EJB
-    private SessionService sessionService;
+    @EJB private SessionService sessionService;
 
     public String signOut() throws IOException {
-        FacesContext context = FacesContext.getCurrentInstance();
-        ExternalContext externalContext = context.getExternalContext();
+        ExternalContext ec = FacesContext.getCurrentInstance().getExternalContext();
+        HttpSession session = (HttpSession) ec.getSession(false);
 
-        // Invalidate session
-        HttpSession session = (HttpSession) externalContext.getSession(false);
         if (session != null) {
             UUID sessionId = (UUID) session.getAttribute(CommonParam.SESSION_ID);
             if (sessionId != null) {
@@ -35,7 +32,7 @@ public class SignOutController implements Serializable {
             session.invalidate();
         }
 
-        // Return navigation outcome
-        return "/auth.xhtml";
+        ec.redirect(ec.getRequestContextPath() + "/auth.xhtml");
+        return null;
     }
 }

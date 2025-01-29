@@ -75,6 +75,31 @@
                                      required="true"/>
                     </div>
 
+                    <div class="field mb-4">
+                        <p:outputLabel for="identity_number" value="Identity Number"/>
+                        <p:inputText id="identity_number"
+                                     value="#{usersController.newUser.identity_number}"
+                                     required="true"/>
+                    </div>
+                    <div class="field mb-4">
+                        <p:outputLabel for="address" value="Address"/>
+                        <p:inputText id="address"
+                                     value="#{usersController.newUser.address}"
+                                     required="true"/>
+                    </div>
+
+                    <div class="field mb-4">
+                        <p:outputLabel for="gender" value="Gender"/>
+                        <p:selectOneMenu id="gender"
+                                         value="#{usersController.newUser.gender}"
+                                         required="true">
+                            <f:selectItem itemLabel="Select Gender" itemValue=""/>
+                            <f:selectItem itemLabel="Male" itemValue="Male"/>
+                            <f:selectItem itemLabel="Female" itemValue="Female"/>
+                            <f:selectItem itemLabel="Others" itemValue="Others"/>
+                        </p:selectOneMenu>
+                    </div>
+
                     <!-- Role -->
                     <div class="field mb-4">
                         <p:outputLabel for="role" value="Role"/>

@@ -44,8 +44,17 @@ public class Users extends BaseEntity {
     @Column(name = "last_name")
     private String last_name;
 
-    @Column(name = "phone_number", nullable = false)
+    @Column(name = "phone_number", nullable = false, unique = true)
     private String phone_number;
+
+    @Column(name = "identity_number", nullable = false, unique = true)
+    private String identity_number;
+
+    @Column(name = "address")
+    private String address;
+
+    @Column(name = "gender")
+    private String gender;
 
     @Column(name = "is_active")
     private boolean is_active = true;
@@ -165,5 +174,29 @@ public class Users extends BaseEntity {
 
     public void setUpdatedAt(Timestamp updated_at) {
         this.updated_at = updated_at;
+    }
+
+    public String getGender() {
+        return gender;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public String getIdentity_number() {
+        return identity_number;
+    }
+
+    public void setIdentity_number(String identity_number) {
+        this.identity_number = identity_number;
     }
 }

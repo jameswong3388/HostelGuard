@@ -8,6 +8,7 @@ import org.hibernate.type.SqlTypes;
 import java.sql.Timestamp;
 import java.util.UUID;
 
+@Cacheable
 @Entity
 @Table(name = "user_sessions")
 public class UserSessions {
