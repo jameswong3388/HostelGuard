@@ -1,17 +1,21 @@
 package org.example.hvvs.modules.resident.controller;
 
 import jakarta.annotation.PostConstruct;
+import jakarta.ejb.EJB;
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
+import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
 import org.example.hvvs.commonClasses.CustomPart;
 import org.example.hvvs.model.Medias;
 import org.example.hvvs.model.ResidentProfiles;
+import org.example.hvvs.model.UserSessions;
 import org.example.hvvs.model.Users;
 import org.example.hvvs.modules.common.service.MediaService;
+import org.example.hvvs.modules.common.service.SessionService;
 import org.example.hvvs.modules.resident.services.SettingsServiceResident;
 import org.example.hvvs.utils.CommonParam;
 import org.example.hvvs.utils.DigestUtils;
@@ -22,6 +26,7 @@ import java.io.InputStream;
 import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.UUID;
 
 @Named("SettingsControllerResident")
 @SessionScoped
@@ -41,11 +46,19 @@ public class SettingsControllerResident implements Serializable {
     @Inject
     private MediaService mediaService;
 
+    @EJB
+    private SessionService sessionService;
+
+    private List<UserSessions> sessions;
+    private UUID currentSessionId;
+
     @PostConstruct
     public void init() {
-        // Example: load user by some logic, e.g., from session or a dummy userId=1
-        Users currentUser = (Users) FacesContext
-                .getCurrentInstance()
+        FacesContext context = FacesContext.getCurrentInstance();
+        HttpSession session = (HttpSession) context.getExternalContext().getSession(false);
+        this.currentSessionId = (UUID) session.getAttribute(CommonParam.SESSION_ID);
+
+        Users currentUser = (Users) FacesContext.getCurrentInstance()
                 .getExternalContext()
                 .getSessionMap()
                 .get(CommonParam.SESSION_SELF);
@@ -130,7 +143,7 @@ public class SettingsControllerResident implements Serializable {
 
             // Update timestamp
             user.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
-            
+
             generalSettingsService.updateUser(user);
 
             FacesContext.getCurrentInstance().addMessage(null,
@@ -193,7 +206,7 @@ public class SettingsControllerResident implements Serializable {
 
             // Update timestamp
             user.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
-            
+
             // Save changes
             generalSettingsService.updateUser(user);
 
@@ -221,8 +234,8 @@ public class SettingsControllerResident implements Serializable {
         try {
             // Basic validation
             if (oldPassword == null || oldPassword.trim().isEmpty() ||
-                newPassword == null || newPassword.trim().isEmpty() ||
-                confirmNewPassword == null || confirmNewPassword.trim().isEmpty()) {
+                    newPassword == null || newPassword.trim().isEmpty() ||
+                    confirmNewPassword == null || confirmNewPassword.trim().isEmpty()) {
                 FacesContext.getCurrentInstance().addMessage(null,
                         new FacesMessage(FacesMessage.SEVERITY_ERROR,
                                 "Error",
@@ -266,7 +279,7 @@ public class SettingsControllerResident implements Serializable {
             String newPassDigest = DigestUtils.sha256Digest(user.getSalt() + newPassword);
             user.setPassword(newPassDigest);
             user.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
-            
+
             // Save changes
             generalSettingsService.updateUser(user);
 
@@ -289,6 +302,58 @@ public class SettingsControllerResident implements Serializable {
         }
 
         return null;
+    }
+
+    public void reloadSessions() {
+        sessions = null; // Force refresh on next access
+        getSessions(); // Explicitly reload
+    }
+
+    public List<UserSessions> getSessions() {
+        if (sessions == null) {
+            Users currentUser = (Users) FacesContext.getCurrentInstance()
+                    .getExternalContext().getSessionMap().get(CommonParam.SESSION_SELF);
+            sessions = sessionService.getActiveSessions(currentUser);
+
+            // Add location parsing for each session
+            sessions.forEach(session -> {
+                String location = sessionService.parseLocationFromIp(session.getIpAddress());
+                String[] parts = location.split(", ");
+                if (parts.length == 3) {
+                    session.setCity(parts[0]);
+                    session.setRegion(parts[1]);
+                    session.setCountry(parts[2]);
+                }
+            });
+        }
+        return sessions;
+    }
+
+    public void revokeSession(UUID sessionId) {
+        sessionService.revokeSession(sessionId);
+        sessions = null; // Refresh session list
+        FacesContext.getCurrentInstance().addMessage(null,
+                new FacesMessage("Session revoked successfully"));
+    }
+
+    public String revokeAllSessions() {
+        Users currentUser = (Users) FacesContext.getCurrentInstance()
+                .getExternalContext().getSessionMap().get(CommonParam.SESSION_SELF);
+        sessionService.revokeAllSessions(currentUser.getId());
+        sessions = null;
+
+        // Invalidate current session and redirect
+        FacesContext.getCurrentInstance().getExternalContext().invalidateSession();
+        return "/auth.xhtml?faces-redirect=true";
+    }
+
+    // Add viewSessionDetails method if needed
+    public void viewSessionDetails(UserSessions session) {
+        // Implementation for viewing session details
+    }
+
+    public UUID getCurrentSessionId() {
+        return currentSessionId;
     }
 
     /* Getters and setters */

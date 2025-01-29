@@ -31,6 +31,7 @@
             <!-- Password Section -->
             <section aria-labelledby="password-settings">
                 <h:form>
+                    <f:event type="preRenderView" listener="#{SettingsControllerResident.reloadSessions}" />
                     <div class="grid grid-cols-1 gap-x-14 gap-y-8 md:grid-cols-3">
                         <!-- Left column: heading & description -->
                         <div>
@@ -126,7 +127,7 @@
                             <!-- Preferred 2FA method -->
                             <div class="p-4 border border-gray-200 rounded-md">
                                 <h4 class="text-sm font-medium text-gray-900 mb-2">
-                                    Preferred 2FA method
+                                    Preferred 2FA method (Coming Soon)
                                 </h4>
                                 <p:selectOneMenu id="preferred2fa"
                                                  styleClass="w-full max-w-xs">
@@ -234,6 +235,7 @@
             <!-- Web Sessions Section -->
             <section aria-labelledby="web-sessions">
                 <h:form>
+                    <f:event type="preRenderView" listener="#{SettingsControllerResident.reloadSessions}" />
                     <div class="grid grid-cols-1 gap-x-14 gap-y-8 md:grid-cols-3">
                         <!-- Left column: heading & description -->
                         <div>
@@ -248,25 +250,40 @@
 
                         <!-- Right column: session list -->
                         <div class="md:col-span-2 space-y-6">
-                            <!-- Example session card -->
-                            <div class="p-4 border border-gray-200 rounded-md flex items-center justify-between">
-                                <div>
-                                    <p class="text-sm font-medium text-gray-900">
-                                        Kuala Lumpur 172.226.44.182
-                                        <span class="ml-2 inline-block text-green-600 text-xs">
-                                            Your current session
-                                        </span>
-                                    </p>
-                                    <p class="mt-1 text-sm text-gray-500">
-                                        Seen in BN, MY, SG
-                                    </p>
+                            <ui:repeat value="#{SettingsControllerResident.sessions}" var="userSession">
+                                <div class="p-4 border border-gray-200 rounded-md flex items-center justify-between">
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-900">
+                                            #{userSession.city} #{userSession.ipAddress}
+                                            <h:outputLabel class="ml-2 inline-block text-green-600 text-xs"
+                                                  rendered="#{userSession.session_id eq SettingsControllerResident.currentSessionId}">
+                                                Your current session
+                                            </h:outputLabel>
+                                        </p>
+                                        <p class="mt-1 text-sm text-gray-500">
+                                            Seen in #{userSession.region}, #{userSession.country}
+                                        </p>
+                                        <p class="text-xs text-gray-400 mt-1">
+                                            Device: #{userSession.deviceInfo}
+                                            <br/>
+                                            Logged in: #{userSession.loginTime}
+                                            <br/>
+                                            Last activity: #{userSession.lastAccess}
+                                        </p>
+                                    </div>
+                                    <div class="flex flex-col gap-2">
+                                        <p:commandButton value="See more" 
+                                                         action="#{SettingsControllerResident.viewSessionDetails(userSession)}"
+                                                         update="@form messages"
+                                                         styleClass="p-button-text p-button-sm"/>
+                                        <p:commandButton value="Revoke" 
+                                                         action="#{SettingsControllerResident.revokeSession(userSession.session_id)}"
+                                                         update="@form"
+                                                         styleClass="ui-button-danger p-button-sm"
+                                                         rendered="#{userSession.session_id ne SettingsControllerResident.currentSessionId}"/>
+                                    </div>
                                 </div>
-                                <p:commandButton value="See more"
-                                                 action="#{SettingsControllerResident.viewSessionDetails}"
-                                                 update="@form messages"
-                                                 styleClass="p-button-text p-button-sm" />
-                            </div>
-                            <!-- Add more session items as needed... -->
+                            </ui:repeat>
                         </div>
                     </div>
                 </h:form>
@@ -278,11 +295,12 @@
             <!-- GitHub Mobile Sessions Section -->
             <section aria-labelledby="github-mobile-sessions">
                 <h:form>
+                    <f:event type="preRenderView" listener="#{SettingsControllerResident.reloadSessions}" />
                     <div class="grid grid-cols-1 gap-x-14 gap-y-8 md:grid-cols-3">
                         <!-- Left column: heading & description -->
                         <div>
                             <h2 id="github-mobile-sessions" class="scroll-mt-10 font-semibold text-gray-900">
-                                GitHub Mobile sessions
+                                GitHub Mobile sessions (Coming Soon)
                             </h2>
                             <p class="mt-1 text-sm leading-6 text-gray-500">
                                 This is a list of devices that have logged into your account via the GitHub Mobile app.
@@ -302,20 +320,20 @@
                                     <p class="text-sm font-medium text-gray-900">
                                         iPad, iPad14,3
                                     </p>
-                                    <p class="text-sm text-gray-500">
+                                    <p class="text-sm text-gray-500 mt-1">
                                         Registered – Aug 25, 2023
                                     </p>
-                                    <p class="text-sm text-gray-500">
+                                    <p class="text-xs text-gray-400 mt-1">
                                         Last accessed – Jan 19, 2025
                                     </p>
-                                    <p class="text-sm text-gray-500">
+                                    <p class="text-xs text-gray-400">
                                         Last used for authentication – Never used
                                     </p>
                                 </div>
                                 <p:commandButton value="Revoke"
                                                  action="#{SettingsControllerResident.revokeMobileSession}"
                                                  update="@form messages"
-                                                 styleClass="p-button-danger p-button-text p-button-sm" />
+                                                 styleClass="ui-button-danger p-button-text p-button-sm"/>
                             </div>
 
                             <!-- Example device 2 -->
@@ -324,20 +342,20 @@
                                     <p class="text-sm font-medium text-gray-900">
                                         M2007JS3G
                                     </p>
-                                    <p class="text-sm text-gray-500">
+                                    <p class="text-sm text-gray-500 mt-1">
                                         Registered – Jun 29, 2022
                                     </p>
-                                    <p class="text-sm text-gray-500">
+                                    <p class="text-xs text-gray-400 mt-1">
                                         Last accessed – Jan 8, 2025
                                     </p>
-                                    <p class="text-sm text-gray-500">
+                                    <p class="text-xs text-gray-400">
                                         Last used for authentication – Dec 31, 2024
                                     </p>
                                 </div>
                                 <p:commandButton value="Revoke"
                                                  action="#{SettingsControllerResident.revokeMobileSession}"
                                                  update="@form messages"
-                                                 styleClass="p-button-danger p-button-text p-button-sm" />
+                                                 styleClass="ui-button-danger p-button-text p-button-sm"/>
                             </div>
                         </div>
                     </div>
@@ -350,6 +368,7 @@
             <!-- (Optional) Danger Zone Section -->
             <section aria-labelledby="danger-zone">
                 <h:form>
+                    <f:event type="preRenderView" listener="#{SettingsControllerResident.reloadSessions}" />
                     <div class="grid grid-cols-1 gap-x-14 gap-y-8 md:grid-cols-3">
                         <div>
                             <h2 id="danger-zone"
@@ -374,8 +393,8 @@
                                 </div>
                                 <p:commandButton value="Sign out everywhere"
                                                  action="#{SettingsControllerResident.revokeAllSessions}"
-                                                 update="@form messages"
-                                                 styleClass="p-button-danger" />
+                                                 styleClass="ui-button-danger"
+                                                 update="@form"/>
                             </div>
                         </div>
                     </div>

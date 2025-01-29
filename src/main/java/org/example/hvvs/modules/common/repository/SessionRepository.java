@@ -4,6 +4,7 @@ import org.example.hvvs.model.UserSessions;
 import org.example.hvvs.model.Users;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface SessionRepository {

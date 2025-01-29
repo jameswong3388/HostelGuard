@@ -31,9 +31,9 @@ CREATE TABLE resident_profiles
 (
     id          INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     user_id     INT UNSIGNED NOT NULL,
-    unit_number VARCHAR(10) NOT NULL,
-    created_at  TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at  TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    unit_number VARCHAR(10)  NOT NULL,
+    created_at  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
 );
 
@@ -42,10 +42,10 @@ CREATE TABLE security_staff_profiles
 (
     id           INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     user_id      INT UNSIGNED NOT NULL,
-    badge_number VARCHAR(20) NOT NULL UNIQUE,
-    shift        VARCHAR(20) NOT NULL,
-    created_at   TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at   TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    badge_number VARCHAR(20)  NOT NULL UNIQUE,
+    shift        VARCHAR(20)  NOT NULL,
+    created_at   TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at   TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
     CHECK (shift IN ('MORNING', 'AFTERNOON', 'NIGHT'))
 );
@@ -55,10 +55,10 @@ CREATE TABLE managing_staff_profiles
 (
     id         INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     user_id    INT UNSIGNED NOT NULL,
-    department VARCHAR(50) NOT NULL,
-    position   VARCHAR(50) NOT NULL,
-    created_at TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    department VARCHAR(50)  NOT NULL,
+    position   VARCHAR(50)  NOT NULL,
+    created_at TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
 );
 
@@ -67,14 +67,14 @@ CREATE TABLE visit_requests
 (
     id                INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     user_id           INT UNSIGNED NOT NULL,
-    verification_code VARCHAR(10) NOT NULL,
-    visit_datetime    TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    purpose           TEXT        NOT NULL,
-    status            VARCHAR(20) NOT NULL,
+    verification_code VARCHAR(10)  NOT NULL,
+    visit_datetime    TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    purpose           TEXT         NOT NULL,
+    status            VARCHAR(20)  NOT NULL,
     remarks           TEXT,
-    unit_number       VARCHAR(10) NOT NULL,
-    created_at        TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at        TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    unit_number       VARCHAR(10)  NOT NULL,
+    created_at        TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at        TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
     CHECK (status IN ('PENDING', 'APPROVED', 'REJECTED', 'PROGRESS', 'COMPLETED', 'CANCELLED'))
 );
@@ -116,6 +116,9 @@ CREATE TABLE user_sessions
     session_id  CHAR(36) PRIMARY KEY,
     user_id     INT UNSIGNED NOT NULL,
     ip_address  VARCHAR(45)  NOT NULL,
+    city        VARCHAR(255),
+    region      VARCHAR(255),
+    country     VARCHAR(255),
     user_agent  VARCHAR(512) NOT NULL,
     login_time  TIMESTAMP    NOT NULL,
     last_access TIMESTAMP    NOT NULL,
@@ -126,9 +129,18 @@ CREATE TABLE user_sessions
 );
 
 -- Create indexes for better query performance
-CREATE INDEX idx_visit_request_user ON visit_requests (user_id);
-CREATE INDEX idx_visitor_record_request ON visitor_records (request_id);
-CREATE INDEX idx_security_staff_badge ON security_staff_profiles (badge_number);
+CREATE INDEX idx_user_sessions_user_id ON user_sessions (user_id);
+
+CREATE INDEX idx_visit_requests_verification_code ON visit_requests (verification_code);
+CREATE INDEX idx_visit_requests_status ON visit_requests (status);
+CREATE INDEX idx_visit_requests_user_status ON visit_requests (user_id, status);
+
+CREATE INDEX idx_resident_profiles_user_id ON resident_profiles (user_id);
+CREATE INDEX idx_security_staff_profiles_user_id ON security_staff_profiles (user_id);
+CREATE INDEX idx_managing_staff_profiles_user_id ON managing_staff_profiles (user_id);
+
+CREATE INDEX idx_medias_model_id ON medias (model_id);
+CREATE INDEX idx_medias_collection ON medias (collection);
 
 -- Insert initial users, all pass: admin
 INSERT INTO users (username, salt, password, email, first_name, last_name, phone_number, is_active, role)

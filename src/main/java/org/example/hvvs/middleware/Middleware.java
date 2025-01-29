@@ -1,6 +1,8 @@
 package org.example.hvvs.middleware;
 
 import java.io.IOException;
+import java.util.UUID;
+import java.util.Optional;
 
 import jakarta.ejb.EJB;
 import jakarta.servlet.Filter;
@@ -9,31 +11,33 @@ import jakarta.servlet.FilterConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
 import org.example.hvvs.model.Users;
+import org.example.hvvs.model.UserSessions;
 import org.example.hvvs.modules.auth.service.AuthServices;
+import org.example.hvvs.modules.common.service.SessionService;
 import org.example.hvvs.utils.CommonParam;
 
 /**
- * Login Filter<br/>
- * 1. If already logged in (admin or user), and request is a public page, redirect to dashboard.<br/>
- * 2. If auto-login cookie exists, verify validity. If valid then login and allow through, otherwise delete cookie<br/>
- * 3. If accessing a page that doesn't require login, allow through<br/>
- * 4. Otherwise, redirect to login page<br/>
- * 5. After ensuring login, check if user’s role matches the path they are accessing.
+ * Middleware Filter for Session-Based Authentication
  *
- * @author ...
+ * 1. If already logged in (admin or user), and request is a public page, redirect to dashboard.
+ * 2. If accessing a page that doesn't require login, allow through
+ * 3. Otherwise, redirect to login page
+ * 4. After ensuring login, check if user’s role matches the path they are accessing.
  */
 public class Middleware implements Filter {
     @EJB
     private AuthServices authServices;
 
+    @EJB
+    private SessionService sessionService; // Inject SessionService
+
     // Servlet paths that don't require login
-    public static final String[] unLoginServletPathes = {
+    public static final String[] unLoginServletPaths = {
             "/auth.xhtml",
             "/index.xhtml",
             "/forget-password.xhtml",
@@ -62,73 +66,52 @@ public class Middleware implements Filter {
 
         HttpSession session = req.getSession(false);
         Users user = null;
+        UUID sessionId = null;
 
         if (session != null) {
             user = (Users) session.getAttribute(CommonParam.SESSION_SELF);
+            Object sessionIdObj = session.getAttribute(CommonParam.SESSION_ID);
+            if (sessionIdObj instanceof UUID) {
+                sessionId = (UUID) sessionIdObj;
+            }
         }
 
         // ---------------------------------------------------------------------
         // 1. If user is already logged in:
-        //    - If requesting a public page, redirect to user's dashboard
-        //    - Otherwise, let the user access the requested page (but check role below)
+        //    - Validate session against the database
+        //    - If valid, proceed with role checks
+        //    - If invalid, invalidate HttpSession and treat as not logged in
         // ---------------------------------------------------------------------
-        if (user != null) {
-            if (isUnLoginPage(servletPath)) {
-                // Redirect to appropriate dashboard based on user's role
-                redirectToDashboard(req, resp, user.getRole());
-                return;
-            }
+        if (user != null && sessionId != null) {
+            Optional<UserSessions> sessionOpt = sessionService.validateSession(sessionId);
+            if (sessionOpt.isPresent()) {
+                // Update last access time
+                sessionService.updateLastAccess(sessionId);
 
-            // ---------------------------------------------------------
-            // 5. Role-based check: ensure the user’s role matches path
-            // ---------------------------------------------------------
-            if (!isAuthorizedForPath(servletPath, user.getRole())) {
-                // If user doesn’t have permission, respond with 403 or redirect to an error page.
-                // Here we send 403 Forbidden:
-                resp.sendError(HttpServletResponse.SC_FORBIDDEN);
-                return;
-            }
-
-            // If role check passes, proceed
-            chain.doFilter(request, response);
-            return;
-        }
-
-        // ---------------------------------------------------------------------
-        // 2. Handle auto-login cookie
-        // ---------------------------------------------------------------------
-        Cookie autoLoginCookie = getCookieByName(req, CommonParam.COOKIE_AUTO_LOGIN);
-        if (autoLoginCookie != null) {
-            int userId = authServices.allowAutoLogin(autoLoginCookie.getValue());
-            if (userId != -1) {
-                // Valid auto-login cookie, create session
-                user = authServices.findUser(userId);
-                session = req.getSession(true);
-                session.setAttribute(CommonParam.SESSION_ROLE, user.getRole());
-                session.setAttribute(CommonParam.SESSION_SELF, user);
-
-                // If the request was for a public page,
-                // redirect to the user's dashboard after auto-login
                 if (isUnLoginPage(servletPath)) {
+                    // Redirect to appropriate dashboard based on user's role
                     redirectToDashboard(req, resp, user.getRole());
                     return;
                 }
 
                 // ---------------------------------------------------------
-                // 5. Role-based check after auto-login
+                // 2. Role-based check: ensure the user’s role matches path
                 // ---------------------------------------------------------
                 if (!isAuthorizedForPath(servletPath, user.getRole())) {
+                    // If user doesn’t have permission, respond with 403 or redirect to an error page.
+                    // Here we send 403 Forbidden:
                     resp.sendError(HttpServletResponse.SC_FORBIDDEN);
                     return;
                 }
 
-                // Otherwise, allow access
+                // If role check passes, proceed
                 chain.doFilter(request, response);
                 return;
             } else {
-                // Invalid cookie - delete it
-                autoLoginCookie.setMaxAge(0);
-                resp.addCookie(autoLoginCookie);
+                // Session is invalid or expired, invalidate HttpSession
+                session.invalidate();
+                user = null;
+                sessionId = null;
             }
         }
 
@@ -155,7 +138,7 @@ public class Middleware implements Filter {
      * that do not require login.
      */
     private boolean isUnLoginPage(String servletPath) {
-        for (String path : unLoginServletPathes) {
+        for (String path : unLoginServletPaths) {
             // if it contains a wildcard (like "/jakarta.faces.resource/*")
             if (path.endsWith("/*")) {
                 String trimmed = path.substring(0, path.indexOf("/*"));
@@ -169,21 +152,6 @@ public class Middleware implements Filter {
             }
         }
         return false;
-    }
-
-    /**
-     * Utility: get a specific cookie by name
-     */
-    private Cookie getCookieByName(HttpServletRequest request, String cookieName) {
-        Cookie[] cookies = request.getCookies();
-        if (cookies != null) {
-            for (Cookie c : cookies) {
-                if (cookieName.equals(c.getName())) {
-                    return c;
-                }
-            }
-        }
-        return null;
     }
 
     /**
@@ -225,9 +193,7 @@ public class Middleware implements Filter {
         if (servletPath.startsWith("/admin")) {
             return CommonParam.SESSION_ROLE_MANAGING_STAFF.equals(role);
         }
-        // If none of the above prefixes, you can decide whether it's open
-        // to all authenticated user or no one. For simplicity, let's allow
-        // any authenticated user if it doesn't match any prefix:
+        // If none of the above prefixes, allow access to any authenticated user
         return true;
     }
 }

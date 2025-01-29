@@ -5,11 +5,12 @@ import jakarta.enterprise.context.RequestScoped;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
 import jakarta.inject.Named;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpServletRequest;
+import org.example.hvvs.model.UserSessions;
 import org.example.hvvs.model.Users;
 import org.example.hvvs.modules.auth.service.AuthServices;
+import org.example.hvvs.modules.common.service.SessionService;
 import org.example.hvvs.utils.CommonParam;
 import org.example.hvvs.utils.ServiceResult;
 
@@ -22,13 +23,15 @@ public class SignInController implements Serializable {
     @EJB
     private AuthServices authServices;
 
+    @EJB
+    private SessionService sessionService;
+
     private String identifier; // Can be either email or username
     private String password;
-    private boolean rememberMe;
 
     public String login() {
         try {
-            ServiceResult<Users> serviceResult = authServices.signIn(identifier, password, rememberMe);
+            ServiceResult<Users> serviceResult = authServices.signIn(identifier, password);
 
             if (!serviceResult.isSuccess()) {
                 // Failed authentication: show the error message
@@ -41,24 +44,23 @@ public class SignInController implements Serializable {
             // If success, retrieve the authenticated user
             Users user = serviceResult.getData();
 
+            // Create Server Session tracking record
+            HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance()
+                    .getExternalContext().getRequest();
+
+            String ipAddress = request.getRemoteAddr();
+            String userAgent = request.getHeader("User-Agent");
+            String deviceInfo = sessionService.parseDeviceInfo(userAgent);
+
+            // Create new session
+            UserSessions userSession = sessionService.createSession(user, ipAddress, userAgent, deviceInfo);
+
             // Store in session
             FacesContext context = FacesContext.getCurrentInstance();
             HttpSession session = (HttpSession) context.getExternalContext().getSession(true);
+            session.setAttribute(CommonParam.SESSION_ID, userSession.getSession_id());
             session.setAttribute(CommonParam.SESSION_ROLE, user.getRole());
             session.setAttribute(CommonParam.SESSION_SELF, user);
-
-            if (Boolean.TRUE.equals(rememberMe)) {
-                String autoLoginDigest = authServices.getAutoLoginCookieValue(user.getId());
-                
-                if (autoLoginDigest != null) {
-                    Cookie cookie = new Cookie(CommonParam.COOKIE_AUTO_LOGIN, autoLoginDigest);
-                    cookie.setMaxAge(30 * 24 * 60 * 60); // 30 days
-                    cookie.setPath("/");
-                    HttpServletResponse response = (HttpServletResponse) FacesContext.getCurrentInstance()
-                            .getExternalContext().getResponse();
-                    response.addCookie(cookie);
-                }
-            }
 
             // Now redirect or navigate based on the user's role
             return switch (user.getRole()) {
@@ -95,13 +97,5 @@ public class SignInController implements Serializable {
 
     public void setPassword(String password) {
         this.password = password;
-    }
-
-    public boolean isRememberMe() {
-        return rememberMe;
-    }
-
-    public void setRememberMe(boolean rememberMe) {
-        this.rememberMe = rememberMe;
     }
 }

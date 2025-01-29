@@ -28,9 +28,32 @@ public class SessionServiceImpl implements SessionService {
         Timestamp now = new Timestamp(System.currentTimeMillis());
         Timestamp expiresAt = new Timestamp(System.currentTimeMillis() + (8 * 60 * 60 * 1000)); // 8 hours
 
+        // Get geolocation data
+        String city = "Unknown";
+        String region = "Unknown";
+        String country = "Unknown";
+
+        try {
+            String location = parseLocationFromIp(ipAddress);
+            if (location != null) {
+                String[] parts = location.split(", ");
+                if (parts.length >= 3) {
+                    city = parts[0];
+                    region = parts[1];
+                    country = parts[2];
+                }
+            }
+        } catch (RuntimeException e) {
+            // Log error but continue with default values
+            e.printStackTrace();
+        }
+
         UserSessions session = new UserSessions(
                 user,
                 ipAddress,
+                city,
+                region,
+                country,
                 userAgent,
                 now,
                 now,
@@ -41,6 +64,7 @@ public class SessionServiceImpl implements SessionService {
 
         return sessionRepository.create(session);
     }
+
 
     @Override
     @Transactional
@@ -76,7 +100,12 @@ public class SessionServiceImpl implements SessionService {
 
     @Override
     public String parseLocationFromIp(String ipAddress) {
-//        Implement using GeoIP service
+        // Check for localhost IP addresses
+        if (ipAddress.equals("127.0.0.1") || ipAddress.equals("0:0:0:0:0:0:0:1") || ipAddress.equals("localhost")) {
+            return "Kuala Lumpur, Kuala Lumpur, Malaysia";
+        }
+
+        // For other IPs, use GeoIP service
         try {
             return geoLocationService.getLocation(ipAddress); // Returns "City, Region, Country"
         } catch (IOException | GeoIp2Exception e) {

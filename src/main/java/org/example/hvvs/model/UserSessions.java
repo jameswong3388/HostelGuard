@@ -25,6 +25,15 @@ public class UserSessions {
     @Column(name = "ip_address", nullable = false)
     private String ipAddress;
 
+    @Column(name = "city", nullable = false, length = 512)
+    private String city;
+
+    @Column(name = "region", nullable = false, length = 512)
+    private String region;
+
+    @Column(name = "country", nullable = false, length = 512)
+    private String country;
+
     @Column(name = "user_agent", nullable = false, length = 512)
     private String userAgent;
 
@@ -46,11 +55,14 @@ public class UserSessions {
     public UserSessions() {
     }
 
-    public UserSessions(Users user_id, String ipAddress, String userAgent, 
-                       Timestamp loginTime, Timestamp lastAccess, Timestamp expiresAt, 
-                       boolean active, String deviceInfo) {
+    public UserSessions(Users user_id, String ipAddress, String city, String region, String country, String userAgent,
+                        Timestamp loginTime, Timestamp lastAccess, Timestamp expiresAt,
+                        boolean active, String deviceInfo) {
         this.user_id = user_id;
         this.ipAddress = ipAddress;
+        this.city = city;
+        this.region = region;
+        this.country = country;
         this.userAgent = userAgent;
         this.loginTime = loginTime;
         this.lastAccess = lastAccess;
@@ -60,30 +72,99 @@ public class UserSessions {
     }
 
     // Getters and Setters
-    public UUID getSession_id() { return session_id; }
-    public void setSession_id(UUID session_id) { this.session_id = session_id; }
-    
-    public Users getUser_id() { return user_id; }
-    public void setUser_id(Users user_id) { this.user_id = user_id; }
-    
-    public String getIpAddress() { return ipAddress; }
-    public void setIpAddress(String ipAddress) { this.ipAddress = ipAddress; }
-    
-    public String getUserAgent() { return userAgent; }
-    public void setUserAgent(String userAgent) { this.userAgent = userAgent; }
-    
-    public Timestamp getLoginTime() { return loginTime; }
-    public void setLoginTime(Timestamp loginTime) { this.loginTime = loginTime; }
-    
-    public Timestamp getLastAccess() { return lastAccess; }
-    public void setLastAccess(Timestamp lastAccess) { this.lastAccess = lastAccess; }
-    
-    public Timestamp getExpiresAt() { return expiresAt; }
-    public void setExpiresAt(Timestamp expiresAt) { this.expiresAt = expiresAt; }
-    
-    public boolean isActive() { return active; }
-    public void setActive(boolean active) { this.active = active; }
-    
-    public String getDeviceInfo() { return deviceInfo; }
-    public void setDeviceInfo(String deviceInfo) { this.deviceInfo = deviceInfo; }
+    public UUID getSession_id() {
+        return session_id;
+    }
+
+    public void setSession_id(UUID session_id) {
+        this.session_id = session_id;
+    }
+
+    public Users getUser_id() {
+        return user_id;
+    }
+
+    public void setUser_id(Users user_id) {
+        this.user_id = user_id;
+    }
+
+    public String getIpAddress() {
+        return ipAddress;
+    }
+
+    public void setIpAddress(String ipAddress) {
+        this.ipAddress = ipAddress;
+    }
+
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
+    }
+
+    public String getRegion() {
+        return region;
+    }
+
+    public void setRegion(String region) {
+        this.region = region;
+    }
+
+    public String getCountry() {
+        return country;
+    }
+
+    public void setCountry(String country) {
+        this.country = country;
+    }
+
+    public String getUserAgent() {
+        return userAgent;
+    }
+
+    public void setUserAgent(String userAgent) {
+        this.userAgent = userAgent;
+    }
+
+    public Timestamp getLoginTime() {
+        return loginTime;
+    }
+
+    public void setLoginTime(Timestamp loginTime) {
+        this.loginTime = loginTime;
+    }
+
+    public Timestamp getLastAccess() {
+        return lastAccess;
+    }
+
+    public void setLastAccess(Timestamp lastAccess) {
+        this.lastAccess = lastAccess;
+    }
+
+    public Timestamp getExpiresAt() {
+        return expiresAt;
+    }
+
+    public void setExpiresAt(Timestamp expiresAt) {
+        this.expiresAt = expiresAt;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+
+    public String getDeviceInfo() {
+        return deviceInfo;
+    }
+
+    public void setDeviceInfo(String deviceInfo) {
+        this.deviceInfo = deviceInfo;
+    }
 }

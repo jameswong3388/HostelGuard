@@ -3,10 +3,12 @@ package org.example.hvvs.modules.common.repository;
 import jakarta.ejb.Stateless;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.TypedQuery;
 import org.example.hvvs.model.UserSessions;
 import org.example.hvvs.model.Users;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Stateless
@@ -27,14 +29,14 @@ public class SessionRepositoryImpl implements SessionRepository {
 
     @Override
     public void revokeSession(UUID sessionId) {
-        em.createQuery("UPDATE UserSessions s SET s.active = false WHERE s.session_id = :sessionId")
+        em.createQuery("DELETE UserSessions s WHERE s.session_id = :sessionId")
                 .setParameter("sessionId", sessionId)
                 .executeUpdate();
     }
 
     @Override
     public void revokeAllSessions(Integer userId) {
-        em.createQuery("UPDATE UserSessions s SET s.active = false WHERE s.user_id.id = :userId")
+        em.createQuery("DELETE UserSessions s WHERE s.user_id.id = :userId")
                 .setParameter("userId", userId)
                 .executeUpdate();
     }

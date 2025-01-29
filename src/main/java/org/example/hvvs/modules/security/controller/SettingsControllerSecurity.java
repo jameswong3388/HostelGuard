@@ -1,16 +1,20 @@
 package org.example.hvvs.modules.security.controller;
 
 import jakarta.annotation.PostConstruct;
+import jakarta.ejb.EJB;
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
+import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
 import org.example.hvvs.commonClasses.CustomPart;
 import org.example.hvvs.model.SecurityStaffProfiles;
+import org.example.hvvs.model.UserSessions;
 import org.example.hvvs.model.Users;
 import org.example.hvvs.modules.common.service.MediaService;
+import org.example.hvvs.modules.common.service.SessionService;
 import org.example.hvvs.modules.security.service.SettingsServiceSecurity;
 import org.example.hvvs.utils.CommonParam;
 import org.example.hvvs.utils.DigestUtils;
@@ -21,6 +25,7 @@ import java.io.Serializable;
 import java.sql.Timestamp;
 import java.io.InputStream;
 import java.util.List;
+import java.util.UUID;
 
 @Named("SettingsControllerSecurity")
 @SessionScoped
@@ -31,8 +36,8 @@ public class SettingsControllerSecurity implements Serializable {
     private String oldPassword;
     private String newPassword;
     private String confirmNewPassword;
-    private UploadedFile tempUploadedFile;
     private Medias profileImage;
+    private UploadedFile tempUploadedFile;
 
     @Inject
     private SettingsServiceSecurity settingsServiceSecurity;
@@ -40,10 +45,19 @@ public class SettingsControllerSecurity implements Serializable {
     @Inject
     private MediaService mediaService;
 
+    @EJB
+    private SessionService sessionService;
+
+    private List<UserSessions> sessions;
+    private UUID currentSessionId;
+
     @PostConstruct
     public void init() {
-        Users currentUser = (Users) FacesContext
-                .getCurrentInstance()
+        FacesContext context = FacesContext.getCurrentInstance();
+        HttpSession session = (HttpSession) context.getExternalContext().getSession(false);
+        this.currentSessionId = (UUID) session.getAttribute(CommonParam.SESSION_ID);
+
+        Users currentUser = (Users) FacesContext.getCurrentInstance()
                 .getExternalContext()
                 .getSessionMap()
                 .get(CommonParam.SESSION_SELF);
@@ -289,7 +303,76 @@ public class SettingsControllerSecurity implements Serializable {
         return null;
     }
 
+    public void reloadSessions() {
+        sessions = null; // Force refresh on next access
+        getSessions(); // Explicitly reload
+    }
+
+    public List<UserSessions> getSessions() {
+        if (sessions == null) {
+            Users currentUser = (Users) FacesContext.getCurrentInstance()
+                .getExternalContext().getSessionMap().get(CommonParam.SESSION_SELF);
+            sessions = sessionService.getActiveSessions(currentUser);
+
+            // Add location parsing for each session
+            sessions.forEach(session -> {
+                String location = sessionService.parseLocationFromIp(session.getIpAddress());
+                String[] parts = location.split(", ");
+                if(parts.length == 3) {
+                    session.setCity(parts[0]);
+                    session.setRegion(parts[1]);
+                    session.setCountry(parts[2]);
+                }
+            });
+        }
+        return sessions;
+    }
+
+    public void revokeSession(UUID sessionId) {
+        sessionService.revokeSession(sessionId);
+        sessions = null; // Refresh session list
+        FacesContext.getCurrentInstance().addMessage(null,
+            new FacesMessage("Session revoked successfully"));
+    }
+
+    public String revokeAllSessions() {
+        Users currentUser = (Users) FacesContext.getCurrentInstance()
+            .getExternalContext().getSessionMap().get(CommonParam.SESSION_SELF);
+        sessionService.revokeAllSessions(currentUser.getId());
+        sessions = null;
+
+        // Invalidate current session and redirect
+        FacesContext.getCurrentInstance().getExternalContext().invalidateSession();
+        return "/auth.xhtml?faces-redirect=true";
+    }
+
+    // Add viewSessionDetails method if needed
+    public void viewSessionDetails(UserSessions session) {
+        // Implementation for viewing session details
+    }
+
+    public UUID getCurrentSessionId() {
+        return currentSessionId;
+    }
+
     /* Getters and setters */
+    // Update getter/setter
+    public Medias getProfileImage() {
+        return profileImage;
+    }
+
+    public void setProfileImage(Medias profileImage) {
+        this.profileImage = profileImage;
+    }
+
+    public UploadedFile getTempUploadedFile() {
+        return tempUploadedFile;
+    }
+
+    public void setTempUploadedFile(UploadedFile tempUploadedFile) {
+        this.tempUploadedFile = tempUploadedFile;
+    }
+
     public Users getUser() {
         return user;
     }
@@ -328,17 +411,5 @@ public class SettingsControllerSecurity implements Serializable {
 
     public void setConfirmNewPassword(String confirmNewPassword) {
         this.confirmNewPassword = confirmNewPassword;
-    }
-
-    public UploadedFile getTempUploadedFile() {
-        return tempUploadedFile;
-    }
-
-    public void setTempUploadedFile(UploadedFile tempUploadedFile) {
-        this.tempUploadedFile = tempUploadedFile;
-    }
-
-    public Medias getProfileImage() {
-        return profileImage;
     }
 }
