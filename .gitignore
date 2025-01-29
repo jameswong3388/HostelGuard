@@ -36,3 +36,6 @@ build/
 
 ### Mac OS ###
 .DS_Store
+
+### GEOLite2 ###
+src/main/webapp/WEB-INF/GeoLite2-City.mmdb

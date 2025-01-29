@@ -42,12 +42,12 @@ public class MediaManagementController implements Serializable {
         loadAllMedia();
         // Initialize available models
         availableModels = List.of(
-                "visitor_record",
-                "visit_request",
-                "security_staff_profile",
-                "resident_profile",
-                "managing_staff_profile",
-                "user"
+                "visitor_records",
+                "visit_requests",
+                "security_staff_profiles",
+                "resident_profiles",
+                "managing_staff_profiles",
+                "users"
         );
     }
 

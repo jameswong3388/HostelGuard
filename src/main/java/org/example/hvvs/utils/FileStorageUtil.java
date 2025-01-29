@@ -1,4 +1,4 @@
-package org.example.hvvs.modules.common.utils;
+package org.example.hvvs.utils;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;

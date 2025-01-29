@@ -4,7 +4,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 /**
- * MD5 or SHA加密工具类
+ * Utility class for MD5 and SHA encryption
  * 
  * @author hkq
  */
@@ -14,9 +14,9 @@ public class DigestUtils {
 	public static final String MD5 = "MD5", SHA1 = "SHA-1", SHA256 = "SHA-256"; 
 	
 	/**
-	 * 使用MD5或SHA加密<br/>
+	 * Encrypt using MD5 or SHA<br/>
 	 * 
-	 * @return 返回加密后的16进制表示字符串，出错返回null
+	 * @return Returns encrypted string in hexadecimal format, returns null if error occurs
 	 */
 	public static String digest(String mess, String method) {
 		MessageDigest md;
@@ -25,7 +25,7 @@ public class DigestUtils {
 			md.update(mess.getBytes());
 			byte[] digest = md.digest();
 			
-			// 将digest转换为十六进制字符串形式
+			// Convert digest to hexadecimal string format
 			char[] hexDigits = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',  
 	                'A', 'B', 'C', 'D', 'E', 'F' };
 			char[] result = new char[digest.length * 2]; 
@@ -46,9 +46,9 @@ public class DigestUtils {
 	}
 	
 	/**
-	 * 使SHA-256加密<br/>
+	 * Encrypt using SHA-256<br/>
 	 * 
-	 * @return 返回加密后的16进制表示字符串，出错返回null
+	 * @return Returns encrypted string in hexadecimal format, returns null if error occurs
 	 */
 	public static String sha256Digest(String mess) {
 		return digest(mess, SHA256);
