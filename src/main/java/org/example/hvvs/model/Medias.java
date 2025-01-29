@@ -14,7 +14,7 @@ public class Medias {
 
     @Id
     @UuidGenerator
-    @JdbcTypeCode(SqlTypes.VARCHAR) // Store UUID as string
+    @JdbcTypeCode(SqlTypes.CHAR) // Store UUID as string
     @Column(
             name = "id",
             columnDefinition = "CHAR(36)" // Match MySQL CHAR(36) format

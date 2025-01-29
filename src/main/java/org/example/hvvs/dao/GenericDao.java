@@ -17,7 +17,7 @@ public class GenericDao implements Serializable {
 
     private static final long serialVersionUID = -169258812805375171L;
 
-    @PersistenceContext(type = PersistenceContextType.EXTENDED, name = "CasaERP_PU")
+    @PersistenceContext(type = PersistenceContextType.EXTENDED, name = "HostelGuard")
     private EntityManager entityManager;
 
     public <T> T save(T t) throws Exception {

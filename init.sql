@@ -107,8 +107,8 @@ CREATE TABLE medias
     mime_type  VARCHAR(255),
     disk       VARCHAR(255),
     size       DOUBLE,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    created_at TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 CREATE TABLE user_sessions
@@ -117,9 +117,9 @@ CREATE TABLE user_sessions
     user_id     INT UNSIGNED NOT NULL,
     ip_address  VARCHAR(45)  NOT NULL,
     user_agent  VARCHAR(512) NOT NULL,
-    login_time  DATETIME     NOT NULL,
-    last_access DATETIME     NOT NULL,
-    expires_at  DATETIME     NOT NULL,
+    login_time  TIMESTAMP    NOT NULL,
+    last_access TIMESTAMP    NOT NULL,
+    expires_at  TIMESTAMP    NOT NULL,
     is_active   BOOLEAN DEFAULT true,
     device_info VARCHAR(255),
     FOREIGN KEY (user_id) REFERENCES users (id)
