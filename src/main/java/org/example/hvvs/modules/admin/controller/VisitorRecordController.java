@@ -72,7 +72,7 @@ public class VisitorRecordController implements Serializable {
     
     public String getDeleteSelectedButtonLabel() {
         if (selectedRecords == null || selectedRecords.isEmpty()) {
-            return "Delete";
+            return "Delete Selected Visitor Record";
         }
         return String.format("Delete (%d)", selectedRecords.size());
     }

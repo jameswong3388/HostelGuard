@@ -183,10 +183,9 @@
                                          styleClass="p-button-text mr-2"
                                          immediate="true"/>
                         <p:commandButton value="Create"
-                                         icon="pi pi-check"
-                                         action="#{usersController.createUser}"
+                                         process="@form"
                                          update=":messages @form :usersTableForm:usersTable"
-                                         styleClass="p-button-primary"
+                                         action="#{usersController.createUser}"
                                          oncomplete="if (!args.validationFailed) PF('newUserDialog').hide();"/>
                     </div>
                 </div>

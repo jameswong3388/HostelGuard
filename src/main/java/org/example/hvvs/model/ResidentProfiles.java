@@ -56,7 +56,7 @@ public class ResidentProfiles extends BaseEntity {
         this.user_id = user_id;
     }
 
-    public void setUnitNumber(String room_number) {
+    public void setUnitNumber(String unit_number) {
         this.unit_number = unit_number;
     }
 

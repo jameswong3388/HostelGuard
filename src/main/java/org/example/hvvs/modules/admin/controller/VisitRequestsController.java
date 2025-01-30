@@ -30,7 +30,7 @@ public class VisitRequestsController implements Serializable {
 
     public String getDeleteSelectedButtonLabel() {
         if (selectedRequests == null || selectedRequests.isEmpty()) {
-            return "Delete";
+            return "Delete Selected Visit Request";
         }
         return selectedRequests.size() > 1 ?
                 String.format("Delete (%d requests)", selectedRequests.size()) :
