@@ -267,9 +267,19 @@
                                         <p class="text-xs text-gray-400 mt-1">
                                             Device: #{userSession.deviceInfo}
                                             <br/>
-                                            Logged in: #{userSession.loginTime}
-                                            <br/>
-                                            Last activity: #{userSession.lastAccess}
+                                            Logged in: <h:outputText value="#{userSession.loginTime}" rendered="#{SettingsControllerAdmin.isToday(userSession.loginTime)}">
+                                                <f:convertDateTime pattern="'Today at' h:mm a" />
+                                            </h:outputText>
+                                            <h:outputText value="#{userSession.loginTime}" rendered="#{!SettingsControllerAdmin.isToday(userSession.loginTime)}">
+                                                <f:convertDateTime pattern="MMM d, yyyy 'at' h:mm a" />
+                                            </h:outputText>
+                                            <br/> 
+                                            Last activity: <h:outputText value="#{userSession.lastAccess}" rendered="#{SettingsControllerAdmin.isToday(userSession.lastAccess)}">
+                                                <f:convertDateTime pattern="'Today at' h:mm a"/>
+                                            </h:outputText>
+                                            <h:outputText value="#{userSession.lastAccess}" rendered="#{!SettingsControllerAdmin.isToday(userSession.lastAccess)}">
+                                                <f:convertDateTime pattern="MMM d, yyyy 'at' h:mm a" />
+                                            </h:outputText>
                                         </p>
                                     </div>
                                     <div class="flex flex-col gap-2">

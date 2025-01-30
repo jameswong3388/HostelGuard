@@ -25,6 +25,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -350,6 +354,12 @@ public class SettingsControllerResident implements Serializable {
     // Add viewSessionDetails method if needed
     public void viewSessionDetails(UserSessions session) {
         // Implementation for viewing session details
+    }
+    public boolean isToday(Date date) {
+        Instant instant = date.toInstant();
+        LocalDate inputDate = instant.atZone(ZoneId.systemDefault()).toLocalDate();
+        LocalDate today = LocalDate.now();
+        return inputDate.isEqual(today);
     }
 
     public UUID getCurrentSessionId() {
