@@ -101,8 +101,8 @@ public class SettingsServiceAdmin {
 
     public List<MfaMethods> findMfaMethodsByUser(Users user) {
         TypedQuery<MfaMethods> query = em.createQuery(
-            "SELECT m FROM MfaMethods m WHERE m.user = :user AND m.isEnabled = true",
-            MfaMethods.class);
+                "SELECT m FROM MfaMethods m WHERE m.user = :user AND m.isEnabled = true",
+                MfaMethods.class);
         query.setParameter("user", user);
         return query.getResultList();
     }
