@@ -100,6 +100,7 @@ def main():
         DROP TABLE IF EXISTS security_staff_profiles;
         DROP TABLE IF EXISTS resident_profiles;
         DROP TABLE IF EXISTS managing_staff_profiles;
+        DROP TABLE IF EXISTS mfa_methods;
         DROP TABLE IF EXISTS user_sessions;
         DROP TABLE IF EXISTS users;
         DROP TABLE IF EXISTS medias;
@@ -113,7 +114,7 @@ def main():
                 cursor.execute(stmt)
         cnx.commit()
 
-        # Define the CREATE TABLE statements
+         # Define the CREATE TABLE statements
         create_tables = """
         -- Create users table
         CREATE TABLE users
@@ -131,6 +132,7 @@ def main():
             gender          VARCHAR(10),
             is_active       BOOLEAN               DEFAULT TRUE,
             role            VARCHAR(20)  NOT NULL,
+            is_mfa_enable   BOOLEAN               DEFAULT FALSE,
             created_at      TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
             updated_at      TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
             CHECK (role IN ('RESIDENT', 'SECURITY_STAFF', 'MANAGING_STAFF'))
@@ -238,6 +240,21 @@ def main():
             FOREIGN KEY (user_id) REFERENCES users (id)
         );
 
+        CREATE TABLE mfa_methods
+        (
+            id             CHAR(36) PRIMARY KEY,
+            user_id        INT UNSIGNED NOT NULL,
+            method         VARCHAR(20)  NOT NULL,
+            secret         VARCHAR(255),
+            recovery_codes JSON,
+            is_primary     BOOLEAN               DEFAULT FALSE,
+            is_enabled     BOOLEAN               DEFAULT TRUE,
+            created_at     TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            updated_at     TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
+            CHECK (method IN ('TOTP', 'SMS', 'EMAIL', 'RECOVERY_CODES'))
+        );
+
         -- Create indexes for better query performance
         CREATE INDEX idx_user_sessions_user_active ON user_sessions (user_id, is_active);
         CREATE INDEX idx_user_sessions_expires_active ON user_sessions (expires_at, is_active);
@@ -253,6 +270,9 @@ def main():
 
         CREATE INDEX idx_medias_model_id ON medias (model_id);
         CREATE INDEX idx_medias_collection ON medias (collection);
+
+        CREATE INDEX idx_mfa_methods_user ON mfa_methods (user_id);
+        CREATE INDEX idx_mfa_methods_user_method ON mfa_methods (user_id, method);
         """
 
         # Execute CREATE TABLE statements
@@ -263,10 +283,11 @@ def main():
                 cursor.execute(stmt)
         cnx.commit()
 
-        # Define the INSERT statement for users including address and gender
+        # Define the INSERT statement for users including new columns
+        # Removed 'last_login' as it does not exist
         add_user = ("INSERT INTO users "
-                    "(username, salt, password, email, first_name, last_name, phone_number, identity_number, address, gender, role) "
-                    "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)")
+                    "(username, salt, password, email, first_name, last_name, phone_number, identity_number, address, gender, role, is_mfa_enable) "
+                    "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)")
 
         # Prepare to track unique fields
         existing_usernames = set()
@@ -294,10 +315,12 @@ def main():
         # Fixed salt and password
         salt = FIXED_SALT
         password = FIXED_PASSWORD
+        is_mfa_enable = False
 
         managing_staff_data = (
             username, salt, password, email, first_name, last_name,
-            phone_number, identity_number, address, gender, 'MANAGING_STAFF'
+            phone_number, identity_number, address, gender, 'MANAGING_STAFF',
+            is_mfa_enable
         )
         cursor.execute(add_user, managing_staff_data)
         managing_staff_id = cursor.lastrowid
@@ -332,10 +355,12 @@ def main():
         # Fixed salt and password
         salt = FIXED_SALT
         password = FIXED_PASSWORD
+        is_mfa_enable = False
 
         security_staff_data = (
             username, salt, password, email, first_name, last_name,
-            phone_number, identity_number, address, gender, 'SECURITY_STAFF'
+            phone_number, identity_number, address, gender, 'SECURITY_STAFF',
+            is_mfa_enable
         )
         cursor.execute(add_user, security_staff_data)
         security_staff_id = cursor.lastrowid
@@ -363,10 +388,12 @@ def main():
             # Fixed salt and password
             salt = FIXED_SALT
             password = FIXED_PASSWORD
+            is_mfa_enable = False
 
             security_staff_data = (
                 username, salt, password, email, first_name, last_name,
-                phone_number, identity_number, address, gender, 'SECURITY_STAFF'
+                phone_number, identity_number, address, gender, 'SECURITY_STAFF',
+                is_mfa_enable
             )
             cursor.execute(add_user, security_staff_data)
             new_security_id = cursor.lastrowid
@@ -400,10 +427,12 @@ def main():
         # Fixed salt and password
         salt = FIXED_SALT
         password = FIXED_PASSWORD
+        is_mfa_enable = False  
 
         resident_data = (
             username, salt, password, email, first_name, last_name,
-            phone_number, identity_number, address, gender, 'RESIDENT'
+            phone_number, identity_number, address, gender, 'RESIDENT',
+            is_mfa_enable
         )
         cursor.execute(add_user, resident_data)
         resident_id = cursor.lastrowid
@@ -431,10 +460,12 @@ def main():
             # Fixed salt and password
             salt = FIXED_SALT
             password = FIXED_PASSWORD
+            is_mfa_enable = False
 
             resident_data = (
                 username, salt, password, email, first_name, last_name,
-                phone_number, identity_number, address, gender, 'RESIDENT'
+                phone_number, identity_number, address, gender, 'RESIDENT',
+                is_mfa_enable
             )
             cursor.execute(add_user, resident_data)
             new_resident_id = cursor.lastrowid

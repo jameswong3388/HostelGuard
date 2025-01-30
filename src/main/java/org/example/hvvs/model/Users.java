@@ -62,6 +62,9 @@ public class Users extends BaseEntity {
     @Column(name = "role", nullable = false)
     private String role;
 
+    @Column(name = "is_mfa_enable")
+    private Boolean is_mfa_enable;
+
     @Column(name = "created_at", nullable = false)
     private Timestamp created_at;
 
@@ -74,7 +77,7 @@ public class Users extends BaseEntity {
 
     public Users(String username, String salt, String password, String email,
                  String first_name, String last_name, String phone_number,
-                 boolean is_active, String role, Timestamp created_at, Timestamp updated_at) {
+                 boolean is_active, String role, Boolean is_mfa_enable, Timestamp created_at, Timestamp updated_at) {
         this.username = username;
         this.salt = salt;
         this.password = password;
@@ -84,6 +87,7 @@ public class Users extends BaseEntity {
         this.phone_number = phone_number;
         this.is_active = is_active;
         this.role = role;
+        this.is_mfa_enable = is_mfa_enable;
         this.created_at = created_at;
         this.updated_at = updated_at;
     }
@@ -198,5 +202,13 @@ public class Users extends BaseEntity {
 
     public void setIdentity_number(String identity_number) {
         this.identity_number = identity_number;
+    }
+
+    public Boolean getIs_mfa_enable() {
+        return is_mfa_enable;
+    }
+
+    public void setIs_mfa_enable(Boolean is_mfa_enable) {
+        this.is_mfa_enable = is_mfa_enable;
     }
 }

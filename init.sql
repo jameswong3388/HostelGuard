@@ -7,6 +7,7 @@ DROP TABLE IF EXISTS managing_staff_profiles;
 DROP TABLE IF EXISTS user_sessions;
 DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS medias;
+DROP TABLE IF EXISTS mfa_methods;
 
 -- Create users table
 CREATE TABLE users
@@ -24,9 +25,27 @@ CREATE TABLE users
     gender          VARCHAR(100),
     is_active       BOOLEAN               DEFAULT TRUE,
     role            VARCHAR(20)  NOT NULL,
+    is_mfa_enable   BOOLEAN               DEFAULT FALSE,
     created_at      TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at      TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     CHECK (role IN ('RESIDENT', 'SECURITY_STAFF', 'MANAGING_STAFF'))
+);
+
+-- Create mfa_methods table
+CREATE TABLE mfa_methods
+(
+    id             INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    user_id        INT UNSIGNED NOT NULL,
+    method         VARCHAR(20)  NOT NULL,
+    secret         VARCHAR(255),
+    recovery_codes JSON,
+    is_primary     BOOLEAN               DEFAULT FALSE,
+    is_enabled     BOOLEAN               DEFAULT TRUE,
+    created_at     TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at     TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    backup_codes   JSON,
+    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
+    CHECK (method IN ('TOTP', 'SMS', 'EMAIL', 'BACKUP_CODE'))
 );
 
 -- Create resident_profiles table
@@ -131,6 +150,21 @@ CREATE TABLE user_sessions
     FOREIGN KEY (user_id) REFERENCES users (id)
 );
 
+CREATE TABLE mfa_methods
+(
+    id             CHAR(36) PRIMARY KEY,
+    user_id        INT UNSIGNED NOT NULL,
+    method         VARCHAR(20)  NOT NULL,
+    secret         VARCHAR(255),
+    recovery_codes JSON,
+    is_primary     BOOLEAN               DEFAULT FALSE,
+    is_enabled     BOOLEAN               DEFAULT TRUE,
+    created_at     TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at     TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
+    CHECK (method IN ('TOTP', 'SMS', 'EMAIL', 'RECOVERY_CODES'))
+);
+
 -- Create indexes for better query performance
 CREATE INDEX idx_user_sessions_user_active ON user_sessions (user_id, is_active);
 CREATE INDEX idx_user_sessions_expires_active ON user_sessions (expires_at, is_active);
@@ -146,6 +180,9 @@ CREATE INDEX idx_managing_staff_profiles_user_id ON managing_staff_profiles (use
 
 CREATE INDEX idx_medias_model_id ON medias (model_id);
 CREATE INDEX idx_medias_collection ON medias (collection);
+
+CREATE INDEX idx_mfa_methods_user ON mfa_methods (user_id);
+CREATE INDEX idx_mfa_methods_user_method ON mfa_methods (user_id, method);
 
 -- Insert initial users, all pass: admin
 INSERT INTO users (username, salt, password, email, first_name, last_name, phone_number, is_active, role)
