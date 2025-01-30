@@ -194,7 +194,7 @@
                                             </div>
                                             <p:commandButton value="Setup"
                                                              oncomplete="PF('totpSetupDialog').show()"
-                                                             action="#{SettingsControllerAdmin.toggleTOTP}"
+                                                             action="#{SettingsControllerAdmin.initializeTOTP2FA()}"
                                                              update="totpSetupForm"
                                                              rendered="#{!SettingsControllerAdmin.hasTOTPEnabled}"
                                                              styleClass="p-button-text p-button-sm"/>
@@ -220,7 +220,7 @@
                                             </div>
                                             <p:commandButton value="Setup"
                                                              oncomplete="PF('smsVerifyDialog').show()"
-                                                             action="#{SettingsControllerAdmin.toggleSMS()}"
+                                                             action="#{SettingsControllerAdmin.initializeSMS2FA}"
                                                              update="smsVerifyForm"
                                                              rendered="#{!SettingsControllerAdmin.hasSMSEnabled}"
                                                              styleClass="p-button-text p-button-sm"/>
@@ -246,7 +246,7 @@
                                             </div>
                                             <p:commandButton value="Setup"
                                                              oncomplete="PF('emailVerifyDialog').show()"
-                                                             action="#{SettingsControllerAdmin.toggleEmail()}"
+                                                             action="#{SettingsControllerAdmin.initializeEmail2FA()}"
                                                              update="emailVerifyForm"
                                                              rendered="#{!SettingsControllerAdmin.hasEmailEnabled}"
                                                              styleClass="p-button-text p-button-sm"/>
