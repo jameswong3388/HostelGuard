@@ -45,7 +45,7 @@ public class SettingsControllerResident implements Serializable {
     private UploadedFile tempUploadedFile;
 
     @Inject
-    private SettingsServiceResident generalSettingsService;
+    private SettingsServiceResident settingsServiceResident;
 
     @Inject
     private MediaService mediaService;
@@ -73,8 +73,8 @@ public class SettingsControllerResident implements Serializable {
             return;
         }
 
-        this.user = generalSettingsService.findUserById(currentUser.getId());
-        this.residentProfile = generalSettingsService.findResidentProfileByUserId(currentUser.getId());
+        this.user = settingsServiceResident.findUserById(currentUser.getId());
+        this.residentProfile = settingsServiceResident.findResidentProfileByUserId(currentUser.getId());
         loadProfileImage(); // Load existing profile image
     }
 
@@ -136,7 +136,7 @@ public class SettingsControllerResident implements Serializable {
             }
 
             // Check if email is already taken by another user
-            if (generalSettingsService.isEmailExists(user.getEmail(), user.getId())) {
+            if (settingsServiceResident.isEmailExists(user.getEmail(), user.getId())) {
                 FacesContext.getCurrentInstance().addMessage(null,
                         new FacesMessage(FacesMessage.SEVERITY_ERROR,
                                 "Error",
@@ -148,7 +148,7 @@ public class SettingsControllerResident implements Serializable {
             // Update timestamp
             user.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
 
-            generalSettingsService.updateUser(user);
+            settingsServiceResident.updateUser(user);
 
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_INFO,
@@ -177,8 +177,8 @@ public class SettingsControllerResident implements Serializable {
                 .get(CommonParam.SESSION_SELF);
 
         if (currentUser != null) {
-            this.user = generalSettingsService.findUserById(currentUser.getId());
-            this.residentProfile = generalSettingsService.findResidentProfileByUserId(currentUser.getId());
+            this.user = settingsServiceResident.findUserById(currentUser.getId());
+            this.residentProfile = settingsServiceResident.findResidentProfileByUserId(currentUser.getId());
         }
     }
 
@@ -199,7 +199,7 @@ public class SettingsControllerResident implements Serializable {
             }
 
             // Check if username is already taken
-            if (generalSettingsService.isUsernameExists(user.getUsername(), user.getId())) {
+            if (settingsServiceResident.isUsernameExists(user.getUsername(), user.getId())) {
                 FacesContext.getCurrentInstance().addMessage(null,
                         new FacesMessage(FacesMessage.SEVERITY_ERROR,
                                 "Error",
@@ -212,7 +212,7 @@ public class SettingsControllerResident implements Serializable {
             user.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
 
             // Save changes
-            generalSettingsService.updateUser(user);
+            settingsServiceResident.updateUser(user);
 
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_INFO,
@@ -285,7 +285,7 @@ public class SettingsControllerResident implements Serializable {
             user.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
 
             // Save changes
-            generalSettingsService.updateUser(user);
+            settingsServiceResident.updateUser(user);
 
             // Clear password fields
             oldPassword = null;
