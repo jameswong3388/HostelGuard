@@ -3,24 +3,4 @@
               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
               xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee
                                   https://jakarta.ee/xml/ns/jakartaee/web-facesconfig_4_0.xsd" >
-    
-    <!-- Navigation rules for login outcomes -->
-    <navigation-rule>
-        <from-view-id>/auth.xhtml</from-view-id>
-        <navigation-case>
-            <from-outcome>resident/requests</from-outcome>
-            <to-view-id>/resident/requests.xhtml</to-view-id>
-            <redirect/>
-        </navigation-case>
-        <navigation-case>
-            <from-outcome>onboard-visitors</from-outcome>
-            <to-view-id>/security/onboard-visitors.xhtml</to-view-id>
-            <redirect/>
-        </navigation-case>
-        <navigation-case>
-            <from-outcome>admin/dashboard</from-outcome>
-            <to-view-id>/admin/dashboard.xhtml</to-view-id>
-            <redirect/>
-        </navigation-case>
-    </navigation-rule>
 </faces-config>

@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+<h:head>
+    <title>MFA Verification - HostelGuard™</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com" type="text/javascript"></script>
+    <!-- PrimeFaces Icons (if needed) -->
+    <h:outputStylesheet name="primeicons/primeicons.css" library="primefaces"/>
+</h:head>
+
+<h:body class="flex min-h-screen items-center justify-center p-4 sm:p-6 bg-gray-50">
+    <!-- If you still want a back-to-home button in the top-left corner -->
+    <div class="absolute top-0 left-0 m-3">
+        <p:button outcome="/index.xhtml" icon="pi pi-arrow-left" styleClass="p-button-outlined"/>
+    </div>
+
+    <!-- Main card container -->
+    <div class="flex w-full flex-col items-start sm:max-w-sm">
+        <!-- Header text -->
+        <div class="mt-6 flex flex-col w-full">
+            <h2 class="text-xl font-semibold text-gray-900">
+                Two-Factor Authentication
+            </h2>
+            <p class="mt-1 text-sm text-gray-700">
+                Please enter the 6-digit code sent to your device
+            </p>
+        </div>
+
+        <div class="mt-10 w-full">
+            <h:form class="flex w-full flex-col gap-y-6">
+                <!-- OTP Input field -->
+                <div class="flex flex-col gap-y-2">
+                    <p:outputLabel for="otpCode" value="Verification Code" styleClass="font-medium"/>
+                    <p:inputText id="otpCode"
+                                 value="#{mfaController.code}"
+                                 placeholder="Enter 6-digit code"
+                                 required="true"
+                                 requiredMessage="Verification code is required"
+                                 maxlength="6"
+                                 styleClass="w-full text-center text-2xl tracking-widest"
+                                 onkeypress="return (event.charCode &gt;= 48 &amp;&amp; event.charCode &lt;= 57);">
+                        <f:validateLength minimum="6" maximum="6"/>
+                    </p:inputText>
+                </div>
+
+                <!-- Verify button -->
+                <p:commandButton value="Verify"
+                                 action="#{mfaController.verifyMfa}"
+                                 update="@form"
+                                 styleClass="w-full"/>
+
+                <!-- PrimeFaces Messages -->
+                <p:messages id="messages" showDetail="true" closable="true"
+                            autoUpdate="true"
+                            styleClass="mb-3"/>
+            </h:form>
+
+            <!-- Help text -->
+            <p class="text-sm text-gray-700 mt-4 text-center">
+                Having trouble? Contact your administrator for assistance.
+            </p>
+        </div>
+    </div>
+</h:body>
+</html>

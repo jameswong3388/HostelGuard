@@ -68,7 +68,7 @@ public class SessionServiceImpl implements SessionService {
             session.setDeviceInfo(agent.getOperatingSystem().getName()
                     + " - " + agent.getBrowser().getName());
 
-            sessionRepository.updateAsync(session);
+            sessionRepository.update(session);
         });
 
         return sessionRepository.create(session);

@@ -32,7 +32,7 @@ public class SignOutController implements Serializable {
             session.invalidate();
         }
 
-        ec.redirect(ec.getRequestContextPath() + "/auth.xhtml");
+        ec.redirect(ec.getRequestContextPath() + "/auth/sign-in.xhtml");
         return null;
     }
 }

@@ -29,12 +29,14 @@ public class Middleware implements Filter {
 
     // Public paths that don't require authentication
     private static final String[] PUBLIC_PATHS = {
-            "/auth.xhtml",
+            "/auth/sign-in.xhtml",
             "/index.xhtml",
             "/forget-password.xhtml",
             "/404.xhtml",
             "/jakarta.faces.resource/*"
     };
+
+    private static final String MFA_PATH = "/auth/mfa.xhtml";
 
     // Role-specific path mappings
     private static final List<PathRole> PATH_ROLES = Arrays.asList(
@@ -55,6 +57,17 @@ public class Middleware implements Filter {
         HttpServletRequest req = (HttpServletRequest) request;
         HttpServletResponse resp = (HttpServletResponse) response;
         String path = req.getServletPath();
+
+        // Special handling for MFA page
+        if (path.equals(MFA_PATH)) {
+            HttpSession session = req.getSession(false);
+            if (session == null || session.getAttribute(CommonParam.PRE_AUTH_USER) == null) {
+                redirectToLogin(req, resp);
+                return;
+            }
+            chain.doFilter(request, response);
+            return;
+        }
 
         // Bypass filter for public resources
         if (isPublicPath(path)) {
@@ -188,7 +201,7 @@ public class Middleware implements Filter {
     }
 
     private void redirectToLogin(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        resp.sendRedirect(req.getContextPath() + "/auth.xhtml");
+        resp.sendRedirect(req.getContextPath() + "/auth/sign-in.xhtml");
     }
 
     @Override

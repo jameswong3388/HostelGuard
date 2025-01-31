@@ -848,7 +848,7 @@ public class SettingsControllerSecurity implements Serializable {
 
         // Invalidate current session and redirect
         FacesContext.getCurrentInstance().getExternalContext().invalidateSession();
-        return "/auth.xhtml?faces-redirect=true";
+        return "/auth/sign-in.xhtml?faces-redirect=true";
     }
 
     public boolean isToday(Date date) {
