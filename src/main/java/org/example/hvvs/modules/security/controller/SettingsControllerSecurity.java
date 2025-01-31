@@ -1,5 +1,10 @@
 package org.example.hvvs.modules.security.controller;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import com.warrenstrange.googleauth.GoogleAuthenticator;
+import com.warrenstrange.googleauth.GoogleAuthenticatorKey;
+import com.warrenstrange.googleauth.GoogleAuthenticatorQRGenerator;
 import jakarta.annotation.PostConstruct;
 import jakarta.ejb.EJB;
 import jakarta.enterprise.context.SessionScoped;
@@ -10,50 +15,68 @@ import jakarta.inject.Named;
 import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
 import org.example.hvvs.commonClasses.CustomPart;
-import org.example.hvvs.model.SecurityStaffProfiles;
-import org.example.hvvs.model.UserSessions;
-import org.example.hvvs.model.Users;
+import org.example.hvvs.model.*;
 import org.example.hvvs.modules.common.service.MediaService;
 import org.example.hvvs.modules.common.service.SessionService;
 import org.example.hvvs.modules.security.service.SettingsServiceSecurity;
 import org.example.hvvs.utils.CommonParam;
 import org.example.hvvs.utils.DigestUtils;
-import org.example.hvvs.model.Medias;
 import org.primefaces.model.file.UploadedFile;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.sql.Timestamp;
 import java.io.InputStream;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Named("SettingsControllerSecurity")
 @SessionScoped
 public class SettingsControllerSecurity implements Serializable {
 
+    // User & Profile
     private Users user;
     private SecurityStaffProfiles securityStaffProfile;
+
+    // Password Management
     private String oldPassword;
     private String newPassword;
     private String confirmNewPassword;
+
+    // Profile Image
     private Medias profileImage;
     private UploadedFile tempUploadedFile;
 
-    @Inject
-    private SettingsServiceSecurity settingsServiceSecurity;
+    // MFA - General
+    private MfaMethods.MfaMethodType selectedPrimaryMethod;
 
-    @Inject
-    private MediaService mediaService;
+    // MFA - TOTP
+    private String totpCode;
+    private String qrCodeUrl;
+    private String tempSecret;
+    private List<String> backupCodes;
+    private final GoogleAuthenticator gAuth = new GoogleAuthenticator();
+    private final Gson gson = new Gson();
 
-    @EJB
-    private SessionService sessionService;
+    // MFA - Email/SMS
+    private boolean hasEmailEnabled;
+    private boolean hasSMSEnabled;
+    private String emailVerificationCode;
+    private String smsVerificationCode;
 
+    // Session Management
     private List<UserSessions> sessions;
     private UUID currentSessionId;
+
+    // Injected Services
+    @Inject
+    private SettingsServiceSecurity settingsServiceSecurity;
+    @Inject
+    private MediaService mediaService;
+    @EJB
+    private SessionService sessionService;
 
     @PostConstruct
     public void init() {
@@ -77,6 +100,11 @@ public class SettingsControllerSecurity implements Serializable {
         loadProfileImage();
     }
 
+    // General.xhtml
+
+    /**
+     * Action method to save personal information
+     */
     private void loadProfileImage() {
         List<Medias> profileMedias = mediaService.findByModelAndModelId("user", user.getId().toString());
         if (!profileMedias.isEmpty()) {
@@ -106,21 +134,19 @@ public class SettingsControllerSecurity implements Serializable {
                     input
             );
 
+
             // Upload new image
             Medias media = mediaService.uploadFile(part, "user", userId, "profile-pictures");
             loadProfileImage();
 
             FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_INFO, "Success", "Profile picture updated successfully."));
-        } catch (Exception e) {
+                    new FacesMessage(FacesMessage.SEVERITY_INFO, "Success", "Profile image uploaded successfully."));
+        } catch (IOException e) {
             FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Failed to upload profile picture."));
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Failed to upload profile image: " + e.getMessage()));
         }
     }
 
-    /**
-     * Action method to save personal information
-     */
     @Transactional
     public String savePersonalInformation() {
         try {
@@ -146,7 +172,7 @@ public class SettingsControllerSecurity implements Serializable {
 
             // Update timestamp
             user.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
-            
+
             settingsServiceSecurity.updateUser(user);
 
             FacesContext.getCurrentInstance().addMessage(null,
@@ -181,6 +207,8 @@ public class SettingsControllerSecurity implements Serializable {
         }
     }
 
+    // account.xhtml
+
     /**
      * Action method to update username
      */
@@ -209,7 +237,7 @@ public class SettingsControllerSecurity implements Serializable {
 
             // Update timestamp
             user.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
-            
+
             // Save changes
             settingsServiceSecurity.updateUser(user);
 
@@ -229,6 +257,8 @@ public class SettingsControllerSecurity implements Serializable {
         return null;
     }
 
+    // authentication-security.xhtml
+
     /**
      * Action method to update password
      */
@@ -237,8 +267,8 @@ public class SettingsControllerSecurity implements Serializable {
         try {
             // Basic validation
             if (oldPassword == null || oldPassword.trim().isEmpty() ||
-                newPassword == null || newPassword.trim().isEmpty() ||
-                confirmNewPassword == null || confirmNewPassword.trim().isEmpty()) {
+                    newPassword == null || newPassword.trim().isEmpty() ||
+                    confirmNewPassword == null || confirmNewPassword.trim().isEmpty()) {
                 FacesContext.getCurrentInstance().addMessage(null,
                         new FacesMessage(FacesMessage.SEVERITY_ERROR,
                                 "Error",
@@ -282,7 +312,7 @@ public class SettingsControllerSecurity implements Serializable {
             String newPassDigest = DigestUtils.sha256Digest(user.getSalt() + newPassword);
             user.setPassword(newPassDigest);
             user.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
-            
+
             // Save changes
             settingsServiceSecurity.updateUser(user);
 
@@ -307,6 +337,477 @@ public class SettingsControllerSecurity implements Serializable {
         return null;
     }
 
+    public void initializeTOTP2FA() {
+        try {
+            // Generate new TOTP secret
+            GoogleAuthenticatorKey key = gAuth.createCredentials();
+            tempSecret = key.getKey();
+
+            // Generate QR code URL
+            // Your app name
+            qrCodeUrl = GoogleAuthenticatorQRGenerator.getOtpAuthURL(
+                    "HostelGuard™", // Your app name
+                    user.getEmail(),
+                    key);
+
+            // Generate backup codes
+            backupCodes = generateBackupCodes();
+
+        } catch (Exception e) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error",
+                            "Failed to initialize 2FA: " + e.getMessage()));
+        }
+    }
+
+    private List<String> generateBackupCodes() {
+        List<String> codes = new ArrayList<>();
+        Random random = new Random();
+        for (int i = 0; i < 10; i++) {
+            String code = String.format("%08d", random.nextInt(100000000));
+            codes.add(code);
+        }
+        return codes;
+    }
+
+    @Transactional
+    public void verifyAndEnableTOTP() {
+        try {
+            // Verify the provided TOTP code
+            boolean isCodeValid = gAuth.authorize(tempSecret, Integer.parseInt(totpCode));
+
+            if (!isCodeValid) {
+                FacesContext.getCurrentInstance().addMessage(null,
+                        new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error",
+                                "Invalid verification code. Please try again."));
+                return;
+            }
+
+            // Check if this is the first MFA method
+            List<MfaMethods> existingMethods = settingsServiceSecurity.findMfaMethodsByUser(user);
+            boolean isFirstMethod = existingMethods.isEmpty();
+
+            // Create new MFA method
+            MfaMethods mfaMethod = new MfaMethods();
+            mfaMethod.setUser(user);
+            mfaMethod.setMethod(MfaMethods.MfaMethodType.TOTP);
+            mfaMethod.setSecret(tempSecret);
+            mfaMethod.setRecoveryCodes(gson.toJson(backupCodes));
+            mfaMethod.setPrimary(isFirstMethod); // Set primary only if it's the first method
+            mfaMethod.setEnabled(true);
+            mfaMethod.setCreatedAt(new Timestamp(System.currentTimeMillis()));
+            mfaMethod.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
+
+            // Save MFA method
+            settingsServiceSecurity.saveMfaMethod(mfaMethod);
+
+            // Update user's MFA status
+            user.setIs_mfa_enable(true);
+            user.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
+            settingsServiceSecurity.updateUser(user);
+
+            // Clear sensitive data
+            tempSecret = null;
+            totpCode = null;
+            qrCodeUrl = null;
+            backupCodes = null;
+
+            // Force refresh of user data
+            user = settingsServiceSecurity.findUserById(user.getId());
+
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_INFO, "Success",
+                            "Two-factor authentication has been enabled."));
+
+        } catch (NumberFormatException e) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error",
+                            "Invalid verification code format. Please enter only numbers."));
+        } catch (Exception e) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error",
+                            "Failed to enable 2FA: " + e.getMessage()));
+        }
+    }
+
+    @Transactional
+    public void disableTOTP() {
+        try {
+            // Refresh the user entity
+            user = settingsServiceSecurity.findUserById(user.getId());
+
+            // Find and delete all TOTP methods
+            List<MfaMethods> mfaMethods = settingsServiceSecurity.findMfaMethodsByUser(user);
+            for (MfaMethods method : mfaMethods) {
+                if (method.getMethod() == MfaMethods.MfaMethodType.TOTP) {
+                    MfaMethods freshMethod = settingsServiceSecurity.findMfaMethodById(method.getId());
+                    if (freshMethod != null) {
+                        settingsServiceSecurity.deleteMfaMethod(freshMethod);
+                    }
+                }
+            }
+
+            // Update user's MFA status only if no methods remain
+            List<MfaMethods> remainingMethods = settingsServiceSecurity.findMfaMethodsByUser(user);
+            user.setIs_mfa_enable(!remainingMethods.isEmpty());
+            user.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
+            settingsServiceSecurity.updateUser(user);
+
+            // Clear cached data
+            sessions = null;
+
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_INFO, "Success",
+                            "Two-factor authentication has been disabled."));
+        } catch (Exception e) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error",
+                            "Failed to disable 2FA: " + e.getMessage()));
+        }
+    }
+
+    public boolean getHasTOTPEnabled() {
+        try {
+            if (user == null) {
+                return false;
+            }
+            // Get fresh user data
+            Users freshUser = settingsServiceSecurity.findUserById(user.getId());
+            if (!Boolean.TRUE.equals(freshUser.getIs_mfa_enable())) {
+                return false;
+            }
+            List<MfaMethods> mfaMethods = settingsServiceSecurity.findMfaMethodsByUser(freshUser);
+            return mfaMethods.stream()
+                    .anyMatch(method -> method.getMethod() == MfaMethods.MfaMethodType.TOTP &&
+                            Boolean.TRUE.equals(method.getEnabled()));
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public String getPreferredMfaStatus() {
+        List<MfaMethods> enabledMethods = settingsServiceSecurity.findMfaMethodsByUser(user)
+                .stream()
+                .filter(m -> Boolean.TRUE.equals(m.getEnabled()))
+                .toList();
+
+        if (enabledMethods.isEmpty()) {
+            return "Disabled";
+        }
+
+        long primaryCount = enabledMethods.stream()
+                .filter(MfaMethods::getPrimary)
+                .count();
+
+        if (enabledMethods.size() == 1) {
+            return "Enabled (" + enabledMethods.getFirst().getMethod().toString() + ")";
+        }
+
+        if (primaryCount != 1) {
+            return "Multiple methods - needs configuration";
+        }
+
+        MfaMethods primary = enabledMethods.stream()
+                .filter(MfaMethods::getPrimary)
+                .findFirst()
+                .orElseThrow();
+
+        return "Enabled (" + primary.getMethod().toString() + " as primary)";
+    }
+
+    public void updatePrimaryMethod() {
+        try {
+            if (selectedPrimaryMethod == null) {
+                FacesContext.getCurrentInstance().addMessage(null,
+                        new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error",
+                                "Please select a method to set as primary"));
+                return;
+            }
+
+            List<MfaMethods> allMethods = settingsServiceSecurity.findMfaMethodsByUser(user);
+
+            // Update all methods
+            for (MfaMethods method : allMethods) {
+                boolean shouldBePrimary = method.getMethod() == selectedPrimaryMethod;
+                method.setPrimary(shouldBePrimary);
+                settingsServiceSecurity.updateMfaMethod(method);
+            }
+
+            // Clear the selection
+            selectedPrimaryMethod = null;
+
+            // Refresh the user data
+            user = settingsServiceSecurity.findUserById(user.getId());
+
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_INFO, "Success",
+                            "Primary authentication method updated"));
+        } catch (Exception e) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error",
+                            "Failed to update primary method: " + e.getMessage()));
+        }
+    }
+
+    public List<MfaMethods> getEnabledMfaMethods() {
+        return settingsServiceSecurity.findMfaMethodsByUser(user)
+                .stream()
+                .filter(m -> Boolean.TRUE.equals(m.getEnabled()))
+                .toList();
+    }
+
+    public void initializeSMS2FA() {
+        System.out.println("Enabling SMS 2FA...");
+        // Generate mock verification code
+        String mockCode = String.format("%06d", new Random().nextInt(999999));
+        System.out.println("Mock SMS verification code generated: " + mockCode);
+
+        // Generate backup codes
+        backupCodes = generateBackupCodes();
+    }
+
+    public void initializeEmail2FA() {
+        System.out.println("Enabling Email 2FA...");
+        // Generate mock verification code
+        String mockCode = String.format("%06d", new Random().nextInt(999999));
+        System.out.println("Mock email verification code generated: " + mockCode);
+
+        // Generate backup codes
+        backupCodes = generateBackupCodes();
+    }
+
+    @Transactional
+    public void verifyAndEnableSMSVerification() {
+        try {
+            // Verify the provided SMS code
+            if (smsVerificationCode == null || smsVerificationCode.length() != 6) {
+                FacesContext.getCurrentInstance().addMessage(null,
+                        new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error",
+                                "Invalid verification code. Please enter a 6-digit code."));
+                return;
+            }
+
+            // Check if this is the first MFA method
+            List<MfaMethods> existingMethods = settingsServiceSecurity.findMfaMethodsByUser(user);
+            boolean isFirstMethod = existingMethods.isEmpty();
+
+            // Create new MFA method
+            MfaMethods mfaMethod = new MfaMethods();
+            mfaMethod.setUser(user);
+            mfaMethod.setMethod(MfaMethods.MfaMethodType.SMS);
+            mfaMethod.setEnabled(true);
+            mfaMethod.setPrimary(isFirstMethod); // Set primary only if it's the first method
+            mfaMethod.setRecoveryCodes(gson.toJson(backupCodes));
+            mfaMethod.setCreatedAt(new Timestamp(System.currentTimeMillis()));
+            mfaMethod.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
+
+            // Save MFA method
+            settingsServiceSecurity.saveMfaMethod(mfaMethod);
+
+            // Update user's MFA status
+            user.setIs_mfa_enable(true);
+            user.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
+            settingsServiceSecurity.updateUser(user);
+
+            // Force refresh of user data
+            user = settingsServiceSecurity.findUserById(user.getId());
+
+            // Clear verification data but keep backup codes for display
+            smsVerificationCode = null;
+            hasSMSEnabled = true;
+
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_INFO, "Success",
+                            "SMS two-factor authentication has been enabled. Please save your recovery codes."));
+
+        } catch (Exception e) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error",
+                            "Failed to enable SMS 2FA: " + e.getMessage()));
+            smsVerificationCode = null;
+            backupCodes = null;
+        }
+    }
+
+    @Transactional
+    public void verifyAndEnableEmailVerification() {
+        try {
+            // Verify the provided email code
+            if (emailVerificationCode == null || emailVerificationCode.length() != 6) {
+                FacesContext.getCurrentInstance().addMessage(null,
+                        new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error",
+                                "Invalid verification code. Please enter a 6-digit code."));
+                return;
+            }
+
+            // Check if this is the first MFA method
+            List<MfaMethods> existingMethods = settingsServiceSecurity.findMfaMethodsByUser(user);
+            boolean isFirstMethod = existingMethods.isEmpty();
+
+            // Create new MFA method
+            MfaMethods mfaMethod = new MfaMethods();
+            mfaMethod.setUser(user);
+            mfaMethod.setMethod(MfaMethods.MfaMethodType.EMAIL);
+            mfaMethod.setEnabled(true);
+            mfaMethod.setPrimary(isFirstMethod); // Set primary only if it's the first method
+            mfaMethod.setRecoveryCodes(gson.toJson(backupCodes));
+            mfaMethod.setCreatedAt(new Timestamp(System.currentTimeMillis()));
+            mfaMethod.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
+
+            // Save MFA method
+            settingsServiceSecurity.saveMfaMethod(mfaMethod);
+
+            // Update user's MFA status
+            user.setIs_mfa_enable(true);
+            user.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
+            settingsServiceSecurity.updateUser(user);
+
+            // Clear verification data but keep backup codes for display
+            emailVerificationCode = null;
+            hasEmailEnabled = true;
+
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_INFO, "Success",
+                            "Email two-factor authentication has been enabled. Please save your recovery codes."));
+
+        } catch (Exception e) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error",
+                            "Failed to enable Email 2FA: " + e.getMessage()));
+            emailVerificationCode = null;
+            backupCodes = null;
+        }
+    }
+
+    @Transactional
+    public void disableEmail2FA() {
+        try {
+            // Refresh the user entity
+            user = settingsServiceSecurity.findUserById(user.getId());
+
+            // Find and delete all Email MFA methods
+            List<MfaMethods> mfaMethods = settingsServiceSecurity.findMfaMethodsByUser(user);
+            for (MfaMethods method : mfaMethods) {
+                if (method.getMethod() == MfaMethods.MfaMethodType.EMAIL) {
+                    MfaMethods freshMethod = settingsServiceSecurity.findMfaMethodById(method.getId());
+                    if (freshMethod != null) {
+                        settingsServiceSecurity.deleteMfaMethod(freshMethod);
+                    }
+                }
+            }
+
+            // Update user's MFA status only if no methods remain
+            List<MfaMethods> remainingMethods = settingsServiceSecurity.findMfaMethodsByUser(user);
+            user.setIs_mfa_enable(!remainingMethods.isEmpty());
+            user.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
+            settingsServiceSecurity.updateUser(user);
+
+            // Clear state
+            hasEmailEnabled = false;
+            emailVerificationCode = null;
+
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_INFO, "Success",
+                            "Email two-factor authentication has been disabled."));
+        } catch (Exception e) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error",
+                            "Failed to disable Email 2FA: " + e.getMessage()));
+        }
+    }
+
+    @Transactional
+    public void disableSMS2FA() {
+        try {
+            // Refresh the user entity
+            user = settingsServiceSecurity.findUserById(user.getId());
+
+            // Find and delete all SMS MFA methods
+            List<MfaMethods> mfaMethods = settingsServiceSecurity.findMfaMethodsByUser(user);
+            for (MfaMethods method : mfaMethods) {
+                if (method.getMethod() == MfaMethods.MfaMethodType.SMS) {
+                    MfaMethods freshMethod = settingsServiceSecurity.findMfaMethodById(method.getId());
+                    if (freshMethod != null) {
+                        settingsServiceSecurity.deleteMfaMethod(freshMethod);
+                    }
+                }
+            }
+
+            // Update user's MFA status only if no methods remain
+            List<MfaMethods> remainingMethods = settingsServiceSecurity.findMfaMethodsByUser(user);
+            user.setIs_mfa_enable(!remainingMethods.isEmpty());
+            user.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
+            settingsServiceSecurity.updateUser(user);
+
+            // Clear state
+            hasSMSEnabled = false;
+            smsVerificationCode = null;
+
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_INFO, "Success",
+                            "SMS two-factor authentication has been disabled."));
+        } catch (Exception e) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error",
+                            "Failed to disable SMS 2FA: " + e.getMessage()));
+        }
+    }
+
+    public boolean getHasEmailEnabled() {
+        try {
+            if (user == null) {
+                return false;
+            }
+            // Get fresh user data
+            Users freshUser = settingsServiceSecurity.findUserById(user.getId());
+            if (!Boolean.TRUE.equals(freshUser.getIs_mfa_enable())) {
+                return false;
+            }
+            List<MfaMethods> mfaMethods = settingsServiceSecurity.findMfaMethodsByUser(freshUser);
+            return mfaMethods.stream()
+                    .anyMatch(method -> method.getMethod() == MfaMethods.MfaMethodType.EMAIL &&
+                            Boolean.TRUE.equals(method.getEnabled()));
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public boolean getHasSMSEnabled() {
+        try {
+            if (user == null) {
+                return false;
+            }
+            // Get fresh user data
+            Users freshUser = settingsServiceSecurity.findUserById(user.getId());
+            if (!Boolean.TRUE.equals(freshUser.getIs_mfa_enable())) {
+                return false;
+            }
+            List<MfaMethods> mfaMethods = settingsServiceSecurity.findMfaMethodsByUser(freshUser);
+            return mfaMethods.stream()
+                    .anyMatch(method -> method.getMethod() == MfaMethods.MfaMethodType.SMS &&
+                            Boolean.TRUE.equals(method.getEnabled()));
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public List<String> getBackupCodes() {
+        if (backupCodes != null && !backupCodes.isEmpty()) {
+            return backupCodes;
+        }
+
+        MfaMethods primaryMethod = settingsServiceSecurity.findMfaMethodsByUser(user)
+                .stream()
+                .filter(m -> Boolean.TRUE.equals(m.getEnabled()) && Boolean.TRUE.equals(m.getPrimary()))
+                .findFirst()
+                .orElse(null);
+
+        return primaryMethod != null && primaryMethod.getRecoveryCodes() != null ?
+                gson.fromJson(primaryMethod.getRecoveryCodes(), new TypeToken<List<String>>() {
+                }.getType()) :
+                Collections.emptyList();
+    }
+
     public void reloadSessions() {
         sessions = null; // Force refresh on next access
         getSessions(); // Explicitly reload
@@ -315,14 +816,14 @@ public class SettingsControllerSecurity implements Serializable {
     public List<UserSessions> getSessions() {
         if (sessions == null) {
             Users currentUser = (Users) FacesContext.getCurrentInstance()
-                .getExternalContext().getSessionMap().get(CommonParam.SESSION_SELF);
+                    .getExternalContext().getSessionMap().get(CommonParam.SESSION_SELF);
             sessions = sessionService.getActiveSessions(currentUser);
 
             // Add location parsing for each session
             sessions.forEach(session -> {
                 String location = sessionService.parseLocationFromIp(session.getIpAddress());
                 String[] parts = location.split(", ");
-                if(parts.length == 3) {
+                if (parts.length == 3) {
                     session.setCity(parts[0]);
                     session.setRegion(parts[1]);
                     session.setCountry(parts[2]);
@@ -336,23 +837,18 @@ public class SettingsControllerSecurity implements Serializable {
         sessionService.revokeSession(sessionId);
         sessions = null; // Refresh session list
         FacesContext.getCurrentInstance().addMessage(null,
-            new FacesMessage("Session revoked successfully"));
+                new FacesMessage("Session revoked successfully"));
     }
 
     public String revokeAllSessions() {
         Users currentUser = (Users) FacesContext.getCurrentInstance()
-            .getExternalContext().getSessionMap().get(CommonParam.SESSION_SELF);
+                .getExternalContext().getSessionMap().get(CommonParam.SESSION_SELF);
         sessionService.revokeAllSessions(currentUser.getId());
         sessions = null;
 
         // Invalidate current session and redirect
         FacesContext.getCurrentInstance().getExternalContext().invalidateSession();
         return "/auth.xhtml?faces-redirect=true";
-    }
-
-    // Add viewSessionDetails method if needed
-    public void viewSessionDetails(UserSessions session) {
-        // Implementation for viewing session details
     }
 
     public boolean isToday(Date date) {
@@ -362,28 +858,7 @@ public class SettingsControllerSecurity implements Serializable {
         return inputDate.isEqual(today);
     }
 
-    public UUID getCurrentSessionId() {
-        return currentSessionId;
-    }
-
-    /* Getters and setters */
-    // Update getter/setter
-    public Medias getProfileImage() {
-        return profileImage;
-    }
-
-    public void setProfileImage(Medias profileImage) {
-        this.profileImage = profileImage;
-    }
-
-    public UploadedFile getTempUploadedFile() {
-        return tempUploadedFile;
-    }
-
-    public void setTempUploadedFile(UploadedFile tempUploadedFile) {
-        this.tempUploadedFile = tempUploadedFile;
-    }
-
+    // Getters & Setters
     public Users getUser() {
         return user;
     }
@@ -400,6 +875,7 @@ public class SettingsControllerSecurity implements Serializable {
         this.securityStaffProfile = securityStaffProfile;
     }
 
+    // Password Fields
     public String getOldPassword() {
         return oldPassword;
     }
@@ -422,5 +898,66 @@ public class SettingsControllerSecurity implements Serializable {
 
     public void setConfirmNewPassword(String confirmNewPassword) {
         this.confirmNewPassword = confirmNewPassword;
+    }
+
+    // Profile Image
+    public Medias getProfileImage() {
+        return profileImage;
+    }
+
+    public void setProfileImage(Medias profileImage) {
+        this.profileImage = profileImage;
+    }
+
+    public UploadedFile getTempUploadedFile() {
+        return tempUploadedFile;
+    }
+
+    public void setTempUploadedFile(UploadedFile tempUploadedFile) {
+        this.tempUploadedFile = tempUploadedFile;
+    }
+
+    // MFA - TOTP
+    public String getTotpCode() {
+        return totpCode;
+    }
+
+    public void setTotpCode(String totpCode) {
+        this.totpCode = totpCode;
+    }
+
+    public String getQrCodeUrl() {
+        return qrCodeUrl;
+    }
+
+    // MFA - General
+    public MfaMethods.MfaMethodType getSelectedPrimaryMethod() {
+        return selectedPrimaryMethod;
+    }
+
+    public void setSelectedPrimaryMethod(MfaMethods.MfaMethodType selectedPrimaryMethod) {
+        this.selectedPrimaryMethod = selectedPrimaryMethod;
+    }
+
+    // MFA - Email/SMS
+    public String getEmailVerificationCode() {
+        return emailVerificationCode;
+    }
+
+    public void setEmailVerificationCode(String emailVerificationCode) {
+        this.emailVerificationCode = emailVerificationCode;
+    }
+
+    public String getSmsVerificationCode() {
+        return smsVerificationCode;
+    }
+
+    public void setSmsVerificationCode(String smsVerificationCode) {
+        this.smsVerificationCode = smsVerificationCode;
+    }
+
+    // Session Management
+    public UUID getCurrentSessionId() {
+        return currentSessionId;
     }
 }

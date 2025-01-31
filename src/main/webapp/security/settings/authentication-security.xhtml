@@ -106,8 +106,8 @@
 
             <!-- Two-Factor Authentication Section -->
             <section aria-labelledby="two-factor-authentication">
-                <h:form>
-                    <f:event type="preRenderView" listener="#{SettingsControllerSecurity.reloadSessions}" />
+                <h:form id="twoFactorForm">
+                    <f:event type="preRenderView" listener="#{SettingsControllerSecurity.reloadSessions}"/>
                     <div class="grid grid-cols-1 gap-x-14 gap-y-8 md:grid-cols-3">
                         <!-- Left column: heading & description -->
                         <div>
@@ -130,17 +130,46 @@
                             <!-- Preferred 2FA method -->
                             <div class="p-4 border border-gray-200 rounded-md">
                                 <h4 class="text-sm font-medium text-gray-900 mb-2">
-                                    Preferred 2FA method (Coming Soon)
+                                    Two-Factor Authentication Status
                                 </h4>
-                                <p:selectOneMenu id="preferred2fa"
-                                                 styleClass="w-full max-w-xs">
-                                    <f:selectItem itemLabel="Authenticator App" itemValue="AUTH_APP"/>
-                                    <f:selectItem itemLabel="SMS/Text Message" itemValue="SMS"/>
-                                    <f:selectItem itemLabel="GitHub Mobile" itemValue="GITHUB_MOBILE"/>
-                                    <f:selectItem itemLabel="Security Keys" itemValue="SECURITY_KEYS"/>
-                                </p:selectOneMenu>
+                                <div class="flex items-center gap-2">
+                                    <h:outputText value="#{SettingsControllerSecurity.preferredMfaStatus}"
+                                                  styleClass="text-sm font-medium"/>
+                                    <h:outputText value="Disabled" styleClass="text-sm text-red-600"
+                                                  rendered="#{SettingsControllerSecurity.preferredMfaStatus.startsWith('Disabled')}"/>
+                                    <h:outputText value="Needs Attention" styleClass="text-sm text-yellow-600"
+                                                  rendered="#{SettingsControllerSecurity.preferredMfaStatus.startsWith('Multiple')}"/>
+                                    <h:outputText value="Enabled" styleClass="text-sm text-green-600"
+                                                  rendered="#{SettingsControllerSecurity.preferredMfaStatus.startsWith('Enabled') and !SettingsControllerSecurity.preferredMfaStatus.contains('Multiple')}"/>
+                                </div>
+
+                                <p:outputPanel
+                                        rendered="#{SettingsControllerSecurity.enabledMfaMethods.size() > 1}">
+                                    <div class="mt-4 space-y-3">
+
+                                        <h:outputLabel value="Set New Primary Method:"
+                                                       styleClass="text-sm font-medium"/>
+                                        <p:selectOneMenu value="#{SettingsControllerSecurity.selectedPrimaryMethod}"
+                                                         styleClass="w-full">
+                                            <f:selectItem itemLabel="Select a method" itemValue=""
+                                                          noSelectionOption="true"/>
+                                            <f:selectItems value="#{SettingsControllerSecurity.enabledMfaMethods}"
+                                                           var="method"
+                                                           itemLabel="#{method.method}"
+                                                           itemValue="#{method.method}"/>
+                                            <p:ajax event="change" update="@form"/>
+                                        </p:selectOneMenu>
+                                        <p:commandButton value="Set as Primary"
+                                                         action="#{SettingsControllerSecurity.updatePrimaryMethod}"
+                                                         update=":twoFactorForm :messages"
+                                                         disabled="#{empty SettingsControllerSecurity.selectedPrimaryMethod}"
+                                                         styleClass="p-button-primary p-button-sm"/>
+
+                                    </div>
+                                </p:outputPanel>
+
                                 <p class="mt-2 text-sm text-gray-500">
-                                    Set your preferred method to use for two-factor authentication.
+                                    Current status of your two-factor authentication setup
                                 </p>
                             </div>
 
@@ -155,81 +184,229 @@
                                         <li class="flex justify-between">
                                             <div>
                                                 <span class="font-medium">Authenticator app</span>
-                                                <span class="ml-1 text-sm text-green-600">Configured</span>
+                                                <h:outputText value="Configured"
+                                                              styleClass="ml-1 text-sm text-green-600"
+                                                              rendered="#{SettingsControllerSecurity.hasTOTPEnabled}"/>
+                                                <h:outputText value="Not configured"
+                                                              styleClass="ml-1 text-sm text-gray-500"
+                                                              rendered="#{!SettingsControllerSecurity.hasTOTPEnabled}"/>
                                                 <p class="text-sm text-gray-500">
-                                                    Use an authenticator app or browser extension to get codes.
+                                                    Use an authenticator app to get two-factor codes.
                                                 </p>
                                             </div>
-                                            <p:commandButton value="Edit"
-                                                             action="#{SettingsControllerSecurity.editAuthApp}"
-                                                             update="@form messages"
+                                            <p:commandButton value="Setup"
+                                                             oncomplete="PF('totpSetupDialog').show()"
+                                                             action="#{SettingsControllerSecurity.initializeTOTP2FA()}"
+                                                             update="totpSetupForm"
+                                                             rendered="#{!SettingsControllerSecurity.hasTOTPEnabled}"
                                                              styleClass="p-button-text p-button-sm"/>
+                                            <p:commandButton value="Remove"
+                                                             action="#{SettingsControllerSecurity.disableTOTP}"
+                                                             update="twoFactorForm messages"
+                                                             rendered="#{SettingsControllerSecurity.hasTOTPEnabled}"
+                                                             styleClass="ui-button-danger p-button-text p-button-sm"/>
                                         </li>
                                         <!-- SMS/Text message -->
                                         <li class="flex justify-between">
                                             <div>
                                                 <span class="font-medium">SMS/Text message</span>
+                                                <h:outputText value="Configured"
+                                                              styleClass="ml-1 text-sm text-green-600"
+                                                              rendered="#{SettingsControllerSecurity.hasSMSEnabled}"/>
+                                                <h:outputText value="Not configured"
+                                                              styleClass="ml-1 text-sm text-gray-500"
+                                                              rendered="#{!SettingsControllerSecurity.hasSMSEnabled}"/>
                                                 <p class="text-sm text-gray-500">
                                                     Get one-time codes via SMS to complete authentication.
                                                 </p>
                                             </div>
-                                            <p:commandButton value="Add"
-                                                             action="#{SettingsControllerSecurity.addSmsMethod}"
-                                                             update="@form messages"
+                                            <p:commandButton value="Setup"
+                                                             oncomplete="PF('smsVerifyDialog').show()"
+                                                             action="#{SettingsControllerSecurity.initializeSMS2FA}"
+                                                             update="smsVerifyForm"
+                                                             rendered="#{!SettingsControllerSecurity.hasSMSEnabled}"
                                                              styleClass="p-button-text p-button-sm"/>
+                                            <p:commandButton value="Remove"
+                                                             action="#{SettingsControllerSecurity.disableSMS2FA()}"
+                                                             update="twoFactorForm messages"
+                                                             rendered="#{SettingsControllerSecurity.hasSMSEnabled}"
+                                                             styleClass="ui-button-danger p-button-text p-button-sm"/>
                                         </li>
-                                        <!-- Security keys -->
+                                        <!-- Email -->
                                         <li class="flex justify-between">
                                             <div>
-                                                <span class="font-medium">Security keys</span>
+                                                <span class="font-medium">Email authentication</span>
+                                                <h:outputText value="Configured"
+                                                              styleClass="ml-1 text-sm text-green-600"
+                                                              rendered="#{SettingsControllerSecurity.hasEmailEnabled}"/>
+                                                <h:outputText value="Not configured"
+                                                              styleClass="ml-1 text-sm text-gray-500"
+                                                              rendered="#{!SettingsControllerSecurity.hasEmailEnabled}"/>
                                                 <p class="text-sm text-gray-500">
-                                                    WebAuthn credentials that can only be used as a second factor.
+                                                    Receive authentication codes via email.
                                                 </p>
                                             </div>
-                                            <p:commandButton value="Edit"
-                                                             action="#{SettingsControllerSecurity.editSecurityKeys}"
-                                                             update="@form messages"
+                                            <p:commandButton value="Setup"
+                                                             oncomplete="PF('emailVerifyDialog').show()"
+                                                             action="#{SettingsControllerSecurity.initializeEmail2FA()}"
+                                                             update="emailVerifyForm"
+                                                             rendered="#{!SettingsControllerSecurity.hasEmailEnabled}"
                                                              styleClass="p-button-text p-button-sm"/>
-                                        </li>
-                                        <!-- GitHub Mobile -->
-                                        <li class="flex justify-between">
-                                            <div>
-                                                <span class="font-medium">GitHub Mobile</span>
-                                                <span class="ml-1 text-sm text-green-600">Configured (2 devices)</span>
-                                                <p class="text-sm text-gray-500">
-                                                    Can be used for 2FA by installing GitHub Mobile and signing in.
-                                                </p>
-                                            </div>
-                                            <p:commandButton value="Show"
-                                                             action="#{SettingsControllerSecurity.showGithubMobileDevices}"
-                                                             update="@form messages"
-                                                             styleClass="p-button-text p-button-sm"/>
+                                            <p:commandButton value="Remove"
+                                                             action="#{SettingsControllerSecurity.disableEmail2FA()}"
+                                                             update="twoFactorForm messages"
+                                                             rendered="#{SettingsControllerSecurity.hasEmailEnabled}"
+                                                             styleClass="ui-button-danger p-button-text p-button-sm"/>
                                         </li>
                                         <!-- Recovery codes -->
                                         <li class="flex justify-between">
                                             <div>
                                                 <span class="font-medium">Recovery codes</span>
-                                                <span class="ml-1 text-xs text-yellow-600">Viewed</span>
+                                                <h:outputText value="Generated"
+                                                              styleClass="ml-1 text-sm text-yellow-600"
+                                                              rendered="#{SettingsControllerSecurity.enabledMfaMethods.size() gt 0}"/>
                                                 <p class="text-sm text-gray-500">
-                                                    Recovery codes can be used to access your account if you lose your device.
+                                                    Use recovery codes to regain access to your account if you lose your device.
                                                 </p>
                                             </div>
-                                            <p:commandButton value="View"
-                                                             action="#{SettingsControllerSecurity.viewRecoveryCodes}"
-                                                             update="@form messages"
-                                                             styleClass="p-button-text p-button-sm"/>
+                                            <p:commandButton value="View codes"
+                                                             styleClass="p-button-text p-button-sm"
+                                                             disabled="#{SettingsControllerSecurity.enabledMfaMethods.size() lt 1}"
+                                                             oncomplete="PF('recoveryCodesDialog').show()"
+                                                             update=":recoveryCodesForm"/>
                                         </li>
                                     </ul>
                                 </div>
                                 <div class="border-t border-gray-200 bg-gray-50 p-4">
                                     <p class="text-sm text-gray-500">
-                                        You can configure multiple methods for flexibility and redundancy.
+                                        We recommend setting up multiple 2FA methods for account security and recovery options.
                                     </p>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </h:form>
+
+                <!-- TOTP Setup Dialog -->
+                <p:dialog id="totpSetupDialog"
+                          widgetVar="totpSetupDialog"
+                          header="Set up authenticator app"
+                          modal="true"
+                          width="500"
+                          closeOnEscape="true">
+                    <h:form id="totpSetupForm">
+                        <div class="space-y-6">
+                            <!-- Step 1: Scan QR Code -->
+                            <div>
+                                <h5 class="text-sm font-medium text-gray-700">Step 1: Scan QR Code</h5>
+                                <p class="text-sm text-gray-500 mb-4">
+                                    Scan this QR code with your authenticator app (e.g., Google Authenticator, Authy).
+                                </p>
+                                <p:graphicImage value="#{SettingsControllerSecurity.qrCodeUrl}"
+                                                width="200" height="200"
+                                                styleClass="border border-gray-200 rounded-md"
+                                                rendered="#{not empty SettingsControllerSecurity.qrCodeUrl}"/>
+                            </div>
+
+                            <!-- Step 2: Enter Verification Code -->
+                            <div>
+                                <h5 class="text-sm font-medium text-gray-700">Step 2: Enter Verification Code</h5>
+                                <p class="text-sm text-gray-500 mb-2">
+                                    Enter the 6-digit code from your authenticator app to verify setup.
+                                </p>
+                                <div class="flex items-center gap-4">
+                                    <p:inputText id="totpCode"
+                                                 value="#{SettingsControllerSecurity.totpCode}"
+                                                 styleClass="w-32"
+                                                 placeholder="000000"/>
+                                    <p:commandButton value="Verify and enable"
+                                                     action="#{SettingsControllerSecurity.verifyAndEnableTOTP}"
+                                                     update="twoFactorForm totpSetupForm messages"
+                                                     oncomplete="if (args &amp;&amp; !args.validationFailed) PF('totpSetupDialog').hide()"
+                                                     styleClass="p-button-primary"/>
+                                </div>
+                            </div>
+                        </div>
+                    </h:form>
+                </p:dialog>
+
+                <!-- Recovery Codes Dialog -->
+                <p:dialog id="recoveryCodesDialog"
+                          widgetVar="recoveryCodesDialog"
+                          header="Recovery codes"
+                          modal="true"
+                          width="400"
+                          closeOnEscape="true"
+                          dynamic="true">
+                    <h:form id="recoveryCodesForm">
+                        <div class="space-y-4">
+                            <p class="text-sm text-gray-500">
+                                Save these recovery codes in a secure place.
+                                Each code can only be used once.
+                            </p>
+                            <div class="grid grid-cols-2 gap-2">
+                                <ui:repeat value="#{SettingsControllerSecurity.backupCodes}" var="code">
+                                    <div class="p-2 bg-gray-50 rounded text-mono text-sm">
+                                        #{code}
+                                    </div>
+                                </ui:repeat>
+                            </div>
+                            <p class="text-sm text-yellow-600">
+                                These codes are tied to your primary authentication method.
+                                Changing primary methods will generate new codes.
+                            </p>
+                            <div class="flex justify-end">
+                                <p:commandButton value="Close"
+                                               onclick="PF('recoveryCodesDialog').hide()"
+                                               styleClass="p-button-secondary"/>
+                            </div>
+                        </div>
+                    </h:form>
+                </p:dialog>
+
+                <!-- Email Verification Dialog -->
+                <p:dialog widgetVar="emailVerifyDialog" header="Verify Email" modal="true" width="400">
+                    <h:form id="emailVerifyForm">
+                        <div class="space-y-4">
+                            <p class="text-sm text-gray-500">
+                                We've sent a verification code to your email. Please check your inbox.
+                            </p>
+                            <div class="flex items-center gap-4">
+                                <p:inputText id="emailCode"
+                                             value="#{SettingsControllerSecurity.emailVerificationCode}"
+                                             styleClass="w-40"
+                                             placeholder="Enter 6-digit code"/>
+                                <p:commandButton value="Verify"
+                                                 action="#{SettingsControllerSecurity.verifyAndEnableEmailVerification}"
+                                                 update=":twoFactorForm @form :recoveryCodesForm :messages"
+                                                 oncomplete="if (args &amp;&amp; !args.validationFailed) {PF('emailVerifyDialog').hide(); PF('recoveryCodesDialog').show();}"
+                                                 styleClass="p-button-primary"/>
+                            </div>
+                        </div>
+                    </h:form>
+                </p:dialog>
+
+                <!-- SMS Verification Dialog -->
+                <p:dialog widgetVar="smsVerifyDialog" header="Verify SMS" modal="true" width="400">
+                    <h:form id="smsVerifyForm">
+                        <div class="space-y-4">
+                            <p class="text-sm text-gray-500">
+                                We've sent a verification code to your phone. Please check your messages.
+                            </p>
+                            <div class="flex items-center gap-4">
+                                <p:inputText id="smsCode"
+                                             value="#{SettingsControllerSecurity.smsVerificationCode}"
+                                             styleClass="w-40"
+                                             placeholder="Enter 6-digit code"/>
+                                <p:commandButton value="Verify"
+                                                 action="#{SettingsControllerSecurity.verifyAndEnableSMSVerification}"
+                                                 update=":twoFactorForm @form :recoveryCodesForm :messages"
+                                                 oncomplete="if (args &amp;&amp; !args.validationFailed) {PF('smsVerifyDialog').hide(); PF('recoveryCodesDialog').show();}"
+                                                 styleClass="p-button-primary"/>
+                            </div>
+                        </div>
+                    </h:form>
+                </p:dialog>
             </section>
 
             <!-- Divider -->

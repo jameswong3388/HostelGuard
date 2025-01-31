@@ -39,12 +39,12 @@ public class SettingsControllerResident implements Serializable {
     // User & Profile
     private Users user;
     private ResidentProfiles residentProfile;
-    
+
     // Password Management
     private String oldPassword;
     private String newPassword;
     private String confirmNewPassword;
-    
+
     // Profile Image
     private Medias profileImage;
     private UploadedFile tempUploadedFile;
@@ -858,53 +858,105 @@ public class SettingsControllerResident implements Serializable {
     }
 
     // Getters & Setters
-    public Users getUser() { return user; }
-    public void setUser(Users user) { this.user = user; }
+    public Users getUser() {
+        return user;
+    }
 
-    public ResidentProfiles getResidentProfile() { return residentProfile; }
+    public void setUser(Users user) {
+        this.user = user;
+    }
+
+    public ResidentProfiles getResidentProfile() {
+        return residentProfile;
+    }
+
     public void setResidentProfile(ResidentProfiles residentProfile) {
         this.residentProfile = residentProfile;
     }
 
     // Password Fields
-    public String getOldPassword() { return oldPassword; }
-    public void setOldPassword(String oldPassword) { this.oldPassword = oldPassword; }
-    public String getNewPassword() { return newPassword; }
-    public void setNewPassword(String newPassword) { this.newPassword = newPassword; }
-    public String getConfirmNewPassword() { return confirmNewPassword; }
+    public String getOldPassword() {
+        return oldPassword;
+    }
+
+    public void setOldPassword(String oldPassword) {
+        this.oldPassword = oldPassword;
+    }
+
+    public String getNewPassword() {
+        return newPassword;
+    }
+
+    public void setNewPassword(String newPassword) {
+        this.newPassword = newPassword;
+    }
+
+    public String getConfirmNewPassword() {
+        return confirmNewPassword;
+    }
+
     public void setConfirmNewPassword(String confirmNewPassword) {
         this.confirmNewPassword = confirmNewPassword;
     }
 
     // Profile Image
-    public Medias getProfileImage() { return profileImage; }
-    public void setProfileImage(Medias profileImage) { this.profileImage = profileImage; }
-    public UploadedFile getTempUploadedFile() { return tempUploadedFile; }
+    public Medias getProfileImage() {
+        return profileImage;
+    }
+
+    public void setProfileImage(Medias profileImage) {
+        this.profileImage = profileImage;
+    }
+
+    public UploadedFile getTempUploadedFile() {
+        return tempUploadedFile;
+    }
+
     public void setTempUploadedFile(UploadedFile tempUploadedFile) {
         this.tempUploadedFile = tempUploadedFile;
     }
 
     // MFA - TOTP
-    public String getTotpCode() { return totpCode; }
-    public void setTotpCode(String totpCode) { this.totpCode = totpCode; }
-    public String getQrCodeUrl() { return qrCodeUrl; }
+    public String getTotpCode() {
+        return totpCode;
+    }
+
+    public void setTotpCode(String totpCode) {
+        this.totpCode = totpCode;
+    }
+
+    public String getQrCodeUrl() {
+        return qrCodeUrl;
+    }
 
     // MFA - General
-    public MfaMethods.MfaMethodType getSelectedPrimaryMethod() { return selectedPrimaryMethod; }
+    public MfaMethods.MfaMethodType getSelectedPrimaryMethod() {
+        return selectedPrimaryMethod;
+    }
+
     public void setSelectedPrimaryMethod(MfaMethods.MfaMethodType selectedPrimaryMethod) {
         this.selectedPrimaryMethod = selectedPrimaryMethod;
     }
 
     // MFA - Email/SMS
-    public String getEmailVerificationCode() { return emailVerificationCode; }
+    public String getEmailVerificationCode() {
+        return emailVerificationCode;
+    }
+
     public void setEmailVerificationCode(String emailVerificationCode) {
         this.emailVerificationCode = emailVerificationCode;
     }
-    public String getSmsVerificationCode() { return smsVerificationCode; }
+
+    public String getSmsVerificationCode() {
+        return smsVerificationCode;
+    }
+
     public void setSmsVerificationCode(String smsVerificationCode) {
         this.smsVerificationCode = smsVerificationCode;
     }
 
     // Session Management
-    public UUID getCurrentSessionId() { return currentSessionId; }
+    public UUID getCurrentSessionId() {
+        return currentSessionId;
+    }
 }

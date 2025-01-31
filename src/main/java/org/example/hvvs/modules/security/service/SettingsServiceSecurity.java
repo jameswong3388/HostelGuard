@@ -3,8 +3,14 @@ package org.example.hvvs.modules.security.service;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.TypedQuery;
+import jakarta.transaction.Transactional;
+import org.example.hvvs.model.MfaMethods;
 import org.example.hvvs.model.SecurityStaffProfiles;
 import org.example.hvvs.model.Users;
+
+import java.util.List;
+import java.util.UUID;
 
 @ApplicationScoped
 public class SettingsServiceSecurity {
@@ -62,5 +68,30 @@ public class SettingsServiceSecurity {
      */
     public void updateSecurityStaffProfile(SecurityStaffProfiles profile) {
         em.merge(profile);
+    }
+
+    public void saveMfaMethod(MfaMethods mfaMethod) {
+        em.persist(mfaMethod);
+    }
+
+    public MfaMethods findMfaMethodById(UUID id) {
+        return em.find(MfaMethods.class, id);
+    }
+
+    @Transactional
+    public void updateMfaMethod(MfaMethods mfaMethod) {
+        em.merge(mfaMethod);
+    }
+
+    public void deleteMfaMethod(MfaMethods mfaMethod) {
+        em.remove(mfaMethod);
+    }
+
+    public List<MfaMethods> findMfaMethodsByUser(Users user) {
+        TypedQuery<MfaMethods> query = em.createQuery(
+                "SELECT m FROM MfaMethods m WHERE m.user = :user AND m.isEnabled = true",
+                MfaMethods.class);
+        query.setParameter("user", user);
+        return query.getResultList();
     }
 }
