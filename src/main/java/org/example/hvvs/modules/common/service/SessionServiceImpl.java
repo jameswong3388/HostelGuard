@@ -114,7 +114,7 @@ public class SessionServiceImpl implements SessionService {
     @Override
     public Optional<UserSessions> validateSession(UUID sessionId) {
         UserSessions session = sessionRepository.findBySessionId(sessionId);
-        if (session != null && session.isActive() && session.getExpiresAt().after(new Timestamp(System.currentTimeMillis()))) {
+        if (session != null && session.getExpiresAt().after(new Timestamp(System.currentTimeMillis()))) {
             return Optional.of(session);
         }
         return Optional.empty();

@@ -125,13 +125,13 @@
         <dependency>
             <groupId>org.primefaces</groupId>
             <artifactId>primefaces</artifactId>
-            <version>14.0.6</version>
+            <version>14.0.11</version>
             <classifier>jakarta</classifier>
         </dependency>
         <dependency>
             <groupId>org.primefaces.extensions</groupId>
             <artifactId>primefaces-extensions</artifactId>
-            <version>14.0.6</version>
+            <version>14.0.11</version>
             <classifier>jakarta</classifier>
         </dependency>
         <dependency>

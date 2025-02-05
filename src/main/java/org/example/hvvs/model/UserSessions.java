@@ -47,9 +47,6 @@ public class UserSessions {
     @Column(name = "expires_at", nullable = false)
     private Timestamp expiresAt;
 
-    @Column(name = "is_active")
-    private boolean active = true;
-
     @Column(name = "device_info", length = 255)
     private String deviceInfo;
 
@@ -57,8 +54,7 @@ public class UserSessions {
     }
 
     public UserSessions(Users user_id, String ipAddress, String city, String region, String country, String userAgent,
-                        Timestamp loginTime, Timestamp lastAccess, Timestamp expiresAt,
-                        boolean active, String deviceInfo) {
+                        Timestamp loginTime, Timestamp lastAccess, Timestamp expiresAt, String deviceInfo) {
         this.user_id = user_id;
         this.ipAddress = ipAddress;
         this.city = city;
@@ -68,7 +64,6 @@ public class UserSessions {
         this.loginTime = loginTime;
         this.lastAccess = lastAccess;
         this.expiresAt = expiresAt;
-        this.active = active;
         this.deviceInfo = deviceInfo;
     }
 
@@ -151,14 +146,6 @@ public class UserSessions {
 
     public void setExpiresAt(Timestamp expiresAt) {
         this.expiresAt = expiresAt;
-    }
-
-    public boolean isActive() {
-        return active;
-    }
-
-    public void setActive(boolean active) {
-        this.active = active;
     }
 
     public String getDeviceInfo() {

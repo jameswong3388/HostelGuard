@@ -131,7 +131,7 @@ def main():
             identity_number VARCHAR(12)  NOT NULL,
             address         VARCHAR(100),
             gender          VARCHAR(10),
-            is_active       BOOLEAN               DEFAULT TRUE,
+            is_active       BOOLEAN               DEFAULT FALSE,
             role            VARCHAR(20)  NOT NULL,
             is_mfa_enable   BOOLEAN               DEFAULT FALSE,
             created_at      TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -236,7 +236,6 @@ def main():
             login_time  TIMESTAMP    NOT NULL,
             last_access TIMESTAMP    NOT NULL,
             expires_at  TIMESTAMP    NOT NULL,
-            is_active   BOOLEAN DEFAULT true,
             device_info VARCHAR(255),
             FOREIGN KEY (user_id) REFERENCES users (id)
         );
@@ -257,8 +256,8 @@ def main():
         );
 
         -- Create indexes for better query performance
-        CREATE INDEX idx_user_sessions_user_active ON user_sessions (user_id, is_active);
-        CREATE INDEX idx_user_sessions_expires_active ON user_sessions (expires_at, is_active);
+        CREATE INDEX idx_user_sessions_user ON user_sessions (user_id);
+        CREATE INDEX idx_user_sessions_expires ON user_sessions (expires_at);
         CREATE INDEX idx_user_sessions_last_access ON user_sessions (last_access);
 
         CREATE INDEX idx_visit_requests_verification_code ON visit_requests (verification_code);
@@ -285,10 +284,9 @@ def main():
         cnx.commit()
 
         # Define the INSERT statement for users including new columns
-        # Removed 'last_login' as it does not exist
         add_user = ("INSERT INTO users "
-                    "(username, salt, password, email, first_name, last_name, phone_number, identity_number, address, gender, role, is_mfa_enable) "
-                    "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)")
+                    "(username, salt, password, email, first_name, last_name, phone_number, identity_number, address, gender, role, is_mfa_enable, is_active) "
+                    "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)")
 
         # Prepare to track unique fields
         existing_usernames = set()
@@ -321,7 +319,7 @@ def main():
         managing_staff_data = (
             username, salt, password, email, first_name, last_name,
             phone_number, identity_number, address, gender, 'MANAGING_STAFF',
-            is_mfa_enable
+            is_mfa_enable, False
         )
         cursor.execute(add_user, managing_staff_data)
         managing_staff_id = cursor.lastrowid
@@ -361,7 +359,7 @@ def main():
         security_staff_data = (
             username, salt, password, email, first_name, last_name,
             phone_number, identity_number, address, gender, 'SECURITY_STAFF',
-            is_mfa_enable
+            is_mfa_enable, False
         )
         cursor.execute(add_user, security_staff_data)
         security_staff_id = cursor.lastrowid
@@ -394,7 +392,7 @@ def main():
             security_staff_data = (
                 username, salt, password, email, first_name, last_name,
                 phone_number, identity_number, address, gender, 'SECURITY_STAFF',
-                is_mfa_enable
+                is_mfa_enable, False
             )
             cursor.execute(add_user, security_staff_data)
             new_security_id = cursor.lastrowid
@@ -433,7 +431,7 @@ def main():
         resident_data = (
             username, salt, password, email, first_name, last_name,
             phone_number, identity_number, address, gender, 'RESIDENT',
-            is_mfa_enable
+            is_mfa_enable, False
         )
         cursor.execute(add_user, resident_data)
         resident_id = cursor.lastrowid
@@ -466,7 +464,7 @@ def main():
             resident_data = (
                 username, salt, password, email, first_name, last_name,
                 phone_number, identity_number, address, gender, 'RESIDENT',
-                is_mfa_enable
+                is_mfa_enable, False
             )
             cursor.execute(add_user, resident_data)
             new_resident_id = cursor.lastrowid

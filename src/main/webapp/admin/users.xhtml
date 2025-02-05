@@ -348,7 +348,7 @@
                 <p:column headerText="Status" sortBy="#{users.isActive}">
                     <p:cellEditor>
                         <f:facet name="output">
-                            <p:tag severity="#{users.isActive ? 'success' : 'danger'}"
+                            <p:tag severity="#{users.isActive ? 'success' : 'warning'}"
                                    value="#{users.isActive ? 'Active' : 'Inactive'}"/>
                         </f:facet>
                         <f:facet name="input">
