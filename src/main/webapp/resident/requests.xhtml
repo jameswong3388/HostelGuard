@@ -221,6 +221,18 @@
                     </p:cellEditor>
                 </p:column>
 
+                <!--  Updated At-->
+                <p:column headerText="Updated At" sortBy="#{req.updatedAt}">
+                    <pe:timeAgo value="#{req.updatedAt}"
+                                titlePattern="MM/dd/yy HH:mm"  />
+                </p:column>
+
+                <!--  Created At-->
+                <p:column headerText="Created At" sortBy="#{req.createdAt}">
+                    <pe:timeAgo value="#{req.createdAt}"
+                                titlePattern="MM/dd/yy HH:mm"  />
+                </p:column>
+
                 <!-- Row edit events -->
                 <p:ajax event="rowEdit"
                         listener="#{visitRequestControllerResident.onRowEdit}"

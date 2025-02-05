@@ -2,6 +2,7 @@
                 xmlns:h="http://xmlns.jcp.org/jsf/html"
                 xmlns:f="http://xmlns.jcp.org/jsf/core"
                 xmlns:p="http://primefaces.org/ui"
+                xmlns:pe="http://primefaces.org/ui/extensions"
                 xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
                 template="/WEB-INF/templates/admin-layout.xhtml">
 
@@ -360,11 +361,16 @@
                     </p:cellEditor>
                 </p:column>
 
+                <!-- Updated At -->
+                <p:column headerText="Updated At" sortBy="#{users.updatedAt}">
+                    <pe:timeAgo value="#{users.updatedAt}"
+                                titlePattern="MM/dd/yy HH:mm"  />
+                </p:column>
+
                 <!-- Created At -->
                 <p:column headerText="Created At" sortBy="#{users.createdAt}">
-                    <h:outputText value="#{users.createdAt}">
-                        <f:convertDateTime pattern="MM/dd/yy HH:mm"/>
-                    </h:outputText>
+                    <pe:timeAgo value="#{users.createdAt}"
+                                titlePattern="MM/dd/yy HH:mm"  />
                 </p:column>
 
                 <!-- Actions -->
