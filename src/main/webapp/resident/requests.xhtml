@@ -84,11 +84,12 @@
             <h:form id="qrCodeForm">
                 <div class="flex flex-col items-center space-y-4">
                     <pe:qrCode
-                            label="HostelGuard"
+                            label="HostelGuard™"
                             text="#{visitRequestControllerResident.currentQrCode}"
                             fillColor="#000000"
-                               renderMethod="image"
-                               renderMode="0"
+                            fontColor="#2b5cf2"
+                               renderMethod="canvas"
+                               renderMode="2"
                                width="200"
                                height="200"
                                type="qr"
