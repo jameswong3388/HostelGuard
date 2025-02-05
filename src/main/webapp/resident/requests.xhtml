@@ -88,12 +88,11 @@
                             text="#{visitRequestControllerResident.currentQrCode}"
                             fillColor="#000000"
                             fontColor="#2b5cf2"
-                               renderMethod="canvas"
-                               renderMode="2"
-                               width="200"
-                               height="200"
-                               type="qr"
+                            renderMethod="canvas"
+                            renderMode="2"
+                            size="200"
                             radius="0.5"
+                            ecLevel="H"
                     />
                     <p:outputLabel value="Verification Code: #{visitRequestControllerResident.currentQrCode}"
                                    styleClass="font-mono text-lg font-bold"/>

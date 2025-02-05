@@ -3,6 +3,7 @@
                 xmlns:f="http://xmlns.jcp.org/jsf/core"
                 xmlns:p="http://primefaces.org/ui"
                 xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:pe="http://primefaces.org/ui/extensions"
                 template="/WEB-INF/templates/admin-layout.xhtml">
 
     <!-- Page Title -->
@@ -300,10 +301,19 @@
                                 <p class="text-sm text-gray-500 mb-4">
                                     Scan this QR code with your authenticator app (e.g., Google Authenticator, Authy).
                                 </p>
-                                <p:graphicImage value="#{SettingsControllerAdmin.qrCodeUrl}"
-                                                width="200" height="200"
-                                                styleClass="border border-gray-200 rounded-md"
-                                                rendered="#{not empty SettingsControllerAdmin.qrCodeUrl}"/>
+
+                                <pe:qrCode
+                                        label="HostelGuard™"
+                                        text="#{SettingsControllerAdmin.qrCodeUrl}"
+                                        fillColor="#000000"
+                                        fontColor="#2b5cf2"
+                                        renderMethod="canvas"
+                                        renderMode="2"
+                                        size="200"
+                                        radius="0.5"
+                                        ecLevel="H"
+                                        rendered="#{not empty SettingsControllerAdmin.qrCodeUrl}"
+                                />
                             </div>
 
                             <!-- Step 2: Enter Verification Code -->

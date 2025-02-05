@@ -24,12 +24,13 @@ import org.primefaces.model.file.UploadedFile;
 import org.example.hvvs.model.UserSessions;
 import com.warrenstrange.googleauth.GoogleAuthenticator;
 import com.warrenstrange.googleauth.GoogleAuthenticatorKey;
-import com.warrenstrange.googleauth.GoogleAuthenticatorQRGenerator;
 import com.google.gson.Gson;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -347,12 +348,11 @@ public class SettingsControllerAdmin implements Serializable {
             GoogleAuthenticatorKey key = gAuth.createCredentials();
             tempSecret = key.getKey();
 
-            // Generate QR code URL
-            // Your app name
-            qrCodeUrl = GoogleAuthenticatorQRGenerator.getOtpAuthURL(
-                    "HostelGuard™", // Your app name
-                    user.getEmail(),
-                    key);
+            // Generate TOTP URL
+            String encodedIssuer = URLEncoder.encode("HostelGuard™", StandardCharsets.UTF_8);
+            String encodedEmail = URLEncoder.encode(user.getEmail(), StandardCharsets.UTF_8);
+            qrCodeUrl = String.format("otpauth://totp/%s:%s?secret=%s&issuer=%s&algorithm=SHA1&digits=6&period=30",
+                    encodedIssuer, encodedEmail, tempSecret, encodedIssuer);
 
             // Generate backup codes
             backupCodes = generateBackupCodes();

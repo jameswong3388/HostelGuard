@@ -4,7 +4,6 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.warrenstrange.googleauth.GoogleAuthenticator;
 import com.warrenstrange.googleauth.GoogleAuthenticatorKey;
-import com.warrenstrange.googleauth.GoogleAuthenticatorQRGenerator;
 import jakarta.annotation.PostConstruct;
 import jakarta.ejb.EJB;
 import jakarta.enterprise.context.SessionScoped;
@@ -26,6 +25,8 @@ import org.primefaces.model.file.UploadedFile;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -342,12 +343,11 @@ public class SettingsControllerResident implements Serializable {
             GoogleAuthenticatorKey key = gAuth.createCredentials();
             tempSecret = key.getKey();
 
-            // Generate QR code URL
-            // Your app name
-            qrCodeUrl = GoogleAuthenticatorQRGenerator.getOtpAuthURL(
-                    "HostelGuard™", // Your app name
-                    user.getEmail(),
-                    key);
+            // Generate TOTP URL
+            String encodedIssuer = URLEncoder.encode("HostelGuard™", StandardCharsets.UTF_8);
+            String encodedEmail = URLEncoder.encode(user.getEmail(), StandardCharsets.UTF_8);
+            qrCodeUrl = String.format("otpauth://totp/%s:%s?secret=%s&issuer=%s&algorithm=SHA1&digits=6&period=30",
+                    encodedIssuer, encodedEmail, tempSecret, encodedIssuer);
 
             // Generate backup codes
             backupCodes = generateBackupCodes();
