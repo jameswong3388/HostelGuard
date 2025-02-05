@@ -67,7 +67,7 @@ public class VisitRequestController implements Serializable {
     public void init() {
         // Prepare the 'newRequest' object for the dialog
         this.newRequest = new VisitRequests();
-        String verificationCode = UUID.randomUUID().toString().toUpperCase();
+        String verificationCode = UUID.randomUUID().toString();
         newRequest.setStatus("PENDING");
         newRequest.setRemarks("Awaiting approval");
         newRequest.setVerificationCode(verificationCode);
@@ -178,7 +178,7 @@ public class VisitRequestController implements Serializable {
 
             // Reset the form for next time
             newRequest = new VisitRequests();
-            String verificationCode = UUID.randomUUID().toString().toUpperCase();
+            String verificationCode = UUID.randomUUID().toString();
             newRequest.setVerificationCode(verificationCode);
             newRequest.setStatus("PENDING");
             newRequest.setRemarks("Awaiting approval");

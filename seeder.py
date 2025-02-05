@@ -4,6 +4,7 @@ from faker import Faker
 import random
 import string
 from datetime import timedelta
+import uuid  # Add UUID import
 
 # Configuration for MySQL connection
 DB_CONFIG = {
@@ -70,7 +71,7 @@ def generate_badge_number(existing_badges):
 
 def generate_verification_code(existing_codes):
     while True:
-        code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
+        code = str(uuid.uuid4())  # Generate a full UUID
         if code not in existing_codes:
             existing_codes.add(code)
             return code
