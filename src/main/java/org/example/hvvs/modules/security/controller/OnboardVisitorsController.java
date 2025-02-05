@@ -10,6 +10,8 @@ import org.example.hvvs.model.VisitRequests;
 import org.example.hvvs.model.VisitorRecords;
 import org.example.hvvs.modules.security.service.OnboardVisitorsService;
 import org.example.hvvs.utils.CommonParam;
+import org.primefaces.event.SelectEvent;
+import org.primefaces.extensions.model.codescanner.Code;
 import org.primefaces.model.file.UploadedFile;
 
 import java.io.Serializable;
@@ -161,6 +163,13 @@ public class OnboardVisitorsController implements Serializable {
             sequence[i] = i + 1;
         }
         return sequence;
+    }
+
+    public void onCodeScanned(final SelectEvent<Code> event) {
+        final Code code = event.getObject();
+        this.verificationCode = code.getValue();
+        FacesContext.getCurrentInstance()
+            .addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Success", "QR code scanned successfully"));
     }
 
     // Getters and Setters

@@ -2,6 +2,7 @@
                 xmlns:h="http://xmlns.jcp.org/jsf/html"
                 xmlns:f="http://xmlns.jcp.org/jsf/core"
                 xmlns:p="http://primefaces.org/ui"
+                xmlns:pe="http://primefaces.org/ui/extensions"
                 xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
                 template="/WEB-INF/templates/security-layout.xhtml">
 
@@ -89,16 +90,31 @@
                     <div class="space-y-4">
                         <h2 class="text-xl font-semibold">#{onboardVisitorsController.checkIn ? 'Step 2: Verify Visit Request' : 'Step 2: Enter Check-out Code'}</h2>
                         <div class="flex flex-col space-y-2">
-                            <p:inputText id="verificationCode"
-                                         value="#{onboardVisitorsController.verificationCode}"
-                                         placeholder="Enter verification code"
-                                         required="true"
-                                         styleClass="p-3 border rounded"/>
+                            <div class="flex gap-2">
+                                <p:inputText id="verificationCode"
+                                             value="#{onboardVisitorsController.verificationCode}"
+                                             placeholder="Enter verification code"
+                                             required="true"
+                                             styleClass="p-3 border rounded flex-grow"/>
+                                <p:commandButton icon="pi pi-qrcode" 
+                                                 styleClass="w-4 bg-gray-100 hover:bg-gray-200 rounded"
+                                                 onclick="PF('scannerDialog').show()"
+                                                 title="Scan QR Code"/>
+                            </div>
                             <p:commandButton value="Verify"
                                              action="#{onboardVisitorsController.verifyCode}"
                                              update=":navigationForm:stepBar :onboardingForm"
                                              styleClass="w-full bg-blue-600 text-white p-3 rounded"/>
                         </div>
+                        
+                        <p:dialog widgetVar="scannerDialog" header="Scan QR Code" modal="true" width="640">
+                            <pe:codeScanner width="600" height="400">
+                                <p:ajax event="codeScanned"
+                                        listener="#{onboardVisitorsController.onCodeScanned}"
+                                        update=":onboardingForm:verificationCode"
+                                        oncomplete="PF('scannerDialog').hide()"/>
+                            </pe:codeScanner>
+                        </p:dialog>
                     </div>
                 </p:panel>
 

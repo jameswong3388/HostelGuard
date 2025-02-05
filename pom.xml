@@ -129,6 +129,12 @@
             <classifier>jakarta</classifier>
         </dependency>
         <dependency>
+            <groupId>org.primefaces.extensions</groupId>
+            <artifactId>primefaces-extensions</artifactId>
+            <version>14.0.6</version>
+            <classifier>jakarta</classifier>
+        </dependency>
+        <dependency>
             <groupId>com.github.librepdf</groupId>
             <artifactId>openpdf</artifactId>
             <version>1.4.1</version>
