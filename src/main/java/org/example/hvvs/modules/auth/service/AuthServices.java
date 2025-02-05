@@ -16,6 +16,8 @@ public interface AuthServices {
 
     MfaMethods createMFA(Users user, MfaMethods.MfaMethodType methodType);
 
+    MfaMethods createMFA(Users user, MfaMethods.MfaMethodType methodType, String totpSecret, List<String> recoveryCodes);
+
     boolean verifyTotpCode(String secret, int code);
 
     ServiceResult<Void> sendSMSCode(MfaMethods method);
@@ -25,4 +27,6 @@ public interface AuthServices {
     boolean verifyEmailCode(MfaMethods method, String userInput);
 
     boolean verifyRecoveryCode(MfaMethods method, String codeUsed);
+
+    List<String> generateRecoveryCodes();
 }
