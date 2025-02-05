@@ -179,7 +179,7 @@ def main():
         (
             id                INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
             user_id           INT UNSIGNED NOT NULL,
-            verification_code VARCHAR(10)  NOT NULL UNIQUE,
+            verification_code VARCHAR(36)  NOT NULL UNIQUE,
             visit_datetime    TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
             purpose           TEXT         NOT NULL,
             status            VARCHAR(20)  NOT NULL,

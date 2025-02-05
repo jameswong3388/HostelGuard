@@ -39,6 +39,8 @@ public class VisitRequestController implements Serializable {
     private List<VisitRequests> selectedRequests;
     private List<VisitRequests> filteredRequests;
 
+    private String currentQrCode;
+
     public List<VisitRequests> getFilteredRequests() {
         return filteredRequests;
     }
@@ -65,7 +67,7 @@ public class VisitRequestController implements Serializable {
     public void init() {
         // Prepare the 'newRequest' object for the dialog
         this.newRequest = new VisitRequests();
-        String verificationCode = UUID.randomUUID().toString().substring(0, 6).toUpperCase();
+        String verificationCode = UUID.randomUUID().toString().toUpperCase();
         newRequest.setStatus("PENDING");
         newRequest.setRemarks("Awaiting approval");
         newRequest.setVerificationCode(verificationCode);
@@ -114,6 +116,13 @@ public class VisitRequestController implements Serializable {
         this.residentProfile = residentProfile;
     }
 
+    public String getCurrentQrCode() {
+        return currentQrCode;
+    }
+
+    public void setCurrentQrCode(String currentQrCode) {
+        this.currentQrCode = currentQrCode;
+    }
     /**
      * Called in @PostConstruct or whenever you need to refresh the table data
      */
@@ -164,9 +173,13 @@ public class VisitRequestController implements Serializable {
             // Persist
             visitRequestService.create(newRequest);
 
+            // Capture verification code before resetting
+            this.currentQrCode = newRequest.getVerificationCode();
+
             // Reset the form for next time
             newRequest = new VisitRequests();
-            newRequest.setVerificationCode(UUID.randomUUID().toString().substring(0, 6).toUpperCase());
+            String verificationCode = UUID.randomUUID().toString().toUpperCase();
+            newRequest.setVerificationCode(verificationCode);
             newRequest.setStatus("PENDING");
             newRequest.setRemarks("Awaiting approval");
 

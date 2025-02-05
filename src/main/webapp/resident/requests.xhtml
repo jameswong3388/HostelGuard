@@ -3,6 +3,7 @@
                 xmlns:f="http://xmlns.jcp.org/jsf/core"
                 xmlns:p="http://primefaces.org/ui"
                 xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:pe="http://primefaces.org/ui/extensions"
                 template="/WEB-INF/templates/resident-layout.xhtml">
 
     <ui:define name="title">Requests</ui:define>
@@ -23,38 +24,38 @@
                 <div class="p-fluid">
                     <!-- Unit Number (Read-only) -->
                     <div class="field mb-4">
-                        <p:outputLabel for="unitNumber" value="Unit Number" />
+                        <p:outputLabel for="unitNumber" value="Unit Number"/>
                         <p:inputText id="unitNumber"
-                                   value="#{visitRequestControllerResident.residentProfile.unitNumber}"
-                                   readonly="true" />
+                                     value="#{visitRequestControllerResident.residentProfile.unitNumber}"
+                                     readonly="true"/>
                     </div>
 
                     <!-- Verification Code -->
                     <div class="field mb-4">
-                        <p:outputLabel for="verificationCode" value="Verification Code" />
+                        <p:outputLabel for="verificationCode" value="Verification Code"/>
                         <p:inputText id="verificationCode"
-                                     value="#{visitRequestControllerResident.newRequest.verificationCode}" />
+                                     value="#{visitRequestControllerResident.newRequest.verificationCode}"/>
                     </div>
 
                     <!-- Combined Date/Time -->
                     <div class="field mb-4">
-                        <p:outputLabel for="visitDateTime" value="Visit Date/Time" />
+                        <p:outputLabel for="visitDateTime" value="Visit Date/Time"/>
                         <p:datePicker id="visitDateTime"
                                       value="#{visitRequestControllerResident.newRequest.visitDateTime}"
                                       pattern="MM/dd/yy HH:mm"
                                       showTime="true"
                                       showIcon="true"
                                       converter="timestampConverter"
-                                      required="true" />
+                                      required="true"/>
                     </div>
 
                     <!-- Purpose -->
                     <div class="field mb-4">
-                        <p:outputLabel for="purpose" value="Purpose" />
+                        <p:outputLabel for="purpose" value="Purpose"/>
                         <p:inputTextarea id="purpose"
                                          value="#{visitRequestControllerResident.newRequest.purpose}"
                                          required="true"
-                                         rows="3" />
+                                         rows="3"/>
                     </div>
 
                     <div class="flex justify-content-end gap-4">
@@ -62,14 +63,42 @@
                                          icon="pi pi-times"
                                          onclick="PF('newRequestDialog').hide(); return false;"
                                          styleClass="p-button-text mr-2"
-                                         immediate="true" />
+                                         immediate="true"/>
                         <p:commandButton value="Submit"
                                          icon="pi pi-check"
                                          action="#{visitRequestControllerResident.createRequest}"
-                                         update=":messages @form :requestsTableForm:requestsTable"
+                                         update=":messages @form :requestsTableForm:requestsTable :qrCodeForm"
                                          styleClass="p-button-primary"
-                                         oncomplete="if (!args.validationFailed) PF('newRequestDialog').hide();" />
+                                         oncomplete="if (!args.validationFailed) { PF('newRequestDialog').hide(); PF('qrCodeDialog').show(); }"/>
                     </div>
+                </div>
+            </h:form>
+        </p:dialog>
+
+        <!-- QR Code Dialog -->
+        <p:dialog header="Visit Verification Code"
+                  widgetVar="qrCodeDialog"
+                  modal="true"
+                  width="400"
+                  appendTo="@(body)">
+            <h:form id="qrCodeForm">
+                <div class="flex flex-col items-center space-y-4">
+                    <pe:qrCode
+                            label="HostelGuard"
+                            text="#{visitRequestControllerResident.currentQrCode}"
+                            fillColor="#000000"
+                               renderMethod="image"
+                               renderMode="0"
+                               width="200"
+                               height="200"
+                               type="qr"
+                            radius="0.5"
+                    />
+                    <p:outputLabel value="Verification Code: #{visitRequestControllerResident.currentQrCode}"
+                                   styleClass="font-mono text-lg font-bold"/>
+                    <p class="mt-4 text-sm text-gray-600">
+                        Scan this QR code at the security gate for verification
+                    </p>
                 </div>
             </h:form>
         </p:dialog>
@@ -83,7 +112,7 @@
                                      icon="pi pi-plus"
                                      styleClass="ui-button-success"
                                      onclick="PF('newRequestDialog').show(); return false;"
-                                     style="margin-right: .5rem" />
+                                     style="margin-right: .5rem"/>
                 </p:toolbarGroup>
             </p:toolbar>
 
@@ -112,22 +141,22 @@
                             <i class="pi pi-search"></i>
                             <p:inputText id="globalFilter"
                                          onkeyup="PF('requestsTable').filter()"
-                                         placeholder="Search all fields" />
+                                         placeholder="Search all fields"/>
                         </span>
                     </div>
                 </f:facet>
 
                 <!-- Checkboxes for multi-select -->
-                <p:column selectionMode="multiple" exportable="false" style="width:1px" />
+                <p:column selectionMode="multiple" exportable="false" style="width:1px"/>
 
                 <!-- Verification Code -->
                 <p:column headerText="Verification Code" sortBy="#{req.verificationCode}">
                     <p:cellEditor>
                         <f:facet name="output">
-                            <h:outputText value="#{req.verificationCode}" />
+                            <h:outputText value="#{req.verificationCode}"/>
                         </f:facet>
                         <f:facet name="input">
-                            <p:inputText value="#{req.verificationCode}" />
+                            <p:inputText value="#{req.verificationCode}"/>
                         </f:facet>
                     </p:cellEditor>
                 </p:column>
@@ -145,7 +174,7 @@
                                           pattern="MM/dd/yy HH:mm"
                                           showTime="true"
                                           showIcon="true"
-                                          converter="timestampConverter" />
+                                          converter="timestampConverter"/>
                         </f:facet>
                     </p:cellEditor>
                 </p:column>
@@ -154,12 +183,12 @@
                 <p:column headerText="Purpose" sortBy="#{req.purpose}">
                     <p:cellEditor>
                         <f:facet name="output">
-                            <h:outputText value="#{req.purpose}" />
+                            <h:outputText value="#{req.purpose}"/>
                         </f:facet>
                         <f:facet name="input">
                             <p:inputTextarea value="#{req.purpose}"
                                              rows="2"
-                                             autoResize="false" />
+                                             autoResize="false"/>
                         </f:facet>
                     </p:cellEditor>
                 </p:column>
@@ -175,7 +204,7 @@
                                    value="#{req.status}"/>
                         </f:facet>
                         <f:facet name="input">
-                            <p:inputText value="#{req.status}" />
+                            <p:inputText value="#{req.status}"/>
                         </f:facet>
                     </p:cellEditor>
                 </p:column>
@@ -184,10 +213,10 @@
                 <p:column headerText="Remarks" sortBy="#{req.remarks}">
                     <p:cellEditor disabled="true">
                         <f:facet name="output">
-                            <h:outputText value="#{req.remarks}" />
+                            <h:outputText value="#{req.remarks}"/>
                         </f:facet>
                         <f:facet name="input">
-                            <p:inputTextarea value="#{req.remarks}" rows="2" autoResize="true" />
+                            <p:inputTextarea value="#{req.remarks}" rows="2" autoResize="true"/>
                         </f:facet>
                     </p:cellEditor>
                 </p:column>
@@ -195,17 +224,17 @@
                 <!-- Row edit events -->
                 <p:ajax event="rowEdit"
                         listener="#{visitRequestControllerResident.onRowEdit}"
-                        update=":requestsTableForm:requestsTable :messages" />
+                        update=":requestsTableForm:requestsTable :messages"/>
                 <p:ajax event="rowEditCancel"
                         listener="#{visitRequestControllerResident.onRowCancel}"
-                        update=":requestsTableForm:requestsTable :messages" />
+                        update=":requestsTableForm:requestsTable :messages"/>
 
                 <!-- Row Editor column (hidden if status = 'CANCELLED') -->
                 <p:column headerText="Edit">
                     <p:rowEditor editTitle="Edit"
                                  cancelTitle="Cancel"
                                  saveTitle="Save"
-                                 rendered="#{req.status ne 'CANCELLED'}" />
+                                 rendered="#{req.status ne 'CANCELLED'}"/>
                 </p:column>
 
                 <!-- Cancel Request Button, hidden if already cancelled -->
@@ -215,7 +244,7 @@
                                      styleClass="p-button-danger"
                                      action="#{visitRequestControllerResident.cancelRequest(req)}"
                                      update=":requestsTableForm:requestsTable :messages"
-                                     rendered="#{req.status ne 'CANCELLED'}" />
+                                     rendered="#{req.status ne 'CANCELLED'}"/>
                 </p:column>
             </p:dataTable>
         </h:form>
