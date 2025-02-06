@@ -14,7 +14,7 @@ const texts = [
 ];
 
 const morphTime = 1;
-const cooldownTime = 0.5;
+const cooldownTime = 0.75;
 
 let textIndex = texts.length - 1;
 let time = new Date();
