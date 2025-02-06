@@ -12,7 +12,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
-    <link rel="stylesheet" type="text/css"  href="index.css" />
+    <link rel="stylesheet" type="text/css"  href="${pageContext.request.contextPath}/index.css?v=1" />
 </head>
 <body>
 <div id="container">
@@ -35,6 +35,6 @@
     </defs>
 </svg>
 
-<script src="script.js"></script>
+<script src="index.js"></script>
 </body>
 </html>

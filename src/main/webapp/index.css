@@ -2,7 +2,7 @@
 
 body {
     margin: 0px;
-    background: #000;
+    background: #ffffff !important;
 }
 
 #container {
@@ -19,7 +19,7 @@ body {
     position: absolute;
     width: 100%;
     display: inline-block;
-    color: #fff;
+    color: #2563eb !important;
     font-family: 'Raleway', sans-serif;
     font-size: 80px;
     text-align: center;
