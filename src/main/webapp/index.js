@@ -5,10 +5,10 @@ const elts = {
 
 const texts = [
     "HostelGuard™",
-    "Request.",
-    "Verify.",
-    "Welcome.",
-    "Effortlessly.",
+    "Apply.",
+    "Approve.",
+    "Arrive.",
+    "So easy.",
     "Excited ?",
     "JOM !",
 ];
