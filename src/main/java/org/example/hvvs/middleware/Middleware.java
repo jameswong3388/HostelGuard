@@ -30,7 +30,7 @@ public class Middleware implements Filter {
     // Public paths that don't require authentication
     private static final String[] PUBLIC_PATHS = {
             "/auth/sign-in.xhtml",
-            "/index.xhtml",
+            "/index.jsp",
             "/forget-password.xhtml",
             "/404.xhtml",
             "/jakarta.faces.resource/*"

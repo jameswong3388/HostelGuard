@@ -33,14 +33,9 @@
     <!-- Go Home Button -->
     <!-- Use p:button or p:commandButton for navigation -->
     <div class="group mt-8">
-        <p:button value="Go to the home page"
-                  outcome="/index"
-                  styleClass="p-button-outlined text-indigo-600 dark:text-indigo-500 hover:bg-indigo-50">
-            <!-- Optional icon on the right to mimic “ArrowAnimated” or arrow icon -->
-            <f:facet name="icon">
-                <i class="pi pi-arrow-right ml-2"/>
-            </f:facet>
-        </p:button>
+        <h:form>
+            <p:commandButton value="Back to home page" styleClass="p-button-outlined text-indigo-600 dark:text-indigo-500 hover:bg-indigo-50" onclick="window.location.href='#{request.contextPath}/index.jsp'; return false;"/>
+        </h:form>
     </div>
 </h:body>
 </html>
