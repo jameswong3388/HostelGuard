@@ -68,7 +68,7 @@ public class SessionRepositoryImpl implements SessionRepository {
     @Override
     public List<UserSessions> findActiveSessionsByUser(Users user) {
         return em.createQuery(
-                        "SELECT s FROM UserSessions s WHERE s.user_id = :user AND s.active = true",
+                        "SELECT s FROM UserSessions s WHERE s.user_id = :user AND s.expiresAt > CURRENT_TIMESTAMP",
                         UserSessions.class)
                 .setParameter("user", user)
                 .getResultList();

@@ -7,6 +7,7 @@ import jakarta.ejb.Asynchronous;
 import jakarta.enterprise.concurrent.ManagedExecutorService;
 import org.example.hvvs.model.UserSessions;
 import org.example.hvvs.model.Users;
+import org.example.hvvs.modules.admin.service.UsersService;
 import org.example.hvvs.modules.common.repository.SessionRepository;
 import jakarta.ejb.Stateless;
 import jakarta.inject.Inject;
@@ -30,6 +31,9 @@ public class SessionServiceImpl implements SessionService {
     @Inject
     private SessionCacheManager sessionCacheManager;
 
+    @Inject
+    private UsersService usersService;
+
     @Resource
     private ManagedExecutorService executorService;
 
@@ -37,55 +41,79 @@ public class SessionServiceImpl implements SessionService {
     @Transactional
     public UserSessions createSession(Users user, String ipAddress, String userAgent) {
         Timestamp now = new Timestamp(System.currentTimeMillis());
-        Timestamp expiresAt = new Timestamp(System.currentTimeMillis() + (8 * 60 * 60 * 1000)); // 8 hours
+        Timestamp expiresAt = new Timestamp(System.currentTimeMillis() + (8 * 60 * 60 * 1000));
 
         UserSessions session = new UserSessions();
         session.setUser_id(user);
         session.setIpAddress(ipAddress);
         session.setUserAgent(userAgent);
-        session.setDeviceInfo("Pending"); // Temporary value
+        
+        // Set device info synchronously first
+        UserAgent agent = UserAgent.parseUserAgentString(userAgent);
+        session.setDeviceInfo(agent.getOperatingSystem().getName() 
+                            + " - " + agent.getBrowser().getName());
+        
         session.setLoginTime(now);
         session.setLastAccess(now);
         session.setExpiresAt(expiresAt);
 
-        // Async geolocation lookup
+        // Create session with actual device info
+        UserSessions persistedSession = sessionRepository.create(session);
+
+        user.setIsActive(true);
+        usersService.updateUser(user);
+
+        // Async updates for geolocation only
         executorService.submit(() -> {
-            try {
-                String location = parseLocationFromIp(ipAddress);
-                String[] locParts = location.split(", ");
-                session.setCity(locParts[0]);
-                session.setRegion(locParts[1]);
-                session.setCountry(locParts[2]);
-            } catch (Exception e) {
-                // Set default values
-                session.setCity("Unknown");
-                session.setRegion("Unknown");
-                session.setCountry("Unknown");
+            UserSessions freshSession = sessionRepository.findBySessionId(persistedSession.getSession_id());
+            if (freshSession != null) {
+                try {
+                    String location = parseLocationFromIp(ipAddress);
+                    String[] locParts = location.split(", ");
+                    freshSession.setCity(locParts[0]);
+                    freshSession.setRegion(locParts[1]);
+                    freshSession.setCountry(locParts[2]);
+                } catch (Exception e) {
+                    freshSession.setCity("Unknown");
+                    freshSession.setRegion("Unknown");
+                    freshSession.setCountry("Unknown");
+                }
+                sessionRepository.update(freshSession);
             }
-
-            // Device detection with proper library
-            UserAgent agent = UserAgent.parseUserAgentString(userAgent);
-            session.setDeviceInfo(agent.getOperatingSystem().getName()
-                    + " - " + agent.getBrowser().getName());
-
-            sessionRepository.update(session);
         });
 
-        return sessionRepository.create(session);
+        return persistedSession;
     }
 
 
     @Override
     @Transactional
     public void revokeSession(UUID sessionId) {
-        sessionRepository.revokeSession(sessionId);
-        sessionCacheManager.invalidateSession(sessionId);
+        UserSessions session = sessionRepository.findBySessionId(sessionId);
+        if (session != null) {
+            Users user = session.getUser_id();
+
+            sessionRepository.revokeSession(sessionId);
+            sessionCacheManager.invalidateSession(sessionId);
+
+            // Check if user has any remaining active sessions
+            List<UserSessions> activeSessions = getActiveSessions(user);
+            if (activeSessions.isEmpty()) {
+                user.setIsActive(false);
+                usersService.updateUser(user);
+            }
+        }
     }
 
     @Override
     @Transactional
     public void revokeAllSessions(Integer userId) {
         sessionRepository.revokeAllSessions(userId);
+        Users user = usersService.findByUserId(userId);
+        if (user != null) {
+            user.setIsActive(false);
+            usersService.updateUser(user);
+        }
     }
 
     @Override

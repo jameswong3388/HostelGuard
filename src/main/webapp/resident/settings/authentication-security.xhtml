@@ -454,24 +454,19 @@
                                         <p class="text-xs text-gray-400 mt-1">
                                             Device: #{userSession.deviceInfo}
                                             <br/>
-                                            Logged in: <h:outputText value="#{userSession.loginTime}" rendered="#{SettingsControllerResident.isToday(userSession.loginTime)}">
-                                            <f:convertDateTime pattern="'Today at' h:mm a" />
-                                        </h:outputText>
-                                            <h:outputText value="#{userSession.loginTime}" rendered="#{!SettingsControllerResident.isToday(userSession.loginTime)}">
-                                                <f:convertDateTime pattern="MMM d, yyyy 'at' h:mm a" />
-                                            </h:outputText>
+                                            Logged in: <pe:timeAgo value="#{userSession.loginTime}"
+                                                                   titlePattern="MMMM dd yyyy hh:mm a"
+                                                                   styleClass="text-gray-400 text-sm"
+                                                                   style="font-size: 12px;"/>
                                             <br/>
-                                            Last activity: <h:outputText value="#{userSession.lastAccess}" rendered="#{SettingsControllerResident.isToday(userSession.lastAccess)}">
-                                            <f:convertDateTime pattern="'Today at' h:mm a"/>
-                                        </h:outputText>
-                                            <h:outputText value="#{userSession.lastAccess}" rendered="#{!SettingsControllerResident.isToday(userSession.lastAccess)}">
-                                                <f:convertDateTime pattern="MMM d, yyyy 'at' h:mm a" />
-                                            </h:outputText>
+                                            Last activity: <pe:timeAgo value="#{userSession.lastAccess}"
+                                                                       titlePattern="MMMM dd yyyy hh:mm a"
+                                                                       styleClass="text-gray-400 text-sm"
+                                                                       style="font-size: 12px;"/>
                                         </p>
                                     </div>
                                     <div class="flex flex-col gap-2">
                                         <p:commandButton value="See more" 
-                                                         action="#{SettingsControllerResident.viewSessionDetails(userSession)}"
                                                          update="@form messages"
                                                          styleClass="p-button-text p-button-sm"/>
                                         <p:commandButton value="Revoke" 

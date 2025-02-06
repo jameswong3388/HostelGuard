@@ -74,6 +74,15 @@ public class UserServiceImpl implements UsersService {
     }
 
     @Override
+    public Users findByUserId(Integer userId) {
+        try {
+            return entityManager.find(Users.class, userId); 
+        } catch (NoResultException e) {
+            return null;
+        }
+    }
+
+    @Override
     public Users findByUsername(String username) {
         try {
             TypedQuery<Users> query = entityManager.createNamedQuery("User.findByUsername", Users.class);

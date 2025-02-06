@@ -16,6 +16,8 @@ public interface UsersService {
 
     void deleteUser(Users user);
 
+    Users findByUserId(Integer userId);
+
     Users findByUsername(String username);
 
     Users findByEmail(String email);
