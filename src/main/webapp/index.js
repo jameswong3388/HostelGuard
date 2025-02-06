@@ -9,6 +9,8 @@ const texts = [
     "Verify.",
     "Welcome.",
     "Effortlessly.",
+    "Excited ?",
+    "JOM !",
 ];
 
 const morphTime = 1;
