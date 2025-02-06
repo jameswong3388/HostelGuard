@@ -2,6 +2,8 @@
 
 A web-based Hostel Visitor Verification System designed for APU Hostel Management Office.
 
+https://github.com/user-attachments/assets/440058af-d7d9-472f-9d3f-5a79bf7ae4eb
+
 ## Setup Instructions
 
 ### To use Database
