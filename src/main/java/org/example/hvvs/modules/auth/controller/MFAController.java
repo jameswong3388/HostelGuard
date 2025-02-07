@@ -68,7 +68,6 @@ public class MFAController implements Serializable {
             }
 
             boolean verificationSuccess = false;
-            System.out.println(code);
             if (isRecoveryMode) {
                 verificationSuccess = authServices.verifyRecoveryCode(primaryMethod, code);
                 if (!verificationSuccess) {
