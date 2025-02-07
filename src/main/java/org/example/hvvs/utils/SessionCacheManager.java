@@ -33,14 +33,6 @@ public class SessionCacheManager {
             .expireAfterWrite(15, TimeUnit.MINUTES)
             .build();
 
-    private final Cache<String, Integer> mfaAttemptCache = Caffeine.newBuilder()
-            .expireAfterWrite(15, TimeUnit.MINUTES)
-            .build();
-
-    private final Cache<String, Boolean> mfaBlockedCache = Caffeine.newBuilder()
-            .expireAfterWrite(15, TimeUnit.MINUTES)
-            .build();
-
     public void cacheSessionExpiration(UUID sessionId, long expiresAt) {
         sessionExpirationCache.put(sessionId, expiresAt);
     }
@@ -72,25 +64,5 @@ public class SessionCacheManager {
     public void resetAttempts(String key) {
         attemptCache.invalidate(key);
         blockedCache.invalidate(key);
-    }
-
-    public boolean isMfaBlocked(String key) {
-        return mfaBlockedCache.getIfPresent(key) != null;
-    }
-
-    public int incrementMfaAttempt(String key) {
-        Integer attempts = mfaAttemptCache.get(key, k -> 0);
-        attempts++;
-        mfaAttemptCache.put(key, attempts);
-        return attempts;
-    }
-
-    public void blockMfaAccess(String key, int seconds) {
-        mfaBlockedCache.put(key, true);
-    }
-
-    public void resetMfaAttempts(String key) {
-        mfaAttemptCache.invalidate(key);
-        mfaBlockedCache.invalidate(key);
     }
 }
