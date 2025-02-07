@@ -68,12 +68,27 @@
                     </h:panelGroup>
                 </h:panelGroup>
 
+                <!-- Remaining Attempts -->
+                <h:panelGroup rendered="#{mfaController.remainingAttempts lt 5}">
+                    <div class="text-sm text-red-600">
+                        <h:outputText value="#{mfaController.remainingAttempts} attempts remaining before lockout"/>
+                    </div>
+                </h:panelGroup>
+
+                <!-- Blocked Message -->
+                <h:panelGroup rendered="#{mfaController.blocked}">
+                    <div class="text-sm text-red-600 font-medium">
+                        Account is temporarily locked. Please try again in 15 minutes.
+                    </div>
+                </h:panelGroup>
+
                 <!-- Verify button -->
                 <p:commandButton value="Verify"
                                  action="#{mfaController.verifyMfa}"
                                  update="@form"
                                  process="@form"
-                                 styleClass="w-full"/>
+                                 styleClass="w-full"
+                                 disabled="#{mfaController.blocked}"/>
 
                 <span class="text-sm text-gray-600 text-center">Or</span>
 

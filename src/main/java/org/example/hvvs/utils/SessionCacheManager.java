@@ -65,4 +65,9 @@ public class SessionCacheManager {
         attemptCache.invalidate(key);
         blockedCache.invalidate(key);
     }
+
+    public int getRemainingAttempts(String key) {
+        Integer attempts = attemptCache.getIfPresent(key);
+        return attempts == null ? 5 : Math.max(0, 5 - attempts);
+    }
 }

@@ -8,6 +8,7 @@ import jakarta.faces.context.FacesContext;
 import jakarta.inject.Named;
 import jakarta.servlet.http.HttpSession;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.inject.Inject;
 import org.example.hvvs.model.MfaMethods;
 import org.example.hvvs.model.UserSessions;
 import org.example.hvvs.model.Users;
@@ -15,6 +16,7 @@ import org.example.hvvs.modules.auth.service.AuthServices;
 import org.example.hvvs.modules.common.service.SessionService;
 import org.example.hvvs.utils.CommonParam;
 import org.example.hvvs.utils.ServiceResult;
+import org.example.hvvs.utils.SessionCacheManager;
 
 import java.io.Serializable;
 import java.util.List;
@@ -28,6 +30,9 @@ public class SignInController implements Serializable {
 
     @EJB
     private SessionService sessionService;
+
+    @Inject
+    private SessionCacheManager sessionCacheManager;
 
     private String identifier; // Can be either email or username
     private String password;
@@ -67,6 +72,22 @@ public class SignInController implements Serializable {
             // Ensure password String is cleared from memory
             password = null;
         }
+    }
+
+    public int getRemainingAttempts() {
+        HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance()
+                .getExternalContext().getRequest();
+        String ipAddress = request.getRemoteAddr();
+        String rateLimitKey = "login_attempts:" + ipAddress;
+        return sessionCacheManager.getRemainingAttempts(rateLimitKey);
+    }
+
+    public boolean isBlocked() {
+        HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance()
+                .getExternalContext().getRequest();
+        String ipAddress = request.getRemoteAddr();
+        String rateLimitKey = "login_attempts:" + ipAddress;
+        return sessionCacheManager.isBlocked(rateLimitKey);
     }
 
     // Getters and Setters

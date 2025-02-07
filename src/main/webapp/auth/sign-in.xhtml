@@ -65,11 +65,26 @@
                                 styleClass="w-full"/>
                 </div>
 
+                <!-- Remaining Attempts -->
+                <h:panelGroup rendered="#{signInController.remainingAttempts lt 5}">
+                    <div class="text-sm text-red-600">
+                        <h:outputText value="#{signInController.remainingAttempts} attempts remaining before lockout"/>
+                    </div>
+                </h:panelGroup>
+
+                <!-- Blocked Message -->
+                <h:panelGroup rendered="#{signInController.blocked}">
+                    <div class="text-sm text-red-600 font-medium">
+                        Account is temporarily locked. Please try again in 15 minutes.
+                    </div>
+                </h:panelGroup>
+
                 <!-- Continue button (Submit) -->
                 <p:commandButton value="Continue"
                                  action="#{signInController.signIn}"
                                  update="@form messages"
-                                 styleClass="w-full"/>
+                                 styleClass="w-full"
+                                 disabled="#{signInController.blocked}"/>
 
                 <!-- PrimeFaces Messages -->
                 <p:messages id="messages" showDetail="true" closable="true"
