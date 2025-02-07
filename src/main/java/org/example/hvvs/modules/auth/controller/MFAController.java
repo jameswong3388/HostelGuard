@@ -4,12 +4,15 @@ import jakarta.ejb.EJB;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
+import jakarta.inject.Inject;
 import jakarta.inject.Named;
+import jakarta.servlet.http.HttpServletRequest;
 import org.example.hvvs.model.MfaMethods;
 import org.example.hvvs.model.Users;
 import org.example.hvvs.modules.auth.service.AuthRepository;
 import org.example.hvvs.modules.auth.service.AuthServices;
 import org.example.hvvs.utils.CommonParam;
+import org.example.hvvs.utils.SessionCacheManager;
 
 import java.io.Serializable;
 
@@ -23,56 +26,91 @@ public class MFAController implements Serializable {
     @EJB
     private AuthRepository authRepository;
 
+    @Inject
+    private SessionCacheManager sessionCacheManager;
+
     private String code; // code the user inputs
 
     public String verifyMfa() {
-        // Retrieve the user from pre-auth session
-        FacesContext ctx = FacesContext.getCurrentInstance();
-        Users preAuthUser = (Users) ctx.getExternalContext()
-                .getSessionMap().get(CommonParam.PRE_AUTH_USER);
+        HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance()
+            .getExternalContext().getRequest();
+        String rateLimitKey = "login_attempts:" + request.getRemoteAddr();
 
-        if (preAuthUser == null) {
-            ctx.addMessage(null, new FacesMessage(
-                    FacesMessage.SEVERITY_ERROR, "Error", "Pls login first!"));
-            return "/auth.xhtml?faces-redirect=true";
+        if (sessionCacheManager.isBlocked(rateLimitKey)) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                    "Too many attempts", 
+                    "Please try again in 15 minutes or use a recovery code"));
+            return null;
         }
 
-        // 1) Find the user's primary method from DB
-        MfaMethods primaryMethod = authRepository.findPrimaryMfaMethodByUser(preAuthUser);
+        try {
+            // Retrieve the user from pre-auth session
+            FacesContext ctx = FacesContext.getCurrentInstance();
+            Users preAuthUser = (Users) ctx.getExternalContext()
+                    .getSessionMap().get(CommonParam.PRE_AUTH_USER);
 
-        if (primaryMethod == null) {
-            ctx.addMessage(null, new FacesMessage(
-                    FacesMessage.SEVERITY_ERROR, "Error", "There is no primary mfa method associated with the user."));
-            return "/auth.xhtml?faces-redirect=true";
-        }
+            if (preAuthUser == null) {
+                ctx.addMessage(null, new FacesMessage(
+                        FacesMessage.SEVERITY_ERROR, "Error", "Pls login first!"));
+                return "/auth.xhtml?faces-redirect=true";
+            }
 
-        boolean valid = false;
-        if (primaryMethod.getMethod() == MfaMethods.MfaMethodType.TOTP) {
-            // Convert user input code to int
-            int codeVal = Integer.parseInt(code);
-            valid = authServices.verifyTotpCode(primaryMethod.getSecret(), codeVal);
-        }
-        else if (primaryMethod.getMethod() == MfaMethods.MfaMethodType.SMS) {
-            valid = true;
-        }
-        else if (primaryMethod.getMethod() == MfaMethods.MfaMethodType.EMAIL) {
-            valid = true;
-        }
-        else if (primaryMethod.getMethod() == MfaMethods.MfaMethodType.RECOVERY_CODES) {
-            valid = true;
-        }
+            // 1) Find the user's primary method from DB
+            MfaMethods primaryMethod = authRepository.findPrimaryMfaMethodByUser(preAuthUser);
 
-        if (!valid) {
-            System.out.println("3");
-            ctx.addMessage(null, new FacesMessage(
-                    FacesMessage.SEVERITY_ERROR, "Error", "MFA code is invalid."));
-            return null; // stay on the same page
+            if (primaryMethod == null) {
+                ctx.addMessage(null, new FacesMessage(
+                        FacesMessage.SEVERITY_ERROR, "Error", "There is no primary mfa method associated with the user."));
+                return "/auth.xhtml?faces-redirect=true";
+            }
+
+            boolean verificationSuccess = false;
+            if (primaryMethod.getMethod() == MfaMethods.MfaMethodType.TOTP) {
+                // Convert user input code to int
+                int codeVal = Integer.parseInt(code);
+                verificationSuccess = authServices.verifyTotpCode(primaryMethod.getSecret(), codeVal);
+            }
+            else if (primaryMethod.getMethod() == MfaMethods.MfaMethodType.SMS) {
+                verificationSuccess = true;
+            }
+            else if (primaryMethod.getMethod() == MfaMethods.MfaMethodType.EMAIL) {
+                verificationSuccess = true;
+            }
+            else if (primaryMethod.getMethod() == MfaMethods.MfaMethodType.RECOVERY_CODES) {
+                verificationSuccess = true;
+            }
+
+            if (!verificationSuccess) {
+                int attempts = sessionCacheManager.incrementAttempt(rateLimitKey);
+                if (attempts >= 5) {
+                    sessionCacheManager.blockAccess(rateLimitKey, 15 * 60);
+                }
+                FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                        "Invalid code", 
+                        "The verification code is incorrect"));
+                return null;
+            }
+
+            // Reset on success
+            sessionCacheManager.resetAttempts(rateLimitKey);
+
+            authServices.registerSession(preAuthUser);
+            ctx.getExternalContext().getSessionMap().remove("PRE_AUTH_USER");
+
+            return authServices.redirectBasedOnRole(preAuthUser);
+        } catch (Exception e) {
+            int attempts = sessionCacheManager.incrementAttempt(rateLimitKey);
+            if (attempts >= 5) {
+                sessionCacheManager.blockAccess(rateLimitKey, 15 * 60);
+            }
+            FacesContext.getCurrentInstance().addMessage(null,
+                new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                    "Error", 
+                    "Verification failed: " + e.getMessage()));
+            return null;
         }
-
-        authServices.registerSession(preAuthUser);
-        ctx.getExternalContext().getSessionMap().remove("PRE_AUTH_USER");
-
-        return authServices.redirectBasedOnRole(preAuthUser);
     }
 
     // getters/setters

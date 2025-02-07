@@ -3,11 +3,13 @@ package org.example.hvvs.utils;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.Expiry;
-import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.ejb.Singleton;
+import jakarta.ejb.Startup;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
-@ApplicationScoped
+@Singleton
+@Startup
 public class SessionCacheManager {
     private final Cache<UUID, Long> sessionExpirationCache = Caffeine.newBuilder()
             .expireAfter(new Expiry<UUID, Long>() {
@@ -23,6 +25,22 @@ public class SessionCacheManager {
             })
             .build();
 
+    private final Cache<String, Integer> attemptCache = Caffeine.newBuilder()
+            .expireAfterWrite(15, TimeUnit.MINUTES)
+            .build();
+
+    private final Cache<String, Boolean> blockedCache = Caffeine.newBuilder()
+            .expireAfterWrite(15, TimeUnit.MINUTES)
+            .build();
+
+    private final Cache<String, Integer> mfaAttemptCache = Caffeine.newBuilder()
+            .expireAfterWrite(15, TimeUnit.MINUTES)
+            .build();
+
+    private final Cache<String, Boolean> mfaBlockedCache = Caffeine.newBuilder()
+            .expireAfterWrite(15, TimeUnit.MINUTES)
+            .build();
+
     public void cacheSessionExpiration(UUID sessionId, long expiresAt) {
         sessionExpirationCache.put(sessionId, expiresAt);
     }
@@ -34,5 +52,45 @@ public class SessionCacheManager {
 
     public void invalidateSession(UUID sessionId) {
         sessionExpirationCache.invalidate(sessionId);
+    }
+
+    public boolean isBlocked(String key) {
+        return blockedCache.getIfPresent(key) != null;
+    }
+
+    public int incrementAttempt(String key) {
+        Integer attempts = attemptCache.get(key, k -> 0);
+        attempts++;
+        attemptCache.put(key, attempts);
+        return attempts;
+    }
+
+    public void blockAccess(String key, int seconds) {
+        blockedCache.put(key, true);
+    }
+
+    public void resetAttempts(String key) {
+        attemptCache.invalidate(key);
+        blockedCache.invalidate(key);
+    }
+
+    public boolean isMfaBlocked(String key) {
+        return mfaBlockedCache.getIfPresent(key) != null;
+    }
+
+    public int incrementMfaAttempt(String key) {
+        Integer attempts = mfaAttemptCache.get(key, k -> 0);
+        attempts++;
+        mfaAttemptCache.put(key, attempts);
+        return attempts;
+    }
+
+    public void blockMfaAccess(String key, int seconds) {
+        mfaBlockedCache.put(key, true);
+    }
+
+    public void resetMfaAttempts(String key) {
+        mfaAttemptCache.invalidate(key);
+        mfaBlockedCache.invalidate(key);
     }
 }
