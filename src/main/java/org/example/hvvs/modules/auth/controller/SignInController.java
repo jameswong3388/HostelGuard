@@ -22,7 +22,7 @@ public class SignInController implements Serializable {
     @EJB
     private AuthServices authServices;
 
-    @Inject
+    @EJB
     private SessionCacheManager sessionCacheManager;
 
     private String identifier; // Can be either email or username

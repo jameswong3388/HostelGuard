@@ -26,7 +26,7 @@ public class MFAController implements Serializable {
     @EJB
     private MfaMethodsFacade mfaMethodsFacade;
 
-    @Inject
+    @EJB
     private SessionCacheManager sessionCacheManager;
 
     private String code; // code the user inputs

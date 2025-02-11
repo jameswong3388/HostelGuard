@@ -24,7 +24,7 @@ public class Middleware implements Filter {
     @EJB
     private SessionService sessionService;
 
-    @Inject
+    @EJB
     private SessionCacheManager sessionCacheManager;
 
     // Public paths that don't require authentication

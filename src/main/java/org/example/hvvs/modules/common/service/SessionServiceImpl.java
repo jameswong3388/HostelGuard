@@ -32,7 +32,7 @@ public class SessionServiceImpl implements SessionService {
     @Inject
     private GeoLocationService geoLocationService;
 
-    @Inject
+    @EJB
     private SessionCacheManager sessionCacheManager;
 
     @Resource
