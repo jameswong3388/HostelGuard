@@ -136,7 +136,9 @@
                             <p:datePicker value="#{record.checkInTime}"
                                          pattern="MM/dd/yy HH:mm"
                                          showTime="true"
-                                         showIcon="true"/>
+                                         showIcon="true"
+                                          converter="timestampConverter"
+                            />
                         </f:facet>
                     </p:cellEditor>
                 </p:column>
@@ -153,7 +155,9 @@
                             <p:datePicker value="#{record.checkOutTime}"
                                          pattern="MM/dd/yy HH:mm"
                                          showTime="true"
-                                         showIcon="true"/>
+                                         showIcon="true"
+                                          converter="timestampConverter"
+                            />
                         </f:facet>
                     </p:cellEditor>
                 </p:column>

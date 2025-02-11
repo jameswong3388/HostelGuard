@@ -1,5 +1,6 @@
 package org.example.hvvs.modules.security.service;
 
+import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
@@ -22,7 +23,7 @@ public class OnboardVisitorsServiceImpl implements OnboardVisitorsService {
     @PersistenceContext
     private EntityManager entityManager;
 
-    @Inject
+    @EJB
     private MediaService mediaService;
 
     @Override

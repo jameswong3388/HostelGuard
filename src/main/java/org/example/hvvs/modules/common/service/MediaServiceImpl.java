@@ -1,11 +1,9 @@
 package org.example.hvvs.modules.common.service;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
+import jakarta.ejb.*;
 import jakarta.servlet.http.Part;
-import jakarta.transaction.Transactional;
 import org.example.hvvs.model.Medias;
-import org.example.hvvs.modules.common.repository.MediaRepository;
+import org.example.hvvs.model.MediasFacade;
 import org.example.hvvs.utils.FileStorageUtil;
 import org.example.hvvs.utils.FileStorageUtil.StorageResult;
 
@@ -16,17 +14,17 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-@ApplicationScoped
+@Stateless
+@Local(MediaService.class)
 public class MediaServiceImpl implements MediaService {
 
-    @Inject
-    private MediaRepository mediaRepository;
+    @EJB
+    private MediasFacade mediasFacade;
 
-    @Inject
+    @EJB
     private FileStorageUtil fileStorageUtil;
 
     @Override
-    @Transactional
     public Medias uploadFile(Part file, String model, String modelId, String collection) throws IOException {
         try {
             StorageResult storageResult = fileStorageUtil.storeFile(file, collection);
@@ -43,44 +41,42 @@ public class MediaServiceImpl implements MediaService {
             media.setSize((double) file.getSize());
             media.setCreatedAt(now);
             media.setUpdatedAt(now);
-
-            return mediaRepository.save(media);
+            
+            if (media.getId() == null) {
+                mediasFacade.create(media);
+            } else {
+                mediasFacade.edit(media);
+            }
+            return media;
         } catch (Exception e) {
             throw new IOException("Failed to upload file: " + e.getMessage(), e);
         }
     }
 
     @Override
-    @Transactional
+    @TransactionAttribute(TransactionAttributeType.SUPPORTS)
     public Optional<Medias> findById(UUID id) {
-        try {
-            return mediaRepository.findById(id);
-        } catch (Exception e) {
-            return Optional.empty();
-        }
+        return Optional.ofNullable(mediasFacade.find(id));
     }
 
     @Override
-    @Transactional
     public List<Medias> findByModelAndModelId(String model, String modelId) {
-        return mediaRepository.findByModelAndModelId(model, modelId);
+        return mediasFacade.findByModelAndModelId(model, modelId);
     }
 
     @Override
-    @Transactional
     public List<Medias> findByCollection(String collection) {
-        return mediaRepository.findByCollection(collection);
+        return mediasFacade.findByCollection(collection);
     }
 
     @Override
-    @Transactional
     public void deleteMedia(UUID id) throws IOException {
         try {
-            Optional<Medias> mediaOptional = mediaRepository.findById(id);
+            Optional<Medias> mediaOptional = this.findById(id);
             if (mediaOptional.isPresent()) {
                 Medias media = mediaOptional.get();
                 fileStorageUtil.deleteFile(media.getDisk());
-                mediaRepository.delete(media);
+                mediasFacade.remove(media);
             }
         } catch (Exception e) {
             throw new IOException("Failed to delete media: " + e.getMessage(), e);
@@ -88,14 +84,13 @@ public class MediaServiceImpl implements MediaService {
     }
 
     @Override
-    @Transactional
     public void deleteByModelAndModelId(String model, String modelId) throws IOException {
         try {
-            List<Medias> medias = mediaRepository.findByModelAndModelId(model, modelId);
+            List<Medias> medias = mediasFacade.findByModelAndModelId(model, modelId);
             for (Medias media : medias) {
                 fileStorageUtil.deleteFile(media.getDisk());
+                mediasFacade.remove(media);
             }
-            mediaRepository.deleteByModelAndModelId(model, modelId);
         } catch (Exception e) {
             throw new IOException("Failed to delete media by model and modelId: " + e.getMessage(), e);
         }

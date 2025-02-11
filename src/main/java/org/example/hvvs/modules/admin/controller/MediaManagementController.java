@@ -1,6 +1,7 @@
 package org.example.hvvs.modules.admin.controller;
 
 import jakarta.annotation.PostConstruct;
+import jakarta.ejb.EJB;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.view.ViewScoped;
@@ -21,7 +22,7 @@ import java.util.UUID;
 @ViewScoped
 public class MediaManagementController implements Serializable {
 
-    @Inject
+    @EJB
     private MediaService mediaService;
 
     private UploadedFile file;

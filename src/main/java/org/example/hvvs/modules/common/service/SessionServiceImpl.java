@@ -4,11 +4,12 @@ import com.maxmind.geoip2.exception.GeoIp2Exception;
 import eu.bitwalker.useragentutils.UserAgent;
 import jakarta.annotation.Resource;
 import jakarta.ejb.Asynchronous;
+import jakarta.ejb.EJB;
 import jakarta.enterprise.concurrent.ManagedExecutorService;
 import org.example.hvvs.model.UserSessions;
+import org.example.hvvs.model.UserSessionsFacade;
 import org.example.hvvs.model.Users;
-import org.example.hvvs.modules.admin.service.UsersService;
-import org.example.hvvs.modules.common.repository.SessionRepository;
+import org.example.hvvs.model.UsersFacade;
 import jakarta.ejb.Stateless;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -22,8 +23,11 @@ import java.util.Optional;
 
 @Stateless
 public class SessionServiceImpl implements SessionService {
-    @Inject
-    private SessionRepository sessionRepository;
+    @EJB
+    private UserSessionsFacade userSessionsFacade;
+
+    @EJB
+    private UsersFacade usersFacade;
 
     @Inject
     private GeoLocationService geoLocationService;
@@ -31,76 +35,82 @@ public class SessionServiceImpl implements SessionService {
     @Inject
     private SessionCacheManager sessionCacheManager;
 
-    @Inject
-    private UsersService usersService;
-
     @Resource
     private ManagedExecutorService executorService;
 
     @Override
-    @Transactional
     public UserSessions createSession(Users user, String ipAddress, String userAgent) {
-        Timestamp now = new Timestamp(System.currentTimeMillis());
-        Timestamp expiresAt = new Timestamp(System.currentTimeMillis() + (8 * 60 * 60 * 1000));
+        try {
+            Timestamp now = new Timestamp(System.currentTimeMillis());
+            Timestamp expiresAt = new Timestamp(System.currentTimeMillis() + (8 * 60 * 60 * 1000));
 
-        UserSessions session = new UserSessions();
-        session.setUser_id(user);
-        session.setIpAddress(ipAddress);
-        session.setUserAgent(userAgent);
-        
-        // Set device info synchronously first
-        UserAgent agent = UserAgent.parseUserAgentString(userAgent);
-        session.setDeviceInfo(agent.getOperatingSystem().getName() 
-                            + " - " + agent.getBrowser().getName());
-        
-        session.setLoginTime(now);
-        session.setLastAccess(now);
-        session.setExpiresAt(expiresAt);
+            UserSessions session = new UserSessions();
+            session.setUser_id(user);
+            session.setIpAddress(ipAddress);
+            session.setUserAgent(userAgent);
+            
+            // Set device info synchronously first
+            UserAgent agent = UserAgent.parseUserAgentString(userAgent);
+            session.setDeviceInfo(agent.getOperatingSystem().getName() 
+                                + " - " + agent.getBrowser().getName());
+            
+            session.setLoginTime(now);
+            session.setLastAccess(now);
+            session.setExpiresAt(expiresAt);
 
-        // Create session with actual device info
-        UserSessions persistedSession = sessionRepository.create(session);
+            // Create session with actual device info
+            userSessionsFacade.create(session);
 
-        user.setIsActive(true);
-        usersService.updateUser(user);
+            user.setIsActive(true);
+            user.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
+            usersFacade.edit(user);
 
-        // Async updates for geolocation only
-        executorService.submit(() -> {
-            UserSessions freshSession = sessionRepository.findBySessionId(persistedSession.getSession_id());
-            if (freshSession != null) {
-                try {
-                    String location = parseLocationFromIp(ipAddress);
-                    String[] locParts = location.split(", ");
-                    freshSession.setCity(locParts[0]);
-                    freshSession.setRegion(locParts[1]);
-                    freshSession.setCountry(locParts[2]);
-                } catch (Exception e) {
-                    freshSession.setCity("Unknown");
-                    freshSession.setRegion("Unknown");
-                    freshSession.setCountry("Unknown");
+            // Async updates for geolocation only
+            executorService.submit(() -> {
+                UserSessions freshSession = userSessionsFacade.find(session.getSession_id());
+                if (freshSession != null) {
+                    try {
+                        String location = parseLocationFromIp(ipAddress);
+                        String[] locParts = location.split(", ");
+                        freshSession.setCity(locParts[0]);
+                        freshSession.setRegion(locParts[1]);
+                        freshSession.setCountry(locParts[2]);
+                    } catch (Exception e) {
+                        freshSession.setCity("Unknown");
+                        freshSession.setRegion("Unknown");
+                        freshSession.setCountry("Unknown");
+                    }
+                    userSessionsFacade.edit(freshSession);
                 }
-                sessionRepository.update(freshSession);
-            }
-        });
+            });
 
-        return persistedSession;
+            return session;
+        } catch (Exception e) {
+            // Rollback any changes if an error occurs
+            user.setIsActive(false);
+            user.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
+            usersFacade.edit(user);
+            throw new RuntimeException("Failed to create session: " + e.getMessage(), e);
+        }
     }
 
 
     @Override
     @Transactional
     public void revokeSession(UUID sessionId) {
-        UserSessions session = sessionRepository.findBySessionId(sessionId);
+        UserSessions session = userSessionsFacade.find(sessionId);
         if (session != null) {
             Users user = session.getUser_id();
 
-            sessionRepository.revokeSession(sessionId);
+            userSessionsFacade.revokeSession(sessionId);
             sessionCacheManager.invalidateSession(sessionId);
 
             // Check if user has any remaining active sessions
             List<UserSessions> activeSessions = getActiveSessions(user);
             if (activeSessions.isEmpty()) {
                 user.setIsActive(false);
-                usersService.updateUser(user);
+                user.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
+                usersFacade.edit(user);
             }
         }
     }
@@ -108,17 +118,18 @@ public class SessionServiceImpl implements SessionService {
     @Override
     @Transactional
     public void revokeAllSessions(Integer userId) {
-        sessionRepository.revokeAllSessions(userId);
-        Users user = usersService.findByUserId(userId);
+        userSessionsFacade.revokeAllSessions(userId);
+        Users user = usersFacade.find(userId);
         if (user != null) {
             user.setIsActive(false);
-            usersService.updateUser(user);
+            user.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
+            usersFacade.edit(user);
         }
     }
 
     @Override
     public List<UserSessions> getActiveSessions(Users user) {
-        return sessionRepository.findActiveSessionsByUser(user);
+        return userSessionsFacade.findActiveSessionsByUser(user);
     }
 
     @Override
@@ -126,7 +137,7 @@ public class SessionServiceImpl implements SessionService {
     public void updateLastAccess(UUID sessionId) {
         Timestamp now = new Timestamp(System.currentTimeMillis());
         Timestamp newExpiresAt = new Timestamp(now.getTime() + (8 * 60 * 60 * 1000));
-        sessionRepository.updateSessionAccess(sessionId, now, newExpiresAt);
+        userSessionsFacade.updateSessionAccess(sessionId, now, newExpiresAt);
     }
 
     @Override
@@ -136,12 +147,12 @@ public class SessionServiceImpl implements SessionService {
     }
 
     public void updateSessionExpiration(UUID sessionId, Timestamp newExpiresAt) {
-        sessionRepository.updateSessionExpiration(sessionId, newExpiresAt);
+        userSessionsFacade.updateSessionExpiration(sessionId, newExpiresAt);
     }
 
     @Override
     public Optional<UserSessions> validateSession(UUID sessionId) {
-        UserSessions session = sessionRepository.findBySessionId(sessionId);
+        UserSessions session = userSessionsFacade.find(sessionId);
         if (session != null && session.getExpiresAt().after(new Timestamp(System.currentTimeMillis()))) {
             return Optional.of(session);
         }

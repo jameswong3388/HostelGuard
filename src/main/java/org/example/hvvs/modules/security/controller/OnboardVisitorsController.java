@@ -1,5 +1,6 @@
 package org.example.hvvs.modules.security.controller;
 
+import jakarta.ejb.EJB;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.view.ViewScoped;
@@ -21,7 +22,7 @@ import java.sql.Timestamp;
 @ViewScoped
 public class OnboardVisitorsController implements Serializable {
     
-    @Inject
+    @EJB
     private OnboardVisitorsService securityVisitorService;
     
     private int currentStep = 1;

@@ -1,31 +1,31 @@
 package org.example.hvvs.modules.admin.controller;
 
+import jakarta.ejb.EJB;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.view.ViewScoped;
-import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import org.example.hvvs.model.VisitRequests;
-import org.example.hvvs.modules.admin.service.VisitRequestsService;
+import org.example.hvvs.model.VisitRequestsFacade;
 import org.primefaces.event.RowEditEvent;
 
 import java.io.Serializable;
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.Locale;
 
 @Named
 @ViewScoped
 public class VisitRequestsController implements Serializable {
-
-    @Inject
-    private VisitRequestsService requestService;
+    @EJB
+    private VisitRequestsFacade visitRequestsFacade;
 
     private List<VisitRequests> requests;
     private List<VisitRequests> filteredRequests;
     private List<VisitRequests> selectedRequests;
 
     public void init() {
-        requests = requestService.getAllRequests();
+        requests = visitRequestsFacade.findAll();
     }
 
     public String getDeleteSelectedButtonLabel() {
@@ -40,7 +40,12 @@ public class VisitRequestsController implements Serializable {
     public void deleteSelectedRequests() {
         if (selectedRequests != null && !selectedRequests.isEmpty()) {
             try {
-                requestService.deleteRequests(selectedRequests);
+                for (VisitRequests selectedRequests : selectedRequests) {
+                    VisitRequests managedRequest = visitRequestsFacade.find(selectedRequests.getId());
+                    if (managedRequest != null) {
+                        visitRequestsFacade.remove(managedRequest);
+                    }
+                }
                 selectedRequests.clear();
                 init(); // Refresh the list
                 FacesContext.getCurrentInstance().addMessage(null,
@@ -60,7 +65,9 @@ public class VisitRequestsController implements Serializable {
 
     public void onRowEdit(RowEditEvent<VisitRequests> event) {
         try {
-            requestService.updateRequest(event.getObject());
+            VisitRequests record = event.getObject();
+            record.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
+            visitRequestsFacade.edit(record);
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_INFO, "Success", "Request updated successfully"));
         } catch (Exception e) {

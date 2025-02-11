@@ -3,23 +3,17 @@ package org.example.hvvs.modules.auth.controller;
 import jakarta.ejb.EJB;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.faces.application.FacesMessage;
-import jakarta.faces.context.ExternalContext;
 import jakarta.faces.context.FacesContext;
 import jakarta.inject.Named;
-import jakarta.servlet.http.HttpSession;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.inject.Inject;
-import org.example.hvvs.model.MfaMethods;
-import org.example.hvvs.model.UserSessions;
 import org.example.hvvs.model.Users;
 import org.example.hvvs.modules.auth.service.AuthServices;
-import org.example.hvvs.modules.common.service.SessionService;
 import org.example.hvvs.utils.CommonParam;
 import org.example.hvvs.utils.ServiceResult;
 import org.example.hvvs.utils.SessionCacheManager;
 
 import java.io.Serializable;
-import java.util.List;
 
 @Named("signInController")
 @RequestScoped
@@ -27,9 +21,6 @@ public class SignInController implements Serializable {
 
     @EJB
     private AuthServices authServices;
-
-    @EJB
-    private SessionService sessionService;
 
     @Inject
     private SessionCacheManager sessionCacheManager;

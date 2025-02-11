@@ -1,16 +1,12 @@
 package org.example.hvvs.modules.admin.controller;
 
 import jakarta.annotation.PostConstruct;
+import jakarta.ejb.EJB;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.view.ViewScoped;
-import jakarta.inject.Inject;
 import jakarta.inject.Named;
-import org.example.hvvs.model.ManagingStaffProfiles;
-import org.example.hvvs.model.ResidentProfiles;
-import org.example.hvvs.model.SecurityStaffProfiles;
-import org.example.hvvs.model.Users;
-import org.example.hvvs.modules.admin.service.UsersService;
+import org.example.hvvs.model.*;
 import org.primefaces.event.RowEditEvent;
 
 import java.io.Serializable;
@@ -20,9 +16,14 @@ import java.util.List;
 @Named
 @ViewScoped
 public class UsersController implements Serializable {
-
-    @Inject
-    private UsersService userService;
+    @EJB
+    private UsersFacade usersFacade;
+    @EJB
+    private ResidentProfilesFacade residentProfilesFacade;
+    @EJB
+    private SecurityStaffProfilesFacade securityStaffProfilesFacade;
+    @EJB
+    private ManagingStaffProfilesFacade managingStaffProfilesFacade;
 
     private List<Users> users;
     private List<Users> filteredUsers;
@@ -34,7 +35,7 @@ public class UsersController implements Serializable {
 
     @PostConstruct
     public void init() {
-        users = userService.getAllUsers();
+        users = usersFacade.findAll();
         newUser = new Users();
         residentProfile = new ResidentProfiles();
         securityStaffProfile = new SecurityStaffProfiles();
@@ -70,16 +71,16 @@ public class UsersController implements Serializable {
     public void createUser() {
         try {
             // Validate unique constraints
-            if (userService.isUsernameExists(newUser.getUsername())) {
+            if (usersFacade.isUsernameExists(newUser.getUsername())) {
                 addErrorMessage("Username already exists");
                 return;
             }
-            if (userService.isEmailExists(newUser.getEmail())) {
+            if (usersFacade.isEmailExists(newUser.getEmail())) {
                 addErrorMessage("Email already exists");
                 return;
             }
 
-            Users createdUser = userService.createUser(newUser);
+            Users createdUser = usersFacade.createUser(newUser);
 
             // Create role-specific profile
             Timestamp now = new Timestamp(System.currentTimeMillis());
@@ -90,7 +91,7 @@ public class UsersController implements Serializable {
                         residentProfile.setUserId(createdUser);
                         residentProfile.setCreatedAt(now);
                         residentProfile.setUpdatedAt(now);
-                        userService.createResidentProfile(residentProfile);
+                        residentProfilesFacade.create(residentProfile);
                     }
                     break;
 
@@ -99,7 +100,7 @@ public class UsersController implements Serializable {
                         securityStaffProfile.setUserId(createdUser);
                         securityStaffProfile.setCreatedAt(now);
                         securityStaffProfile.setUpdatedAt(now);
-                        userService.createSecurityStaffProfile(securityStaffProfile);
+                        securityStaffProfilesFacade.create(securityStaffProfile);
                     }
                     break;
 
@@ -108,12 +109,12 @@ public class UsersController implements Serializable {
                         managingStaffProfile.setUserId(createdUser);
                         managingStaffProfile.setCreatedAt(now);
                         managingStaffProfile.setUpdatedAt(now);
-                        userService.createManagingStaffProfile(managingStaffProfile);
+                        managingStaffProfilesFacade.create(managingStaffProfile);
                     }
                     break;
             }
 
-            users = userService.getAllUsers(); // Refresh the list
+            users = usersFacade.findAll(); // Refresh the list
             newUser = new Users(); // Reset the form
             residentProfile = new ResidentProfiles(); // Reset profiles
             securityStaffProfile = new SecurityStaffProfiles();
@@ -127,7 +128,8 @@ public class UsersController implements Serializable {
     public void onRowEdit(RowEditEvent<Users> event) {
         try {
             Users editedUser = event.getObject();
-            userService.updateUser(editedUser);
+            editedUser.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
+            usersFacade.edit(editedUser);
             addMessage("Success", "User updated successfully");
         } catch (Exception e) {
             addErrorMessage("Error updating user: " + e.getMessage());
@@ -142,7 +144,7 @@ public class UsersController implements Serializable {
         try {
             if (selectedUsers != null && !selectedUsers.isEmpty()) {
                 for (Users user : selectedUsers) {
-                    userService.deleteUser(user);
+                    usersFacade.remove(user);
                 }
                 // Remove from the local list so that the table UI updates
                 users.removeAll(selectedUsers);

@@ -1,7 +1,6 @@
 package org.example.hvvs.modules.auth.controller;
 
 import jakarta.ejb.EJB;
-import jakarta.enterprise.context.RequestScoped;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.view.ViewScoped;
@@ -9,8 +8,8 @@ import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.servlet.http.HttpServletRequest;
 import org.example.hvvs.model.MfaMethods;
+import org.example.hvvs.model.MfaMethodsFacade;
 import org.example.hvvs.model.Users;
-import org.example.hvvs.modules.auth.service.AuthRepository;
 import org.example.hvvs.modules.auth.service.AuthServices;
 import org.example.hvvs.utils.CommonParam;
 import org.example.hvvs.utils.SessionCacheManager;
@@ -25,7 +24,7 @@ public class MFAController implements Serializable {
     private AuthServices authServices;
 
     @EJB
-    private AuthRepository authRepository;
+    private MfaMethodsFacade mfaMethodsFacade;
 
     @Inject
     private SessionCacheManager sessionCacheManager;
@@ -59,7 +58,7 @@ public class MFAController implements Serializable {
             }
 
             // Find the user's primary method from DB
-            MfaMethods primaryMethod = authRepository.findPrimaryMfaMethodByUser(preAuthUser);
+            MfaMethods primaryMethod = mfaMethodsFacade.findPrimaryMfaMethodByUser(preAuthUser);
 
             if (primaryMethod == null) {
                 ctx.addMessage(null, new FacesMessage(

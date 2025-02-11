@@ -1,7 +1,7 @@
 package org.example.hvvs.utils;
 
 import jakarta.annotation.PostConstruct;
-import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.ejb.Stateless;
 import jakarta.inject.Inject;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.Part;
@@ -14,7 +14,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.UUID;
 
-@ApplicationScoped
+@Stateless
 public class FileStorageUtil {
 
     private final String rootDir = "medias";

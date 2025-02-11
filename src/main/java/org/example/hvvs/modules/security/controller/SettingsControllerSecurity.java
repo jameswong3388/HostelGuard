@@ -9,7 +9,6 @@ import jakarta.ejb.EJB;
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
-import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
@@ -17,7 +16,6 @@ import org.example.hvvs.commonClasses.CustomPart;
 import org.example.hvvs.model.*;
 import org.example.hvvs.modules.common.service.MediaService;
 import org.example.hvvs.modules.common.service.SessionService;
-import org.example.hvvs.modules.security.service.SettingsServiceSecurity;
 import org.example.hvvs.utils.CommonParam;
 import org.example.hvvs.utils.DigestUtils;
 import org.primefaces.model.file.UploadedFile;
@@ -28,9 +26,6 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.io.InputStream;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.*;
 
 @Named("SettingsControllerSecurity")
@@ -72,12 +67,17 @@ public class SettingsControllerSecurity implements Serializable {
     private UUID currentSessionId;
 
     // Injected Services
-    @Inject
-    private SettingsServiceSecurity settingsServiceSecurity;
-    @Inject
+    @EJB
     private MediaService mediaService;
     @EJB
     private SessionService sessionService;
+
+    @EJB
+    private UsersFacade usersFacade;
+    @EJB
+    private SecurityStaffProfilesFacade securityStaffProfilesFacade;
+    @EJB
+    private MfaMethodsFacade mfaMethodsFacade;
 
     @PostConstruct
     public void init() {
@@ -96,8 +96,8 @@ public class SettingsControllerSecurity implements Serializable {
             return;
         }
 
-        this.user = settingsServiceSecurity.findUserById(currentUser.getId());
-        this.securityStaffProfile = settingsServiceSecurity.findSecurityStaffProfileByUserId(currentUser.getId());
+        this.user = usersFacade.find(currentUser.getId());
+        this.securityStaffProfile = securityStaffProfilesFacade.find(currentUser.getId());
         loadProfileImage();
     }
 
@@ -162,7 +162,7 @@ public class SettingsControllerSecurity implements Serializable {
             }
 
             // Check if email is already taken by another user
-            if (settingsServiceSecurity.isEmailExists(user.getEmail(), user.getId())) {
+            if (usersFacade.isEmailExists(user.getEmail())) {
                 FacesContext.getCurrentInstance().addMessage(null,
                         new FacesMessage(FacesMessage.SEVERITY_ERROR,
                                 "Error",
@@ -174,7 +174,7 @@ public class SettingsControllerSecurity implements Serializable {
             // Update timestamp
             user.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
 
-            settingsServiceSecurity.updateUser(user);
+            usersFacade.edit(user);
 
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_INFO,
@@ -203,8 +203,8 @@ public class SettingsControllerSecurity implements Serializable {
                 .get(CommonParam.SESSION_SELF);
 
         if (currentUser != null) {
-            this.user = settingsServiceSecurity.findUserById(currentUser.getId());
-            this.securityStaffProfile = settingsServiceSecurity.findSecurityStaffProfileByUserId(currentUser.getId());
+            this.user = usersFacade.find(currentUser.getId());
+            this.securityStaffProfile = securityStaffProfilesFacade.find(currentUser.getId());
         }
     }
 
@@ -227,7 +227,7 @@ public class SettingsControllerSecurity implements Serializable {
             }
 
             // Check if username is already taken
-            if (settingsServiceSecurity.isUsernameExists(user.getUsername(), user.getId())) {
+            if (usersFacade.isUsernameExists(user.getUsername())) {
                 FacesContext.getCurrentInstance().addMessage(null,
                         new FacesMessage(FacesMessage.SEVERITY_ERROR,
                                 "Error",
@@ -240,7 +240,7 @@ public class SettingsControllerSecurity implements Serializable {
             user.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
 
             // Save changes
-            settingsServiceSecurity.updateUser(user);
+            usersFacade.edit(user);
 
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_INFO,
@@ -315,7 +315,7 @@ public class SettingsControllerSecurity implements Serializable {
             user.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
 
             // Save changes
-            settingsServiceSecurity.updateUser(user);
+            usersFacade.edit(user);
 
             // Clear password fields
             oldPassword = null;
@@ -384,7 +384,7 @@ public class SettingsControllerSecurity implements Serializable {
             }
 
             // Check if this is the first MFA method
-            List<MfaMethods> existingMethods = settingsServiceSecurity.findMfaMethodsByUser(user);
+            List<MfaMethods> existingMethods = mfaMethodsFacade.findMfaMethodsByUser(user);
             boolean isFirstMethod = existingMethods.isEmpty();
 
             // Create new MFA method
@@ -399,12 +399,12 @@ public class SettingsControllerSecurity implements Serializable {
             mfaMethod.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
 
             // Save MFA method
-            settingsServiceSecurity.saveMfaMethod(mfaMethod);
+            mfaMethodsFacade.create(mfaMethod);
 
             // Update user's MFA status
             user.setIs_mfa_enable(true);
             user.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
-            settingsServiceSecurity.updateUser(user);
+            usersFacade.edit(user);
 
             // Clear sensitive data
             tempSecret = null;
@@ -413,7 +413,7 @@ public class SettingsControllerSecurity implements Serializable {
             backupCodes = null;
 
             // Force refresh of user data
-            user = settingsServiceSecurity.findUserById(user.getId());
+            user = usersFacade.find(user.getId());
 
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_INFO, "Success",
@@ -434,24 +434,24 @@ public class SettingsControllerSecurity implements Serializable {
     public void disableTOTP() {
         try {
             // Refresh the user entity
-            user = settingsServiceSecurity.findUserById(user.getId());
+            user = usersFacade.find(user.getId());
 
             // Find and delete all TOTP methods
-            List<MfaMethods> mfaMethods = settingsServiceSecurity.findMfaMethodsByUser(user);
+            List<MfaMethods> mfaMethods = mfaMethodsFacade.findMfaMethodsByUser(user);
             for (MfaMethods method : mfaMethods) {
                 if (method.getMethod() == MfaMethods.MfaMethodType.TOTP) {
-                    MfaMethods freshMethod = settingsServiceSecurity.findMfaMethodById(method.getId());
+                    MfaMethods freshMethod = mfaMethodsFacade.find(method.getId());
                     if (freshMethod != null) {
-                        settingsServiceSecurity.deleteMfaMethod(freshMethod);
+                        mfaMethodsFacade.remove(freshMethod);
                     }
                 }
             }
 
             // Update user's MFA status only if no methods remain
-            List<MfaMethods> remainingMethods = settingsServiceSecurity.findMfaMethodsByUser(user);
+            List<MfaMethods> remainingMethods = mfaMethodsFacade.findMfaMethodsByUser(user);
             user.setIs_mfa_enable(!remainingMethods.isEmpty());
             user.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
-            settingsServiceSecurity.updateUser(user);
+            usersFacade.edit(user);
 
             // Clear cached data
             sessions = null;
@@ -472,11 +472,11 @@ public class SettingsControllerSecurity implements Serializable {
                 return false;
             }
             // Get fresh user data
-            Users freshUser = settingsServiceSecurity.findUserById(user.getId());
+            Users freshUser = usersFacade.find(user.getId());
             if (!Boolean.TRUE.equals(freshUser.getIs_mfa_enable())) {
                 return false;
             }
-            List<MfaMethods> mfaMethods = settingsServiceSecurity.findMfaMethodsByUser(freshUser);
+            List<MfaMethods> mfaMethods = mfaMethodsFacade.findMfaMethodsByUser(freshUser);
             return mfaMethods.stream()
                     .anyMatch(method -> method.getMethod() == MfaMethods.MfaMethodType.TOTP &&
                             Boolean.TRUE.equals(method.getEnabled()));
@@ -486,7 +486,7 @@ public class SettingsControllerSecurity implements Serializable {
     }
 
     public String getPreferredMfaStatus() {
-        List<MfaMethods> enabledMethods = settingsServiceSecurity.findMfaMethodsByUser(user)
+        List<MfaMethods> enabledMethods = mfaMethodsFacade.findMfaMethodsByUser(user)
                 .stream()
                 .filter(m -> Boolean.TRUE.equals(m.getEnabled()))
                 .toList();
@@ -524,20 +524,20 @@ public class SettingsControllerSecurity implements Serializable {
                 return;
             }
 
-            List<MfaMethods> allMethods = settingsServiceSecurity.findMfaMethodsByUser(user);
+            List<MfaMethods> allMethods = mfaMethodsFacade.findMfaMethodsByUser(user);
 
             // Update all methods
             for (MfaMethods method : allMethods) {
                 boolean shouldBePrimary = method.getMethod() == selectedPrimaryMethod;
                 method.setPrimary(shouldBePrimary);
-                settingsServiceSecurity.updateMfaMethod(method);
+                mfaMethodsFacade.edit(method);
             }
 
             // Clear the selection
             selectedPrimaryMethod = null;
 
             // Refresh the user data
-            user = settingsServiceSecurity.findUserById(user.getId());
+            user = usersFacade.find(user.getId());
 
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_INFO, "Success",
@@ -550,7 +550,7 @@ public class SettingsControllerSecurity implements Serializable {
     }
 
     public List<MfaMethods> getEnabledMfaMethods() {
-        return settingsServiceSecurity.findMfaMethodsByUser(user)
+        return mfaMethodsFacade.findMfaMethodsByUser(user)
                 .stream()
                 .filter(m -> Boolean.TRUE.equals(m.getEnabled()))
                 .toList();
@@ -588,7 +588,7 @@ public class SettingsControllerSecurity implements Serializable {
             }
 
             // Check if this is the first MFA method
-            List<MfaMethods> existingMethods = settingsServiceSecurity.findMfaMethodsByUser(user);
+            List<MfaMethods> existingMethods = mfaMethodsFacade.findMfaMethodsByUser(user);
             boolean isFirstMethod = existingMethods.isEmpty();
 
             // Create new MFA method
@@ -602,15 +602,15 @@ public class SettingsControllerSecurity implements Serializable {
             mfaMethod.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
 
             // Save MFA method
-            settingsServiceSecurity.saveMfaMethod(mfaMethod);
+            mfaMethodsFacade.create(mfaMethod);
 
             // Update user's MFA status
             user.setIs_mfa_enable(true);
             user.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
-            settingsServiceSecurity.updateUser(user);
+            usersFacade.edit(user);
 
             // Force refresh of user data
-            user = settingsServiceSecurity.findUserById(user.getId());
+            user = usersFacade.find(user.getId());
 
             // Clear verification data but keep backup codes for display
             smsVerificationCode = null;
@@ -641,7 +641,7 @@ public class SettingsControllerSecurity implements Serializable {
             }
 
             // Check if this is the first MFA method
-            List<MfaMethods> existingMethods = settingsServiceSecurity.findMfaMethodsByUser(user);
+            List<MfaMethods> existingMethods = mfaMethodsFacade.findMfaMethodsByUser(user);
             boolean isFirstMethod = existingMethods.isEmpty();
 
             // Create new MFA method
@@ -655,12 +655,12 @@ public class SettingsControllerSecurity implements Serializable {
             mfaMethod.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
 
             // Save MFA method
-            settingsServiceSecurity.saveMfaMethod(mfaMethod);
+            mfaMethodsFacade.create(mfaMethod);
 
             // Update user's MFA status
             user.setIs_mfa_enable(true);
             user.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
-            settingsServiceSecurity.updateUser(user);
+            usersFacade.edit(user);
 
             // Clear verification data but keep backup codes for display
             emailVerificationCode = null;
@@ -683,24 +683,24 @@ public class SettingsControllerSecurity implements Serializable {
     public void disableEmail2FA() {
         try {
             // Refresh the user entity
-            user = settingsServiceSecurity.findUserById(user.getId());
+            user = usersFacade.find(user.getId());
 
             // Find and delete all Email MFA methods
-            List<MfaMethods> mfaMethods = settingsServiceSecurity.findMfaMethodsByUser(user);
+            List<MfaMethods> mfaMethods = mfaMethodsFacade.findMfaMethodsByUser(user);
             for (MfaMethods method : mfaMethods) {
                 if (method.getMethod() == MfaMethods.MfaMethodType.EMAIL) {
-                    MfaMethods freshMethod = settingsServiceSecurity.findMfaMethodById(method.getId());
+                    MfaMethods freshMethod = mfaMethodsFacade.find(method.getId());
                     if (freshMethod != null) {
-                        settingsServiceSecurity.deleteMfaMethod(freshMethod);
+                        mfaMethodsFacade.remove(freshMethod);
                     }
                 }
             }
 
             // Update user's MFA status only if no methods remain
-            List<MfaMethods> remainingMethods = settingsServiceSecurity.findMfaMethodsByUser(user);
+            List<MfaMethods> remainingMethods = mfaMethodsFacade.findMfaMethodsByUser(user);
             user.setIs_mfa_enable(!remainingMethods.isEmpty());
             user.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
-            settingsServiceSecurity.updateUser(user);
+            usersFacade.edit(user);
 
             // Clear state
             hasEmailEnabled = false;
@@ -720,24 +720,24 @@ public class SettingsControllerSecurity implements Serializable {
     public void disableSMS2FA() {
         try {
             // Refresh the user entity
-            user = settingsServiceSecurity.findUserById(user.getId());
+            user = usersFacade.find(user.getId());
 
             // Find and delete all SMS MFA methods
-            List<MfaMethods> mfaMethods = settingsServiceSecurity.findMfaMethodsByUser(user);
+            List<MfaMethods> mfaMethods = mfaMethodsFacade.findMfaMethodsByUser(user);
             for (MfaMethods method : mfaMethods) {
                 if (method.getMethod() == MfaMethods.MfaMethodType.SMS) {
-                    MfaMethods freshMethod = settingsServiceSecurity.findMfaMethodById(method.getId());
+                    MfaMethods freshMethod = mfaMethodsFacade.find(method.getId());
                     if (freshMethod != null) {
-                        settingsServiceSecurity.deleteMfaMethod(freshMethod);
+                        mfaMethodsFacade.remove(freshMethod);
                     }
                 }
             }
 
             // Update user's MFA status only if no methods remain
-            List<MfaMethods> remainingMethods = settingsServiceSecurity.findMfaMethodsByUser(user);
+            List<MfaMethods> remainingMethods = mfaMethodsFacade.findMfaMethodsByUser(user);
             user.setIs_mfa_enable(!remainingMethods.isEmpty());
             user.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
-            settingsServiceSecurity.updateUser(user);
+            usersFacade.edit(user);
 
             // Clear state
             hasSMSEnabled = false;
@@ -759,11 +759,11 @@ public class SettingsControllerSecurity implements Serializable {
                 return false;
             }
             // Get fresh user data
-            Users freshUser = settingsServiceSecurity.findUserById(user.getId());
+            Users freshUser = usersFacade.find(user.getId());
             if (!Boolean.TRUE.equals(freshUser.getIs_mfa_enable())) {
                 return false;
             }
-            List<MfaMethods> mfaMethods = settingsServiceSecurity.findMfaMethodsByUser(freshUser);
+            List<MfaMethods> mfaMethods = mfaMethodsFacade.findMfaMethodsByUser(freshUser);
             return mfaMethods.stream()
                     .anyMatch(method -> method.getMethod() == MfaMethods.MfaMethodType.EMAIL &&
                             Boolean.TRUE.equals(method.getEnabled()));
@@ -778,11 +778,11 @@ public class SettingsControllerSecurity implements Serializable {
                 return false;
             }
             // Get fresh user data
-            Users freshUser = settingsServiceSecurity.findUserById(user.getId());
+            Users freshUser = usersFacade.find(user.getId());
             if (!Boolean.TRUE.equals(freshUser.getIs_mfa_enable())) {
                 return false;
             }
-            List<MfaMethods> mfaMethods = settingsServiceSecurity.findMfaMethodsByUser(freshUser);
+            List<MfaMethods> mfaMethods = mfaMethodsFacade.findMfaMethodsByUser(freshUser);
             return mfaMethods.stream()
                     .anyMatch(method -> method.getMethod() == MfaMethods.MfaMethodType.SMS &&
                             Boolean.TRUE.equals(method.getEnabled()));
@@ -796,7 +796,7 @@ public class SettingsControllerSecurity implements Serializable {
             return backupCodes;
         }
 
-        MfaMethods primaryMethod = settingsServiceSecurity.findMfaMethodsByUser(user)
+        MfaMethods primaryMethod = mfaMethodsFacade.findMfaMethodsByUser(user)
                 .stream()
                 .filter(m -> Boolean.TRUE.equals(m.getEnabled()) && Boolean.TRUE.equals(m.getPrimary()))
                 .findFirst()
@@ -849,13 +849,6 @@ public class SettingsControllerSecurity implements Serializable {
         // Invalidate current session and redirect
         FacesContext.getCurrentInstance().getExternalContext().invalidateSession();
         return "/auth/sign-in.xhtml?faces-redirect=true";
-    }
-
-    public boolean isToday(Date date) {
-        Instant instant = date.toInstant();
-        LocalDate inputDate = instant.atZone(ZoneId.systemDefault()).toLocalDate();
-        LocalDate today = LocalDate.now();
-        return inputDate.isEqual(today);
     }
 
     // Getters & Setters

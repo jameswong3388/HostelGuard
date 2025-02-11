@@ -1,17 +1,13 @@
 package org.example.hvvs.modules.resident.controller;
 
 import jakarta.annotation.PostConstruct;
+import jakarta.ejb.EJB;
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
-import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.transaction.Transactional;
-import org.example.hvvs.model.ResidentProfiles;
-import org.example.hvvs.model.Users;
-import org.example.hvvs.model.VisitRequests;
-import org.example.hvvs.modules.resident.services.VisitRequestService;
-import org.example.hvvs.modules.resident.services.SettingsServiceResident;
+import org.example.hvvs.model.*;
 import org.example.hvvs.utils.CommonParam;
 import org.primefaces.event.RowEditEvent;
 
@@ -30,11 +26,11 @@ public class VisitRequestController implements Serializable {
     private List<VisitRequests> userRequests;
     private ResidentProfiles residentProfile;
 
-    @Inject
-    private VisitRequestService visitRequestService;
+    @EJB
+    private ResidentProfilesFacade residentProfilesFacade;
 
-    @Inject
-    private SettingsServiceResident settingsService;
+    @EJB
+    private VisitRequestsFacade visitRequestsFacade;
 
     private List<VisitRequests> selectedRequests;
     private List<VisitRequests> filteredRequests;
@@ -81,7 +77,7 @@ public class VisitRequestController implements Serializable {
 
         if (currentUser != null) {
             // Load resident profile
-            this.residentProfile = settingsService.findResidentProfileByUserId(currentUser.getId());
+            this.residentProfile = residentProfilesFacade.find(currentUser.getId());
         }
 
         // Load existing requests for current user
@@ -134,7 +130,7 @@ public class VisitRequestController implements Serializable {
                 .get(CommonParam.SESSION_SELF);
 
         if (currentUser != null) {
-            userRequests = visitRequestService.findRequestsByUserEntity(currentUser);
+            userRequests = visitRequestsFacade.findAllRequestsByUser(currentUser);
         } else {
             userRequests = new ArrayList<>();
         }
@@ -171,7 +167,7 @@ public class VisitRequestController implements Serializable {
             newRequest.setUpdatedAt(now);
 
             // Persist
-            visitRequestService.create(newRequest);
+            visitRequestsFacade.create(newRequest);
 
             // Capture verification code before resetting
             this.currentQrCode = newRequest.getVerificationCode();
@@ -204,7 +200,7 @@ public class VisitRequestController implements Serializable {
         try {
             VisitRequests editedRequest = event.getObject();
             editedRequest.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
-            visitRequestService.update(editedRequest);
+            visitRequestsFacade.edit(editedRequest);
 
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_INFO, "Success", "Request updated"));
@@ -231,7 +227,7 @@ public class VisitRequestController implements Serializable {
             request.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
 
             // Persist the changes
-            visitRequestService.update(request);
+            visitRequestsFacade.edit(request);
 
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_INFO,
