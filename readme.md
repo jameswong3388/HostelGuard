@@ -1,6 +1,6 @@
 # HostelGuard™ - Apply. Approve. Arrive. So easy.
 
-A web-based Hostel Visitor Verification System for APU Hostel Management Office.
+A web-based Visitor Verification System.
 
 https://github.com/user-attachments/assets/440058af-d7d9-472f-9d3f-5a79bf7ae4eb
 
