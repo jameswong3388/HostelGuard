@@ -29,7 +29,7 @@ public class SessionServiceImpl implements SessionService {
     @EJB
     private UsersFacade usersFacade;
 
-    @Inject
+    @EJB
     private GeoLocationService geoLocationService;
 
     @EJB
