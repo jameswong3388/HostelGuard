@@ -11,7 +11,6 @@ import org.example.hvvs.model.UserSessionsFacade;
 import org.example.hvvs.model.Users;
 import org.example.hvvs.model.UsersFacade;
 import jakarta.ejb.Stateless;
-import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import org.example.hvvs.utils.SessionCacheManager;
 
