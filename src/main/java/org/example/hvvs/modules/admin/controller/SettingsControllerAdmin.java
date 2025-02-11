@@ -1,5 +1,6 @@
 package org.example.hvvs.modules.admin.controller;
 
+import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.SessionScoped;
@@ -11,14 +12,12 @@ import jakarta.transaction.Transactional;
 import jakarta.ejb.EJB;
 import org.example.hvvs.commonClasses.CustomPart;
 import org.example.hvvs.model.*;
+import org.example.hvvs.modules.auth.service.AuthServices;
 import org.example.hvvs.modules.common.service.MediaService;
 import org.example.hvvs.modules.common.service.SessionService;
 import org.example.hvvs.utils.CommonParam;
 import org.example.hvvs.utils.DigestUtils;
 import org.primefaces.model.file.UploadedFile;
-import com.warrenstrange.googleauth.GoogleAuthenticator;
-import com.warrenstrange.googleauth.GoogleAuthenticatorKey;
-import com.google.gson.Gson;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -52,8 +51,7 @@ public class SettingsControllerAdmin implements Serializable {
     private String totpCode;
     private String qrCodeUrl;
     private String tempSecret;
-    private List<String> backupCodes;
-    private final GoogleAuthenticator gAuth = new GoogleAuthenticator();
+    private List<String> recoveryCodes;
     private final Gson gson = new Gson();
 
     // MFA - Email/SMS
@@ -71,6 +69,8 @@ public class SettingsControllerAdmin implements Serializable {
     private MediaService mediaService;
     @EJB
     private SessionService sessionService;
+    @EJB
+    private AuthServices authServices;
 
     @EJB
     private UsersFacade usersFacade;
@@ -101,11 +101,10 @@ public class SettingsControllerAdmin implements Serializable {
         loadProfileImage();
     }
 
-    // General.xhtml
+    // ---------------------------------
+    // General Profile/Image
+    // ---------------------------------
 
-    /**
-     * Action method to save personal information
-     */
     private void loadProfileImage() {
         List<Medias> profileMedias = mediaService.findByModelAndModelId("user", user.getId().toString());
         if (!profileMedias.isEmpty()) {
@@ -135,9 +134,8 @@ public class SettingsControllerAdmin implements Serializable {
                     input
             );
 
-
             // Upload new image
-            Medias media = mediaService.uploadFile(part, "user", userId, "profile-pictures");
+            mediaService.uploadFile(part, "user", userId, "profile-pictures");
             loadProfileImage();
 
             FacesContext.getCurrentInstance().addMessage(null,
@@ -162,39 +160,31 @@ public class SettingsControllerAdmin implements Serializable {
             }
 
             // Check if email is already taken by another user
-            if (usersFacade.isEmailExists(user.getEmail())) {
+            if (usersFacade.isEmailExists(user.getEmail()) &&
+                !user.getEmail().equalsIgnoreCase(usersFacade.find(user.getId()).getEmail())) {
                 FacesContext.getCurrentInstance().addMessage(null,
                         new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                                "Error",
-                                "This email is already registered to another account."));
+                                "Error", "This email is already registered to another account."));
                 resetUserData();
                 return null;
             }
 
             // Update timestamp
             user.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
-
             usersFacade.edit(user);
 
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_INFO,
-                            "Success",
-                            "Your personal information has been saved."));
-
+                            "Success", "Your personal information has been saved."));
         } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                            "Error",
-                            "An error occurred while saving your information. Please try again later."));
+                            "Error", "An error occurred while saving your information. Please try again later."));
             resetUserData();
         }
-
         return null;
     }
 
-    /**
-     * Helper method to reset user data from database
-     */
     private void resetUserData() {
         Users currentUser = (Users) FacesContext
                 .getCurrentInstance()
@@ -208,72 +198,55 @@ public class SettingsControllerAdmin implements Serializable {
         }
     }
 
-    // account.xhtml
+    // ---------------------------------
+    // Username & Password
+    // ---------------------------------
 
-    /**
-     * Action method to update username
-     */
     @Transactional
     public String updateUsername() {
         try {
-            // Basic validation
             if (user.getUsername() == null || user.getUsername().trim().isEmpty()) {
                 FacesContext.getCurrentInstance().addMessage(null,
-                        new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                                "Error",
-                                "Username cannot be empty."));
+                        new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Username cannot be empty."));
                 resetUserData();
                 return null;
             }
 
-            // Check if username is already taken
-            if (usersFacade.isUsernameExists(user.getUsername())) {
+            if (usersFacade.isUsernameExists(user.getUsername()) &&
+                !user.getUsername().equalsIgnoreCase(usersFacade.find(user.getId()).getUsername())) {
                 FacesContext.getCurrentInstance().addMessage(null,
-                        new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                                "Error",
-                                "This username is already taken."));
+                        new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "This username is already taken."));
                 resetUserData();
                 return null;
             }
 
-            // Update timestamp
             user.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
-
-            // Save changes
             usersFacade.edit(user);
 
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_INFO,
-                            "Success",
-                            "Your username has been updated."));
+                            "Success", "Your username has been updated."));
 
         } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                            "Error",
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error",
                             "An error occurred while updating your username. Please try again later."));
             resetUserData();
         }
-
         return null;
     }
 
-    // authentication-security.xhtml
-
-    /**
-     * Action method to update password
-     */
     @Transactional
     public String updatePassword() {
         try {
             // Basic validation
             if (oldPassword == null || oldPassword.trim().isEmpty() ||
-                    newPassword == null || newPassword.trim().isEmpty() ||
-                    confirmNewPassword == null || confirmNewPassword.trim().isEmpty()) {
+                newPassword == null || newPassword.trim().isEmpty() ||
+                confirmNewPassword == null || confirmNewPassword.trim().isEmpty()) {
+
                 FacesContext.getCurrentInstance().addMessage(null,
                         new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                                "Error",
-                                "All password fields are required."));
+                                "Error", "All password fields are required."));
                 resetUserData();
                 return null;
             }
@@ -283,8 +256,7 @@ public class SettingsControllerAdmin implements Serializable {
             if (!user.getPassword().equals(oldPassDigest)) {
                 FacesContext.getCurrentInstance().addMessage(null,
                         new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                                "Error",
-                                "Current password is incorrect."));
+                                "Error", "Current password is incorrect."));
                 resetUserData();
                 return null;
             }
@@ -293,18 +265,16 @@ public class SettingsControllerAdmin implements Serializable {
             if (!newPassword.equals(confirmNewPassword)) {
                 FacesContext.getCurrentInstance().addMessage(null,
                         new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                                "Error",
-                                "New passwords do not match."));
+                                "Error", "New passwords do not match."));
                 resetUserData();
                 return null;
             }
 
-            // Validate new password strength (you can add more rules)
+            // Validate new password strength
             if (newPassword.length() < 8) {
                 FacesContext.getCurrentInstance().addMessage(null,
                         new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                                "Error",
-                                "New password must be at least 8 characters long."));
+                                "Error", "New password must be at least 8 characters long."));
                 resetUserData();
                 return null;
             }
@@ -313,46 +283,42 @@ public class SettingsControllerAdmin implements Serializable {
             String newPassDigest = DigestUtils.sha256Digest(user.getSalt() + newPassword);
             user.setPassword(newPassDigest);
             user.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
-
-            // Save changes
             usersFacade.edit(user);
 
-            // Clear password fields
             oldPassword = null;
             newPassword = null;
             confirmNewPassword = null;
 
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_INFO,
-                            "Success",
-                            "Your password has been updated."));
+                            "Success", "Your password has been updated."));
 
         } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                            "Error",
-                            "An error occurred while updating your password. Please try again later."));
+                            "Error", "An error occurred while updating your password. Please try again later."));
             resetUserData();
         }
-
         return null;
     }
 
+    // ---------------------------------
+    // TOTP (Google Authenticator)
+    // ---------------------------------
+
     public void initializeTOTP2FA() {
         try {
-            // Generate new TOTP secret
-            GoogleAuthenticatorKey key = gAuth.createCredentials();
-            tempSecret = key.getKey();
+            // Generate secret & backup codes from AuthServices
+            tempSecret = authServices.generateTotpSecret();
+            recoveryCodes = authServices.generateRecoveryCodes();
 
-            // Generate TOTP URL
+            // Build the otpauth:// URL for QR code usage
             String encodedIssuer = URLEncoder.encode("HostelGuard™", StandardCharsets.UTF_8);
             String encodedEmail = URLEncoder.encode(user.getEmail(), StandardCharsets.UTF_8);
-            qrCodeUrl = String.format("otpauth://totp/%s:%s?secret=%s&issuer=%s&algorithm=SHA1&digits=6&period=30",
-                    encodedIssuer, encodedEmail, tempSecret, encodedIssuer);
-
-            // Generate backup codes
-            backupCodes = generateBackupCodes();
-
+            qrCodeUrl = String.format(
+                    "otpauth://totp/%s:%s?secret=%s&issuer=%s&algorithm=SHA1&digits=6&period=30",
+                    encodedIssuer, encodedEmail, tempSecret, encodedIssuer
+            );
         } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error",
@@ -360,22 +326,11 @@ public class SettingsControllerAdmin implements Serializable {
         }
     }
 
-    private List<String> generateBackupCodes() {
-        List<String> codes = new ArrayList<>();
-        Random random = new Random();
-        for (int i = 0; i < 10; i++) {
-            String code = String.format("%08d", random.nextInt(100000000));
-            codes.add(code);
-        }
-        return codes;
-    }
-
     @Transactional
     public void verifyAndEnableTOTP() {
         try {
-            // Verify the provided TOTP code
-            boolean isCodeValid = gAuth.authorize(tempSecret, Integer.parseInt(totpCode));
-
+            // Verify the provided TOTP code using AuthServices
+            boolean isCodeValid = authServices.verifyTotpCode(tempSecret, Integer.parseInt(totpCode));
             if (!isCodeValid) {
                 FacesContext.getCurrentInstance().addMessage(null,
                         new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error",
@@ -383,41 +338,21 @@ public class SettingsControllerAdmin implements Serializable {
                 return;
             }
 
-            // Check if this is the first MFA method
-            List<MfaMethods> existingMethods = mfaMethodsFacade.findMfaMethodsByUser(user);
-            boolean isFirstMethod = existingMethods.isEmpty();
-
-            // Create new MFA method
-            MfaMethods mfaMethod = new MfaMethods();
-            mfaMethod.setUser(user);
-            mfaMethod.setMethod(MfaMethods.MfaMethodType.TOTP);
-            mfaMethod.setSecret(tempSecret);
-            mfaMethod.setRecoveryCodes(gson.toJson(backupCodes));
-            mfaMethod.setPrimary(isFirstMethod); // Set primary only if it's the first method
-            mfaMethod.setEnabled(true);
-            mfaMethod.setCreatedAt(new Timestamp(System.currentTimeMillis()));
-            mfaMethod.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
-
-            // Save MFA method
-            mfaMethodsFacade.create(mfaMethod);
-
-            // Update user's MFA status
-            user.setIs_mfa_enable(true);
-            user.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
-            usersFacade.edit(user);
+            // Create the MFA entity (this automatically updates user.is_mfa_enable if it's the first method)
+            authServices.createMFA(user, MfaMethods.MfaMethodType.TOTP, tempSecret, recoveryCodes);
 
             // Clear sensitive data
             tempSecret = null;
             totpCode = null;
             qrCodeUrl = null;
-            backupCodes = null;
+            recoveryCodes = null;
 
-            // Force refresh of user data
+            // Refresh user
             user = usersFacade.find(user.getId());
 
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_INFO, "Success",
-                            "Two-factor authentication has been enabled."));
+                            "Two-factor authentication (TOTP) has been enabled."));
 
         } catch (NumberFormatException e) {
             FacesContext.getCurrentInstance().addMessage(null,
@@ -426,60 +361,41 @@ public class SettingsControllerAdmin implements Serializable {
         } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error",
-                            "Failed to enable 2FA: " + e.getMessage()));
+                            "Failed to enable TOTP 2FA: " + e.getMessage()));
         }
     }
 
     @Transactional
     public void disableTOTP() {
         try {
-            // Refresh the user entity
-            user = usersFacade.find(user.getId());
+            // Delegate disabling logic to AuthServices
+            authServices.disableMFA(user, MfaMethods.MfaMethodType.TOTP);
 
-            // Find and delete all TOTP methods
-            List<MfaMethods> mfaMethods = mfaMethodsFacade.findMfaMethodsByUser(user);
-            for (MfaMethods method : mfaMethods) {
-                if (method.getMethod() == MfaMethods.MfaMethodType.TOTP) {
-                    MfaMethods freshMethod = mfaMethodsFacade.find(method.getId());
-                    if (freshMethod != null) {
-                        mfaMethodsFacade.remove(freshMethod);
-                    }
-                }
-            }
-
-            // Update user's MFA status only if no methods remain
-            List<MfaMethods> remainingMethods = mfaMethodsFacade.findMfaMethodsByUser(user);
-            user.setIs_mfa_enable(!remainingMethods.isEmpty());
-            user.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
-            usersFacade.edit(user);
-
-            // Clear cached data
+            // Clear any UI-cached references
             sessions = null;
 
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_INFO, "Success",
-                            "Two-factor authentication has been disabled."));
+                            "Two-factor authentication (TOTP) has been disabled."));
         } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error",
-                            "Failed to disable 2FA: " + e.getMessage()));
+                            "Failed to disable TOTP 2FA: " + e.getMessage()));
         }
     }
 
     public boolean getHasTOTPEnabled() {
         try {
-            if (user == null) {
-                return false;
-            }
-            // Get fresh user data
+            if (user == null) return false;
+
+            // Always reload fresh user
             Users freshUser = usersFacade.find(user.getId());
-            if (!Boolean.TRUE.equals(freshUser.getIs_mfa_enable())) {
-                return false;
-            }
+            if (!Boolean.TRUE.equals(freshUser.getIs_mfa_enable())) return false;
+
             List<MfaMethods> mfaMethods = mfaMethodsFacade.findMfaMethodsByUser(freshUser);
             return mfaMethods.stream()
-                    .anyMatch(method -> method.getMethod() == MfaMethods.MfaMethodType.TOTP &&
-                            Boolean.TRUE.equals(method.getEnabled()));
+                    .anyMatch(method -> method.getMethod() == MfaMethods.MfaMethodType.TOTP
+                            && Boolean.TRUE.equals(method.getEnabled()));
         } catch (Exception e) {
             return false;
         }
@@ -556,30 +472,32 @@ public class SettingsControllerAdmin implements Serializable {
                 .toList();
     }
 
+    // ---------------------------------
+    // Email / SMS MFA (placeholders)
+    // ---------------------------------
+
     public void initializeSMS2FA() {
-        System.out.println("Enabling SMS 2FA...");
-        // Generate mock verification code
+        // Generate or send code via Twilio or similar
+        // For demo, we just do a mock code & store it
         String mockCode = String.format("%06d", new Random().nextInt(999999));
         System.out.println("Mock SMS verification code generated: " + mockCode);
 
-        // Generate backup codes
-        backupCodes = generateBackupCodes();
+        // Also generate recovery codes
+        recoveryCodes = authServices.generateRecoveryCodes();
     }
 
     public void initializeEmail2FA() {
-        System.out.println("Enabling Email 2FA...");
-        // Generate mock verification code
+        // Generate or send code via email
         String mockCode = String.format("%06d", new Random().nextInt(999999));
         System.out.println("Mock email verification code generated: " + mockCode);
 
-        // Generate backup codes
-        backupCodes = generateBackupCodes();
+        // Generate recovery codes
+        recoveryCodes = authServices.generateRecoveryCodes();
     }
 
     @Transactional
     public void verifyAndEnableSMSVerification() {
         try {
-            // Verify the provided SMS code
             if (smsVerificationCode == null || smsVerificationCode.length() != 6) {
                 FacesContext.getCurrentInstance().addMessage(null,
                         new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error",
@@ -587,52 +505,31 @@ public class SettingsControllerAdmin implements Serializable {
                 return;
             }
 
-            // Check if this is the first MFA method
-            List<MfaMethods> existingMethods = mfaMethodsFacade.findMfaMethodsByUser(user);
-            boolean isFirstMethod = existingMethods.isEmpty();
+            // In a real system, you'd compare smsVerificationCode to what you sent the user.
+            // If valid, proceed:
+            authServices.createMFA(user, MfaMethods.MfaMethodType.SMS, null, recoveryCodes);
 
-            // Create new MFA method
-            MfaMethods mfaMethod = new MfaMethods();
-            mfaMethod.setUser(user);
-            mfaMethod.setMethod(MfaMethods.MfaMethodType.SMS);
-            mfaMethod.setEnabled(true);
-            mfaMethod.setPrimary(isFirstMethod); // Set primary only if it's the first method
-            mfaMethod.setRecoveryCodes(gson.toJson(backupCodes));
-            mfaMethod.setCreatedAt(new Timestamp(System.currentTimeMillis()));
-            mfaMethod.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
-
-            // Save MFA method
-            mfaMethodsFacade.create(mfaMethod);
-
-            // Update user's MFA status
-            user.setIs_mfa_enable(true);
-            user.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
-            usersFacade.edit(user);
-
-            // Force refresh of user data
+            // Refresh user
             user = usersFacade.find(user.getId());
 
-            // Clear verification data but keep backup codes for display
             smsVerificationCode = null;
             hasSMSEnabled = true;
 
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_INFO, "Success",
-                            "SMS two-factor authentication has been enabled. Please save your recovery codes."));
-
+                            "SMS 2FA enabled. Please save your recovery codes."));
         } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error",
                             "Failed to enable SMS 2FA: " + e.getMessage()));
             smsVerificationCode = null;
-            backupCodes = null;
+            recoveryCodes = null;
         }
     }
 
     @Transactional
     public void verifyAndEnableEmailVerification() {
         try {
-            // Verify the provided email code
             if (emailVerificationCode == null || emailVerificationCode.length() != 6) {
                 FacesContext.getCurrentInstance().addMessage(null,
                         new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error",
@@ -640,69 +537,32 @@ public class SettingsControllerAdmin implements Serializable {
                 return;
             }
 
-            // Check if this is the first MFA method
-            List<MfaMethods> existingMethods = mfaMethodsFacade.findMfaMethodsByUser(user);
-            boolean isFirstMethod = existingMethods.isEmpty();
+            // In a real system, you'd compare emailVerificationCode to what you actually emailed the user.
+            // If valid, proceed:
+            authServices.createMFA(user, MfaMethods.MfaMethodType.EMAIL, null, recoveryCodes);
 
-            // Create new MFA method
-            MfaMethods mfaMethod = new MfaMethods();
-            mfaMethod.setUser(user);
-            mfaMethod.setMethod(MfaMethods.MfaMethodType.EMAIL);
-            mfaMethod.setEnabled(true);
-            mfaMethod.setPrimary(isFirstMethod); // Set primary only if it's the first method
-            mfaMethod.setRecoveryCodes(gson.toJson(backupCodes));
-            mfaMethod.setCreatedAt(new Timestamp(System.currentTimeMillis()));
-            mfaMethod.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
+            // Refresh user
+            user = usersFacade.find(user.getId());
 
-            // Save MFA method
-            mfaMethodsFacade.create(mfaMethod);
-
-            // Update user's MFA status
-            user.setIs_mfa_enable(true);
-            user.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
-            usersFacade.edit(user);
-
-            // Clear verification data but keep backup codes for display
             emailVerificationCode = null;
             hasEmailEnabled = true;
 
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_INFO, "Success",
-                            "Email two-factor authentication has been enabled. Please save your recovery codes."));
-
+                            "Email 2FA enabled. Please save your recovery codes."));
         } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error",
                             "Failed to enable Email 2FA: " + e.getMessage()));
             emailVerificationCode = null;
-            backupCodes = null;
+            recoveryCodes = null;
         }
     }
 
     @Transactional
     public void disableEmail2FA() {
         try {
-            // Refresh the user entity
-            user = usersFacade.find(user.getId());
-
-            // Find and delete all Email MFA methods
-            List<MfaMethods> mfaMethods = mfaMethodsFacade.findMfaMethodsByUser(user);
-            for (MfaMethods method : mfaMethods) {
-                if (method.getMethod() == MfaMethods.MfaMethodType.EMAIL) {
-                    MfaMethods freshMethod = mfaMethodsFacade.find(method.getId());
-                    if (freshMethod != null) {
-                        mfaMethodsFacade.remove(freshMethod);
-                    }
-                }
-            }
-
-            // Update user's MFA status only if no methods remain
-            List<MfaMethods> remainingMethods = mfaMethodsFacade.findMfaMethodsByUser(user);
-            user.setIs_mfa_enable(!remainingMethods.isEmpty());
-            user.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
-            usersFacade.edit(user);
-
-            // Clear state
+            authServices.disableMFA(user, MfaMethods.MfaMethodType.EMAIL);
             hasEmailEnabled = false;
             emailVerificationCode = null;
 
@@ -719,27 +579,7 @@ public class SettingsControllerAdmin implements Serializable {
     @Transactional
     public void disableSMS2FA() {
         try {
-            // Refresh the user entity
-            user = usersFacade.find(user.getId());
-
-            // Find and delete all SMS MFA methods
-            List<MfaMethods> mfaMethods = mfaMethodsFacade.findMfaMethodsByUser(user);
-            for (MfaMethods method : mfaMethods) {
-                if (method.getMethod() == MfaMethods.MfaMethodType.SMS) {
-                    MfaMethods freshMethod = mfaMethodsFacade.find(method.getId());
-                    if (freshMethod != null) {
-                        mfaMethodsFacade.remove(freshMethod);
-                    }
-                }
-            }
-
-            // Update user's MFA status only if no methods remain
-            List<MfaMethods> remainingMethods = mfaMethodsFacade.findMfaMethodsByUser(user);
-            user.setIs_mfa_enable(!remainingMethods.isEmpty());
-            user.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
-            usersFacade.edit(user);
-
-            // Clear state
+            authServices.disableMFA(user, MfaMethods.MfaMethodType.SMS);
             hasSMSEnabled = false;
             smsVerificationCode = null;
 
@@ -753,47 +593,9 @@ public class SettingsControllerAdmin implements Serializable {
         }
     }
 
-    public boolean getHasEmailEnabled() {
-        try {
-            if (user == null) {
-                return false;
-            }
-            // Get fresh user data
-            Users freshUser = usersFacade.find(user.getId());
-            if (!Boolean.TRUE.equals(freshUser.getIs_mfa_enable())) {
-                return false;
-            }
-            List<MfaMethods> mfaMethods = mfaMethodsFacade.findMfaMethodsByUser(freshUser);
-            return mfaMethods.stream()
-                    .anyMatch(method -> method.getMethod() == MfaMethods.MfaMethodType.EMAIL &&
-                            Boolean.TRUE.equals(method.getEnabled()));
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    public boolean getHasSMSEnabled() {
-        try {
-            if (user == null) {
-                return false;
-            }
-            // Get fresh user data
-            Users freshUser = usersFacade.find(user.getId());
-            if (!Boolean.TRUE.equals(freshUser.getIs_mfa_enable())) {
-                return false;
-            }
-            List<MfaMethods> mfaMethods = mfaMethodsFacade.findMfaMethodsByUser(freshUser);
-            return mfaMethods.stream()
-                    .anyMatch(method -> method.getMethod() == MfaMethods.MfaMethodType.SMS &&
-                            Boolean.TRUE.equals(method.getEnabled()));
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    public List<String> getBackupCodes() {
-        if (backupCodes != null && !backupCodes.isEmpty()) {
-            return backupCodes;
+    public List<String> getRecoveryCodes() {
+        if (recoveryCodes != null && !recoveryCodes.isEmpty()) {
+            return recoveryCodes;
         }
 
         MfaMethods primaryMethod = mfaMethodsFacade.findMfaMethodsByUser(user)
@@ -808,9 +610,44 @@ public class SettingsControllerAdmin implements Serializable {
                 Collections.emptyList();
     }
 
+
+    public boolean getHasEmailEnabled() {
+        try {
+            if (user == null) return false;
+            Users freshUser = usersFacade.find(user.getId());
+            if (!Boolean.TRUE.equals(freshUser.getIs_mfa_enable())) return false;
+
+            return mfaMethodsFacade.findMfaMethodsByUser(freshUser)
+                    .stream()
+                    .anyMatch(method -> method.getMethod() == MfaMethods.MfaMethodType.EMAIL
+                            && Boolean.TRUE.equals(method.getEnabled()));
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public boolean getHasSMSEnabled() {
+        try {
+            if (user == null) return false;
+            Users freshUser = usersFacade.find(user.getId());
+            if (!Boolean.TRUE.equals(freshUser.getIs_mfa_enable())) return false;
+
+            return mfaMethodsFacade.findMfaMethodsByUser(freshUser)
+                    .stream()
+                    .anyMatch(method -> method.getMethod() == MfaMethods.MfaMethodType.SMS
+                            && Boolean.TRUE.equals(method.getEnabled()));
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    // ---------------------------------
+    // Session Management
+    // ---------------------------------
+
     public void reloadSessions() {
-        sessions = null; // Force refresh on next access
-        getSessions(); // Explicitly reload
+        sessions = null;
+        getSessions();
     }
 
     public List<UserSessions> getSessions() {
@@ -819,7 +656,7 @@ public class SettingsControllerAdmin implements Serializable {
                     .getExternalContext().getSessionMap().get(CommonParam.SESSION_SELF);
             sessions = sessionService.getActiveSessions(currentUser);
 
-            // Add location parsing for each session
+            // Example: parse location for each session
             sessions.forEach(session -> {
                 String location = sessionService.parseLocationFromIp(session.getIpAddress());
                 String[] parts = location.split(", ");
@@ -835,7 +672,7 @@ public class SettingsControllerAdmin implements Serializable {
 
     public void revokeSession(UUID sessionId) {
         sessionService.revokeSession(sessionId);
-        sessions = null; // Refresh session list
+        sessions = null;
         FacesContext.getCurrentInstance().addMessage(null,
                 new FacesMessage("Session revoked successfully"));
     }
@@ -846,12 +683,15 @@ public class SettingsControllerAdmin implements Serializable {
         sessionService.revokeAllSessions(currentUser.getId());
         sessions = null;
 
-        // Invalidate current session and redirect
+        // Invalidate current session
         FacesContext.getCurrentInstance().getExternalContext().invalidateSession();
         return "/auth/sign-in.xhtml?faces-redirect=true";
     }
 
-    // Getters & Setters
+    // ---------------------------------
+    // Getters / Setters
+    // ---------------------------------
+
     public Users getUser() {
         return user;
     }
@@ -868,7 +708,6 @@ public class SettingsControllerAdmin implements Serializable {
         this.managingStaffProfile = managingStaffProfile;
     }
 
-    // Password Fields
     public String getOldPassword() {
         return oldPassword;
     }
@@ -893,7 +732,6 @@ public class SettingsControllerAdmin implements Serializable {
         this.confirmNewPassword = confirmNewPassword;
     }
 
-    // Profile Image
     public Medias getProfileImage() {
         return profileImage;
     }
@@ -910,7 +748,6 @@ public class SettingsControllerAdmin implements Serializable {
         this.tempUploadedFile = tempUploadedFile;
     }
 
-    // MFA - TOTP
     public String getTotpCode() {
         return totpCode;
     }
@@ -923,7 +760,6 @@ public class SettingsControllerAdmin implements Serializable {
         return qrCodeUrl;
     }
 
-    // MFA - General
     public MfaMethods.MfaMethodType getSelectedPrimaryMethod() {
         return selectedPrimaryMethod;
     }
@@ -932,7 +768,6 @@ public class SettingsControllerAdmin implements Serializable {
         this.selectedPrimaryMethod = selectedPrimaryMethod;
     }
 
-    // MFA - Email/SMS
     public String getEmailVerificationCode() {
         return emailVerificationCode;
     }
@@ -949,7 +784,6 @@ public class SettingsControllerAdmin implements Serializable {
         this.smsVerificationCode = smsVerificationCode;
     }
 
-    // Session Management
     public UUID getCurrentSessionId() {
         return currentSessionId;
     }

@@ -329,8 +329,13 @@
                                                  placeholder="000000"/>
                                     <p:commandButton value="Verify and enable"
                                                      action="#{SettingsControllerAdmin.verifyAndEnableTOTP}"
-                                                     update="twoFactorForm totpSetupForm messages"
-                                                     oncomplete="if (args &amp;&amp; !args.validationFailed) PF('totpSetupDialog').hide()"
+                                                     update="twoFactorForm totpSetupForm messages :recoveryCodesForm"
+                                                     oncomplete="
+                                                                if (args &amp;&amp; !args.validationFailed) {
+                                                                    PF('totpSetupDialog').hide();
+                                                                    PF('recoveryCodesDialog').show();
+                                                                }
+                                                             "
                                                      styleClass="p-button-primary"/>
                                 </div>
                             </div>
@@ -353,7 +358,7 @@
                                 Each code can only be used once.
                             </p>
                             <div class="grid grid-cols-2 gap-2">
-                                <ui:repeat value="#{SettingsControllerAdmin.backupCodes}" var="code">
+                                <ui:repeat value="#{SettingsControllerAdmin.recoveryCodes}" var="code">
                                     <div class="p-2 bg-gray-50 rounded text-mono text-sm">
                                         #{code}
                                     </div>

@@ -14,9 +14,11 @@ public interface AuthServices {
 
     String redirectBasedOnRole(Users user);
 
-    MfaMethods createMFA(Users user, MfaMethods.MfaMethodType methodType);
-
     MfaMethods createMFA(Users user, MfaMethods.MfaMethodType methodType, String totpSecret, List<String> recoveryCodes);
+
+    void disableMFA(Users user, MfaMethods.MfaMethodType methodType);
+
+    String generateTotpSecret();
 
     boolean verifyTotpCode(String secret, int code);
 
