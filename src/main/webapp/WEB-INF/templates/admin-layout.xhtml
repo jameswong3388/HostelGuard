@@ -50,6 +50,76 @@
     <!-- Messages -->
     <p:growl id="messages" showDetail="true" />
 
+    <!-- Idle Monitor Form -->
+    <h:form id="globalForm">
+        <!-- Idle Monitor -->
+        <p:idleMonitor
+                timeout="30000"
+                onidle="PF('idleDialog').show()"
+                onactive="PF('idleDialog').hide()" />
+
+        <!-- Hidden logout button for automatic logout -->
+        <p:commandButton id="autoLogoutBtn"
+                         style="display:none;"
+                         action="#{IdleMonitorController.handleIdle}"
+                         process="@this"
+                         update=":globalForm" />
+
+        <script type="text/javascript">
+            var idleDialogTimer;
+            var timeLeft = 0;
+
+            function startIdleTimer() {
+                timeLeft = 15; // show the dialog for 15 seconds
+                updateCountdownDisplay(timeLeft);
+
+                idleDialogTimer = setInterval(function() {
+                    timeLeft--;
+                    updateCountdownDisplay(timeLeft);
+
+                    if (timeLeft &lt;= 0) {
+                        clearInterval(idleDialogTimer);
+                        PF('idleDialog').hide();
+                        document.getElementById('globalForm:autoLogoutBtn').click();
+                    }
+                }, 1000);
+            }
+
+            function stopIdleTimer() {
+                clearInterval(idleDialogTimer);
+            }
+
+            function updateCountdownDisplay(value) {
+                var countdownEl = document.getElementById('countdown');
+                if (countdownEl) {
+                    countdownEl.innerHTML = value;
+                }
+            }
+        </script>
+
+        <!-- Idle Dialog -->
+        <p:dialog
+                widgetVar="idleDialog"
+                header="Session Timeout Warning"
+                modal="true"
+                closable="false"
+                resizable="false"
+                appendTo="@body"
+                onShow="startIdleTimer()"
+                onHide="stopIdleTimer()">
+
+            <h:panelGrid columns="1" styleClass="p-4">
+                <h:outputText
+                        value="You have been inactive for a while. You will be logged out unless you continue your session."
+                        styleClass="text-gray-700" />
+                <br />
+                <h:outputText value="You will be logged out in " styleClass="text-gray-700" />
+                <span id="countdown" class="text-red-600 font-bold"></span>
+                <h:outputText value=" seconds." styleClass="text-gray-700" />
+            </h:panelGrid>
+        </p:dialog>
+    </h:form>
+
     <!-- Secondary Tab Nav -->
     <nav class="flex items-center space-x-8 px-12 py-2 bg-white border-b">
         <ui:insert name="navigation">
