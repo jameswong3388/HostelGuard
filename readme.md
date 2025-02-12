@@ -66,7 +66,7 @@ docker compose up -d
     </dependencies>
 </module>
 ```
-3. JDBC Setup (Wildfly)
+3. JDBC Setup (Wildfly -> Configuration -> Subsystems -> Datasources & Drivers) 
 - Name: mysql
 - Driver Module name: com.mysql
 - Driver Class Name com.mysql.cj.jdbc.Driver
