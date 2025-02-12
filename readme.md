@@ -66,11 +66,11 @@ docker compose up -d
     </dependencies>
 </module>
 ```
-3. JDBC Setup (Wildfly -> Configuration -> Subsystems -> Datasources & Drivers) 
+3. JDBC Driver Setup (Wildfly -> Configuration -> Subsystems -> Datasources & Drivers) 
 - Name: mysql
 - Driver Module name: com.mysql
 - Driver Class Name com.mysql.cj.jdbc.Driver
-4. Datasource (setup)
+4. JDBC Datasource Setup
 5. WildFly Settings (IntelliJ):
 - Add new configuration
 - Select Wildfly
