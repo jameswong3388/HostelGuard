@@ -52,8 +52,9 @@ Boot up mysql server
 docker compose up -d 
 ```
 2. Add new module in Wildfly directory
+- Create `/mysql/main` in `/opt/homebrew/Cellar/wildfly-as/35.0.1/libexec/modules/system/layers/base/com`
 - Download `mysql-connector-j-8.0.33.jar` and place in `/opt/homebrew/Cellar/wildfly-as/35.0.1/libexec/modules/system/layers/base/com/mysql/main/mysql-connector-j-8.0.33.jar`
-- Create `module.xml`
+- Create `module.xml` and place in `/opt/homebrew/Cellar/wildfly-as/35.0.1/libexec/modules/system/layers/base/com/mysql/main/`
 ```xml
 <module xmlns="urn:jboss:module:1.5" name="com.mysql">
     <resources>
