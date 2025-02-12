@@ -12,6 +12,7 @@ https://github.com/user-attachments/assets/440058af-d7d9-472f-9d3f-5a79bf7ae4eb
 - Multi-device session management with geolocation tracking and device fingerprinting
 - Role-based access control (Resident/Security/Admin) with hierarchical permissions
 - File upload handling with content validation
+- Rate limiting for authentication endpoints
 
 ### Security Features
 - QR code generation/validation system for visitor verification
