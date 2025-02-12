@@ -299,7 +299,7 @@ def main():
         print("Inserting Managing Staff...")
         # Define fixed credentials for testing
         managing_username = "manager.test"
-        managing_email = "manager.test@example.com"
+        managing_email = "jameswong0517@gmail.com"
         existing_usernames.add(managing_username)
         existing_emails.add(managing_email)
 
