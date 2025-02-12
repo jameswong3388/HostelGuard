@@ -54,6 +54,7 @@ public class SignInController implements Serializable {
                 MfaMethods primaryMethod = mfaMethodsFacade.findPrimaryMfaMethodByUser(user);
 
                 if (primaryMethod == null) {
+                    FacesContext.getCurrentInstance().getExternalContext().getFlash().setKeepMessages(true);
                     FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(
                             FacesMessage.SEVERITY_ERROR, "Error", "There is no primary MFA method associated with the user."));
                     return "/auth/sign-in.xhtml?faces-redirect=true";
