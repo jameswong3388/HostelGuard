@@ -97,28 +97,5 @@ Access via: `https://your-domain:8443/HVVS-1.0-SNAPSHOT/`
 | Role              | Default Landing Page       |
 |-------------------|-----------------------------|
 | Resident          | /resident/requests.xhtml    |
-| Security Staff    | /security/onboard-visitors.xhtml |tion.api"/>
-    </dependencies>
-</module>
-```
-3. JDBC Driver Setup (Wildfly -> Configuration -> Subsystems -> Datasources & Drivers) 
-- Name: mysql
-- Driver Module name: com.mysql
-- Driver Class Name com.mysql.cj.jdbc.Driver
-4. JDBC Datasource Setup
-5. WildFly Settings (IntelliJ):
-- Add new configuration
-- Select Wildfly
-- Add URL `https://localhost:8443/HVVS-1.0-SNAPSHOT/` to Server section
-- Add `HVVS:war exploded` to Deployment section
-- Run
-
-## Usage
-
-Access via: `https://your-domain:8443/HVVS-1.0-SNAPSHOT/`
-
-| Role              | Default Landing Page       |
-|-------------------|-----------------------------|
-| Resident          | /resident/requests.xhtml    |
 | Security Staff    | /security/onboard-visitors.xhtml |
 | Admin             | /admin/dashboard.xhtml      |
