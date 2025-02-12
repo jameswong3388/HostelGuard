@@ -11,7 +11,7 @@ https://github.com/user-attachments/assets/440058af-d7d9-472f-9d3f-5a79bf7ae4eb
 - Secure password storage using SHA-256 hashing with individual salts
 - Multi-device session management with geolocation tracking and device fingerprinting
 - Role-based access control (Resident/Security/Admin) with hierarchical permissions
-- File upload handling with virus scanning and content validation
+- File upload handling with content validation
 
 ### Security Features
 - QR code generation/validation system for visitor verification
