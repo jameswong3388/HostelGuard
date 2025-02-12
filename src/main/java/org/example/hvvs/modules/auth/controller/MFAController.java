@@ -4,7 +4,6 @@ import jakarta.ejb.EJB;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.view.ViewScoped;
-import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.servlet.http.HttpServletRequest;
 import org.example.hvvs.model.MfaMethods;
@@ -75,15 +74,23 @@ public class MFAController implements Serializable {
                             "The recovery code you entered is incorrect or has already been used."));
                 }
             } else {
-                // Regular MFA verification
-                if (primaryMethod.getMethod() == MfaMethods.MfaMethodType.TOTP) {
-                    // Convert user input code to int
-                    int codeVal = Integer.parseInt(code);
-                    verificationSuccess = authServices.verifyTotpCode(primaryMethod.getSecret(), codeVal);
-                } else if (primaryMethod.getMethod() == MfaMethods.MfaMethodType.SMS) {
-                    verificationSuccess = authServices.verifyEmailCode(primaryMethod, code);
-                } else if (primaryMethod.getMethod() == MfaMethods.MfaMethodType.EMAIL) {
-                    verificationSuccess = authServices.verifyEmailCode(primaryMethod, code);
+                // Handle different MFA methods
+                switch (primaryMethod.getMethod()) {
+                    case TOTP:
+                        int codeVal = Integer.parseInt(code);
+                        verificationSuccess = authServices.verifyTotpCode(primaryMethod.getSecret(), codeVal);
+                        break;
+                    case SMS:
+                        verificationSuccess = authServices.verifyEmailCode(primaryMethod, code);
+                        break;
+                    case EMAIL:
+                        verificationSuccess = authServices.verifySMSCode(primaryMethod, code);
+                        break;
+                    default:
+                        ctx.addMessage(null, new FacesMessage(
+                                FacesMessage.SEVERITY_ERROR, "Error", 
+                                "Unsupported MFA method"));
+                        return null;
                 }
             }
 

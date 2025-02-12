@@ -6,7 +6,8 @@ import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
 import jakarta.inject.Named;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.inject.Inject;
+import org.example.hvvs.model.MfaMethods;
+import org.example.hvvs.model.MfaMethodsFacade;
 import org.example.hvvs.model.Users;
 import org.example.hvvs.modules.auth.service.AuthServices;
 import org.example.hvvs.utils.CommonParam;
@@ -24,6 +25,9 @@ public class SignInController implements Serializable {
 
     @EJB
     private SessionCacheManager sessionCacheManager;
+
+    @EJB
+    private MfaMethodsFacade mfaMethodsFacade;
 
     private String identifier; // Can be either email or username
     private String password;
@@ -46,6 +50,25 @@ public class SignInController implements Serializable {
                         .put(CommonParam.PRE_AUTH_USER, user);
 
                 password = null;
+
+                MfaMethods primaryMethod = mfaMethodsFacade.findPrimaryMfaMethodByUser(user);
+
+                if (primaryMethod == null) {
+                    FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(
+                            FacesMessage.SEVERITY_ERROR, "Error", "There is no primary MFA method associated with the user."));
+                    return "/auth/sign-in.xhtml?faces-redirect=true";
+                }
+
+                switch (primaryMethod.getMethod()) {
+                    case EMAIL:
+                        authServices.sendEmailCode(primaryMethod);
+                        break;
+                    case SMS:
+                        authServices.sendSMSCode(primaryMethod);
+                        break;
+                    case TOTP:
+                        break;
+                }
 
                 return "/auth/mfa.xhtml?faces-redirect=true";
             }

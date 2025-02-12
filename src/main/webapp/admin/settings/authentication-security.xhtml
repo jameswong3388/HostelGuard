@@ -326,16 +326,16 @@
                                     <p:inputText id="totpCode"
                                                  value="#{SettingsControllerAdmin.totpCode}"
                                                  styleClass="w-32"
-                                                 placeholder="000000"/>
+                                                 placeholder="000000"
+                                                 maxlength="6"
+                                    />
                                     <p:commandButton value="Verify and enable"
                                                      action="#{SettingsControllerAdmin.verifyAndEnableTOTP}"
                                                      update="twoFactorForm totpSetupForm messages :recoveryCodesForm"
-                                                     oncomplete="
-                                                                if (args &amp;&amp; !args.validationFailed) {
+                                                     oncomplete="if (args &amp;&amp; !args.validationFailed) {
                                                                     PF('totpSetupDialog').hide();
                                                                     PF('recoveryCodesDialog').show();
-                                                                }
-                                                             "
+                                                                 }"
                                                      styleClass="p-button-primary"/>
                                 </div>
                             </div>
@@ -387,13 +387,18 @@
                             <div class="flex items-center gap-4">
                                 <p:inputText id="emailCode"
                                              value="#{SettingsControllerAdmin.emailVerificationCode}"
-                                             styleClass="w-40"
-                                             placeholder="Enter 6-digit code"/>
+                                             placeholder="Enter 6-digit code"
+                                             maxlength="6"
+                                             styleClass="w-40"/>
                                 <p:commandButton value="Verify"
                                                  action="#{SettingsControllerAdmin.verifyAndEnableEmailVerification}"
-                                                 update=":twoFactorForm @form :recoveryCodesForm :messages"
-                                                 oncomplete="if (args &amp;&amp; !args.validationFailed) {PF('emailVerifyDialog').hide(); PF('recoveryCodesDialog').show();}"
-                                                 styleClass="p-button-primary"/>
+                                                 update=":twoFactorForm :emailVerifyForm :recoveryCodesForm :messages"
+                                                 oncomplete="if (args &amp;&amp; !args.validationFailed) {
+                                                                    PF('emailVerifyDialog').hide();
+                                                                    PF('recoveryCodesDialog').show();
+                                                                 }"
+                                                 styleClass="p-button-primary"
+                                />
                             </div>
                         </div>
                     </h:form>
@@ -409,12 +414,16 @@
                             <div class="flex items-center gap-4">
                                 <p:inputText id="smsCode"
                                              value="#{SettingsControllerAdmin.smsVerificationCode}"
+                                             maxlength="6"
                                              styleClass="w-40"
                                              placeholder="Enter 6-digit code"/>
                                 <p:commandButton value="Verify"
                                                  action="#{SettingsControllerAdmin.verifyAndEnableSMSVerification}"
-                                                 update=":twoFactorForm @form :recoveryCodesForm :messages"
-                                                 oncomplete="if (args &amp;&amp; !args.validationFailed) {PF('smsVerifyDialog').hide(); PF('recoveryCodesDialog').show();}"
+                                                 update=":twoFactorForm @smsVerifyForm :recoveryCodesForm :messages"
+                                                 oncomplete="if (args &amp;&amp; !args.validationFailed) {
+                                                                    PF('smsVerifyDialog').hide();
+                                                                    PF('recoveryCodesDialog').show();
+                                                                 }"
                                                  styleClass="p-button-primary"/>
                             </div>
                         </div>

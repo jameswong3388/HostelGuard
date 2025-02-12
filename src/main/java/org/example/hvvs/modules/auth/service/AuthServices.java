@@ -22,13 +22,15 @@ public interface AuthServices {
 
     boolean verifyTotpCode(String secret, int code);
 
-    ServiceResult<Void> sendSMSCode(MfaMethods method);
-
-    ServiceResult<Void> sendEmailCode(MfaMethods method);
+    boolean verifySMSCode(MfaMethods method, String userInput);
 
     boolean verifyEmailCode(MfaMethods method, String userInput);
 
     boolean verifyRecoveryCode(MfaMethods method, String codeUsed);
+
+    void sendSMSCode(MfaMethods method);
+
+    void sendEmailCode(MfaMethods method);
 
     List<String> generateRecoveryCodes();
 }

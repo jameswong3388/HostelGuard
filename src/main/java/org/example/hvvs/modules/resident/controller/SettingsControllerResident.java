@@ -25,6 +25,7 @@ import java.io.Serializable;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.*;
 
 @Named("SettingsControllerResident")
@@ -329,12 +330,24 @@ public class SettingsControllerResident implements Serializable {
     @Transactional
     public void verifyAndEnableTOTP() {
         try {
-            // Verify the provided TOTP code using AuthServices
-            boolean isCodeValid = authServices.verifyTotpCode(tempSecret, Integer.parseInt(totpCode));
-            if (!isCodeValid) {
+            if (totpCode == null || totpCode.trim().isEmpty()) {
+                totpCode = null;
                 FacesContext.getCurrentInstance().addMessage(null,
                         new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error",
                                 "Invalid verification code. Please try again."));
+                FacesContext.getCurrentInstance().validationFailed();
+                return;
+            }
+
+            // Verify the provided TOTP code using AuthServices
+            boolean isCodeValid = authServices.verifyTotpCode(tempSecret, Integer.parseInt(totpCode));
+
+            if (!isCodeValid) {
+                totpCode = null;
+                FacesContext.getCurrentInstance().addMessage(null,
+                        new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error",
+                                "Invalid verification code. Please try again."));
+                FacesContext.getCurrentInstance().validationFailed();
                 return;
             }
 
@@ -358,10 +371,14 @@ public class SettingsControllerResident implements Serializable {
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error",
                             "Invalid verification code format. Please enter only numbers."));
+            FacesContext.getCurrentInstance().validationFailed();
+
         } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error",
                             "Failed to enable TOTP 2FA: " + e.getMessage()));
+            FacesContext.getCurrentInstance().validationFailed();
+
         }
     }
 
@@ -392,7 +409,7 @@ public class SettingsControllerResident implements Serializable {
             Users freshUser = usersFacade.find(user.getId());
             if (!Boolean.TRUE.equals(freshUser.getIs_mfa_enable())) return false;
 
-            List<MfaMethods> mfaMethods = mfaMethodsFacade.findMfaMethodsByUser(freshUser);
+            List<MfaMethods> mfaMethods = mfaMethodsFacade.findEnabledMfaMethodsByUser(freshUser);
             return mfaMethods.stream()
                     .anyMatch(method -> method.getMethod() == MfaMethods.MfaMethodType.TOTP
                             && Boolean.TRUE.equals(method.getEnabled()));
@@ -402,7 +419,7 @@ public class SettingsControllerResident implements Serializable {
     }
 
     public String getPreferredMfaStatus() {
-        List<MfaMethods> enabledMethods = mfaMethodsFacade.findMfaMethodsByUser(user)
+        List<MfaMethods> enabledMethods = mfaMethodsFacade.findEnabledMfaMethodsByUser(user)
                 .stream()
                 .filter(m -> Boolean.TRUE.equals(m.getEnabled()))
                 .toList();
@@ -440,7 +457,7 @@ public class SettingsControllerResident implements Serializable {
                 return;
             }
 
-            List<MfaMethods> allMethods = mfaMethodsFacade.findMfaMethodsByUser(user);
+            List<MfaMethods> allMethods = mfaMethodsFacade.findEnabledMfaMethodsByUser(user);
 
             // Update all methods
             for (MfaMethods method : allMethods) {
@@ -466,7 +483,7 @@ public class SettingsControllerResident implements Serializable {
     }
 
     public List<MfaMethods> getEnabledMfaMethods() {
-        return mfaMethodsFacade.findMfaMethodsByUser(user)
+        return mfaMethodsFacade.findEnabledMfaMethodsByUser(user)
                 .stream()
                 .filter(m -> Boolean.TRUE.equals(m.getEnabled()))
                 .toList();
@@ -477,85 +494,164 @@ public class SettingsControllerResident implements Serializable {
     // ---------------------------------
 
     public void initializeSMS2FA() {
-        // Generate or send code via Twilio or similar
-        // For demo, we just do a mock code & store it
-        String mockCode = String.format("%06d", new Random().nextInt(999999));
-        System.out.println("Mock SMS verification code generated: " + mockCode);
+        try {
+            // Find or create email MFA method
+            MfaMethods smsMethod = mfaMethodsFacade.findMfaMethodsByUser(user)
+                    .stream()
+                    .filter(m -> m.getMethod() == MfaMethods.MfaMethodType.SMS)
+                    .findFirst()
+                    .orElseGet(() -> {
+                        MfaMethods newMethod = new MfaMethods();
+                        newMethod.setUser(user);
+                        newMethod.setMethod(MfaMethods.MfaMethodType.SMS);
+                        newMethod.setEnabled(false);
+                        newMethod.setUpdatedAt(Timestamp.from(Instant.now()));
+                        newMethod.setCreatedAt(Timestamp.from(Instant.now()));
+                        mfaMethodsFacade.create(newMethod);
+                        return newMethod;
+                    });
 
-        // Also generate recovery codes
-        recoveryCodes = authServices.generateRecoveryCodes();
-    }
+            // Send verification code via email
+            authServices.sendSMSCode(smsMethod);
 
-    public void initializeEmail2FA() {
-        // Generate or send code via email
-        String mockCode = String.format("%06d", new Random().nextInt(999999));
-        System.out.println("Mock email verification code generated: " + mockCode);
+            // Generate recovery codes
+            recoveryCodes = authServices.generateRecoveryCodes();
 
-        // Generate recovery codes
-        recoveryCodes = authServices.generateRecoveryCodes();
+        } catch (Exception e) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error",
+                            "Failed to initialize email 2FA: " + e.getMessage()));
+            FacesContext.getCurrentInstance().validationFailed();
+        }
     }
 
     @Transactional
     public void verifyAndEnableSMSVerification() {
         try {
-            if (smsVerificationCode == null || smsVerificationCode.length() != 6) {
+            MfaMethods smsMethod = mfaMethodsFacade.findMfaMethodsByUser(user)
+                    .stream()
+                    .filter(m -> m.getMethod() == MfaMethods.MfaMethodType.SMS)
+                    .findFirst()
+                    .orElseThrow(() -> new RuntimeException("SMS method not found"));
+
+            boolean isCodeValid = authServices.verifySMSCode(smsMethod, smsVerificationCode);
+
+            if (!isCodeValid) {
+                smsVerificationCode = null;
                 FacesContext.getCurrentInstance().addMessage(null,
                         new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error",
-                                "Invalid verification code. Please enter a 6-digit code."));
+                                "Invalid verification code"));
+                FacesContext.getCurrentInstance().validationFailed();
                 return;
             }
 
-            // In a real system, you'd compare smsVerificationCode to what you sent the user.
-            // If valid, proceed:
-            authServices.createMFA(user, MfaMethods.MfaMethodType.SMS, null, recoveryCodes);
+            // Enable the method and set recovery codes
+            smsMethod.setEnabled(true);
+            smsMethod.setRecoveryCodes(gson.toJson(recoveryCodes));
+            smsMethod.setUpdatedAt(Timestamp.from(Instant.now()));
 
-            // Refresh user
-            user = usersFacade.find(user.getId());
+            // Set as primary if first MFA method
+            MfaMethods primaryMfaMethodByUser = mfaMethodsFacade.findPrimaryMfaMethodByUser(user);
+            smsMethod.setPrimary(primaryMfaMethodByUser == null);
+            mfaMethodsFacade.edit(smsMethod);
 
-            smsVerificationCode = null;
-            hasSMSEnabled = true;
+            // Update user MFA status if first method
+            if (primaryMfaMethodByUser == null) {
+                user.setIs_mfa_enable(true);
+                usersFacade.edit(user);
+            }
 
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_INFO, "Success",
-                            "SMS 2FA enabled. Please save your recovery codes."));
+                            "Email 2FA enabled successfully"));
+
         } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error",
-                            "Failed to enable SMS 2FA: " + e.getMessage()));
-            smsVerificationCode = null;
-            recoveryCodes = null;
+                            "Verification failed: " + e.getMessage()));
+            FacesContext.getCurrentInstance().validationFailed();
+
+        }
+    }
+
+    public void initializeEmail2FA() {
+        try {
+            // Find or create email MFA method
+            MfaMethods emailMethod = mfaMethodsFacade.findMfaMethodsByUser(user)
+                .stream()
+                .filter(m -> m.getMethod() == MfaMethods.MfaMethodType.EMAIL)
+                .findFirst()
+                .orElseGet(() -> {
+                    MfaMethods newMethod = new MfaMethods();
+                    newMethod.setUser(user);
+                    newMethod.setMethod(MfaMethods.MfaMethodType.EMAIL);
+                    newMethod.setEnabled(false);
+                    newMethod.setUpdatedAt(Timestamp.from(Instant.now()));
+                    newMethod.setCreatedAt(Timestamp.from(Instant.now()));
+                    mfaMethodsFacade.create(newMethod);
+                    return newMethod;
+                });
+
+            // Send verification code via email
+            authServices.sendEmailCode(emailMethod);
+
+            // Generate recovery codes
+            recoveryCodes = authServices.generateRecoveryCodes();
+
+        } catch (Exception e) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error",
+                        "Failed to initialize email 2FA: " + e.getMessage()));
+            FacesContext.getCurrentInstance().validationFailed();
         }
     }
 
     @Transactional
     public void verifyAndEnableEmailVerification() {
         try {
-            if (emailVerificationCode == null || emailVerificationCode.length() != 6) {
+            MfaMethods emailMethod = mfaMethodsFacade.findMfaMethodsByUser(user)
+                .stream()
+                .filter(m -> m.getMethod() == MfaMethods.MfaMethodType.EMAIL)
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Email method not found"));
+
+            boolean isCodeValid = authServices.verifyEmailCode(emailMethod, emailVerificationCode);
+
+            if (!isCodeValid) {
+                emailVerificationCode = null;
                 FacesContext.getCurrentInstance().addMessage(null,
-                        new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error",
-                                "Invalid verification code. Please enter a 6-digit code."));
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error",
+                            "Invalid verification code"));
+                FacesContext.getCurrentInstance().validationFailed();
                 return;
             }
 
-            // In a real system, you'd compare emailVerificationCode to what you actually emailed the user.
-            // If valid, proceed:
-            authServices.createMFA(user, MfaMethods.MfaMethodType.EMAIL, null, recoveryCodes);
+            // Enable the method and set recovery codes
+            emailMethod.setEnabled(true);
+            emailMethod.setRecoveryCodes(gson.toJson(recoveryCodes));
+            emailMethod.setUpdatedAt(Timestamp.from(Instant.now()));
 
-            // Refresh user
-            user = usersFacade.find(user.getId());
+            // Set as primary if first MFA method
+            MfaMethods primaryMfaMethodByUser = mfaMethodsFacade.findPrimaryMfaMethodByUser(user);
+            emailMethod.setPrimary(primaryMfaMethodByUser == null);
+            mfaMethodsFacade.edit(emailMethod);
 
-            emailVerificationCode = null;
-            hasEmailEnabled = true;
+            // Update user MFA status if first method
+            if (primaryMfaMethodByUser == null) {
+                user.setIs_mfa_enable(true);
+                usersFacade.edit(user);
+            }
 
             FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_INFO, "Success",
-                            "Email 2FA enabled. Please save your recovery codes."));
+                new FacesMessage(FacesMessage.SEVERITY_INFO, "Success",
+                        "Email 2FA enabled successfully"));
+
         } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error",
-                            "Failed to enable Email 2FA: " + e.getMessage()));
-            emailVerificationCode = null;
-            recoveryCodes = null;
+                new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error",
+                        "Verification failed: " + e.getMessage()));
+            FacesContext.getCurrentInstance().validationFailed();
+
         }
     }
 
@@ -598,7 +694,7 @@ public class SettingsControllerResident implements Serializable {
             return recoveryCodes;
         }
 
-        MfaMethods primaryMethod = mfaMethodsFacade.findMfaMethodsByUser(user)
+        MfaMethods primaryMethod = mfaMethodsFacade.findEnabledMfaMethodsByUser(user)
                 .stream()
                 .filter(m -> Boolean.TRUE.equals(m.getEnabled()) && Boolean.TRUE.equals(m.getPrimary()))
                 .findFirst()
@@ -617,7 +713,7 @@ public class SettingsControllerResident implements Serializable {
             Users freshUser = usersFacade.find(user.getId());
             if (!Boolean.TRUE.equals(freshUser.getIs_mfa_enable())) return false;
 
-            return mfaMethodsFacade.findMfaMethodsByUser(freshUser)
+            return mfaMethodsFacade.findEnabledMfaMethodsByUser(freshUser)
                     .stream()
                     .anyMatch(method -> method.getMethod() == MfaMethods.MfaMethodType.EMAIL
                             && Boolean.TRUE.equals(method.getEnabled()));
@@ -632,7 +728,7 @@ public class SettingsControllerResident implements Serializable {
             Users freshUser = usersFacade.find(user.getId());
             if (!Boolean.TRUE.equals(freshUser.getIs_mfa_enable())) return false;
 
-            return mfaMethodsFacade.findMfaMethodsByUser(freshUser)
+            return mfaMethodsFacade.findEnabledMfaMethodsByUser(freshUser)
                     .stream()
                     .anyMatch(method -> method.getMethod() == MfaMethods.MfaMethodType.SMS
                             && Boolean.TRUE.equals(method.getEnabled()));

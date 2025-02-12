@@ -1,7 +1,6 @@
 package org.example.hvvs.middleware;
 
 import jakarta.ejb.EJB;
-import jakarta.inject.Inject;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

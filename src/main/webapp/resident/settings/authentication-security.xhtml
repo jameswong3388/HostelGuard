@@ -81,7 +81,8 @@
 
                             <!-- Confirm New Password -->
                             <div class="mb-4">
-                                <h:outputLabel for="confirmNewPassword" value="Confirm new password" styleClass="font-medium"/>
+                                <h:outputLabel for="confirmNewPassword" value="Confirm new password"
+                                               styleClass="font-medium"/>
                                 <p:password id="confirmNewPassword"
                                             value="#{SettingsControllerResident.confirmNewPassword}"
                                             styleClass="mt-2 w-full"
@@ -326,16 +327,16 @@
                                     <p:inputText id="totpCode"
                                                  value="#{SettingsControllerResident.totpCode}"
                                                  styleClass="w-32"
-                                                 placeholder="000000"/>
+                                                 placeholder="000000"
+                                                 maxlength="6"
+                                    />
                                     <p:commandButton value="Verify and enable"
                                                      action="#{SettingsControllerResident.verifyAndEnableTOTP}"
                                                      update="twoFactorForm totpSetupForm messages :recoveryCodesForm"
-                                                     oncomplete="
-                                                                if (args &amp;&amp; !args.validationFailed) {
+                                                     oncomplete="if (args &amp;&amp; !args.validationFailed) {
                                                                     PF('totpSetupDialog').hide();
                                                                     PF('recoveryCodesDialog').show();
-                                                                }
-                                                             "
+                                                                 }"
                                                      styleClass="p-button-primary"/>
                                 </div>
                             </div>
@@ -370,8 +371,8 @@
                             </p>
                             <div class="flex justify-end">
                                 <p:commandButton value="Close"
-                                               onclick="PF('recoveryCodesDialog').hide()"
-                                               styleClass="p-button-secondary"/>
+                                                 onclick="PF('recoveryCodesDialog').hide()"
+                                                 styleClass="p-button-secondary"/>
                             </div>
                         </div>
                     </h:form>
@@ -387,13 +388,18 @@
                             <div class="flex items-center gap-4">
                                 <p:inputText id="emailCode"
                                              value="#{SettingsControllerResident.emailVerificationCode}"
-                                             styleClass="w-40"
-                                             placeholder="Enter 6-digit code"/>
+                                             placeholder="Enter 6-digit code"
+                                             maxlength="6"
+                                             styleClass="w-40"/>
                                 <p:commandButton value="Verify"
                                                  action="#{SettingsControllerResident.verifyAndEnableEmailVerification}"
-                                                 update=":twoFactorForm @form :recoveryCodesForm :messages"
-                                                 oncomplete="if (args &amp;&amp; !args.validationFailed) {PF('emailVerifyDialog').hide(); PF('recoveryCodesDialog').show();}"
-                                                 styleClass="p-button-primary"/>
+                                                 update=":twoFactorForm :emailVerifyForm :recoveryCodesForm :messages"
+                                                 oncomplete="if (args &amp;&amp; !args.validationFailed) {
+                                                                    PF('emailVerifyDialog').hide();
+                                                                    PF('recoveryCodesDialog').show();
+                                                                 }"
+                                                 styleClass="p-button-primary"
+                                />
                             </div>
                         </div>
                     </h:form>
@@ -409,12 +415,16 @@
                             <div class="flex items-center gap-4">
                                 <p:inputText id="smsCode"
                                              value="#{SettingsControllerResident.smsVerificationCode}"
+                                             maxlength="6"
                                              styleClass="w-40"
                                              placeholder="Enter 6-digit code"/>
                                 <p:commandButton value="Verify"
                                                  action="#{SettingsControllerResident.verifyAndEnableSMSVerification}"
-                                                 update=":twoFactorForm @form :recoveryCodesForm :messages"
-                                                 oncomplete="if (args &amp;&amp; !args.validationFailed) {PF('smsVerifyDialog').hide(); PF('recoveryCodesDialog').show();}"
+                                                 update=":twoFactorForm @smsVerifyForm :recoveryCodesForm :messages"
+                                                 oncomplete="if (args &amp;&amp; !args.validationFailed) {
+                                                                    PF('smsVerifyDialog').hide();
+                                                                    PF('recoveryCodesDialog').show();
+                                                                 }"
                                                  styleClass="p-button-primary"/>
                             </div>
                         </div>

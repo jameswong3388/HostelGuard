@@ -31,7 +31,16 @@ public class MfaMethodsFacade extends AbstractFacade<MfaMethods> {
         super(MfaMethods.class);
     }
 
+
     public List<MfaMethods> findMfaMethodsByUser(Users user) {
+        TypedQuery<MfaMethods> query = em.createQuery(
+                "SELECT m FROM MfaMethods m WHERE m.user = :user",
+                MfaMethods.class);
+        query.setParameter("user", user);
+        return query.getResultList();
+    }
+
+    public List<MfaMethods> findEnabledMfaMethodsByUser(Users user) {
         TypedQuery<MfaMethods> query = em.createQuery(
                 "SELECT m FROM MfaMethods m WHERE m.user = :user AND m.isEnabled = true",
                 MfaMethods.class);
