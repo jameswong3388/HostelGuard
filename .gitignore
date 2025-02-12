@@ -39,3 +39,6 @@ build/
 
 ### GEOLite2 ###
 src/main/webapp/WEB-INF/GeoLite2-City.mmdb
+
+### ENV ###
+src/main/resources/META-INF/application.properties

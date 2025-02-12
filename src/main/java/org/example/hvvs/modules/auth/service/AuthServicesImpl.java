@@ -249,7 +249,7 @@ public class AuthServicesImpl implements AuthServices {
 
             // Load properties from configuration file
             Properties props = new Properties();
-            try (InputStream input = getClass().getClassLoader().getResourceAsStream("application.properties")) {
+            try (InputStream input = getClass().getClassLoader().getResourceAsStream("META-INF/application.properties")) {
                 if (input == null) {
                     throw new RuntimeException("Unable to find application.properties");
                 }
