@@ -51,12 +51,7 @@ Boot up mysql server
 ```bash
 docker compose up -d 
 ```
-2. JDBC Setup (Wildfly)
-- Name: mysql
-- Driver Module name: com.mysql
-- Driver Class Name com.mysql.cj.jdbc.Driver
-3. Datasource (setup)
-4. Add new module in Wildfly directory
+2. Add new module in Wildfly directory
 - Download `mysql-connector-j-8.0.33.jar` and place in `/opt/homebrew/Cellar/wildfly-as/35.0.1/libexec/modules/system/layers/base/com/mysql/main/mysql-connector-j-8.0.33.jar`
 - Create `module.xml`
 ```xml
@@ -70,6 +65,11 @@ docker compose up -d
     </dependencies>
 </module>
 ```
+3. JDBC Setup (Wildfly)
+- Name: mysql
+- Driver Module name: com.mysql
+- Driver Class Name com.mysql.cj.jdbc.Driver
+4. Datasource (setup)
 5. WildFly Settings (IntelliJ):
 - Add new configuration
 - Select Wildfly
