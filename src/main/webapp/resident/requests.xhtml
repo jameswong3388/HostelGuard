@@ -15,73 +15,80 @@
     </ui:define>
 
     <ui:define name="content">
-        <!-- New Request Dialog -->
-        <p:dialog header="New Visit Request"
-                  widgetVar="newRequestDialog"
-                  modal="true"
-                  width="500">
+        <p:sidebar id="newRequestSidebar"
+                   widgetVar="newRequestSidebar"
+                   position="right"
+                   style="width:600px;">
             <h:form id="newRequestForm">
-                <div class="p-fluid">
+                <div class="space-y-4">
+                    <!-- Sidebar Title -->
+                    <h2 class="text-xl font-semibold mb-4">New Visit Request</h2>
+
                     <!-- Unit Number (Read-only) -->
                     <div class="field mb-4">
-                        <p:outputLabel for="unitNumber" value="Unit Number"/>
+                        <p:outputLabel for="unitNumber" value="Unit Number" styleClass="block mb-1"/>
                         <p:inputText id="unitNumber"
                                      value="#{visitRequestControllerResident.residentProfile.unitNumber}"
-                                     readonly="true"/>
+                                     readonly="true"
+                                     styleClass="w-full"/>
                     </div>
 
                     <!-- Verification Code -->
                     <div class="field mb-4">
-                        <p:outputLabel for="verificationCode" value="Verification Code"/>
+                        <p:outputLabel for="verificationCode" value="Verification Code" styleClass="block mb-1"/>
                         <p:inputText id="verificationCode"
-                                     value="#{visitRequestControllerResident.newRequest.verificationCode}"/>
+                                     value="#{visitRequestControllerResident.newRequest.verificationCode}"
+                                     styleClass="w-full"/>
                     </div>
 
                     <!-- Combined Date/Time -->
                     <div class="field mb-4">
-                        <p:outputLabel for="visitDateTime" value="Visit Date/Time"/>
+                        <p:outputLabel for="visitDateTime" value="Visit Date/Time" styleClass="block mb-1"/>
                         <p:datePicker id="visitDateTime"
                                       value="#{visitRequestControllerResident.newRequest.visitDateTime}"
                                       pattern="MM/dd/yy HH:mm"
                                       showTime="true"
-                                      showIcon="true"
                                       converter="timestampConverter"
-                                      required="true"/>
+                                      required="true"
+                                      styleClass="w-full"/>
                     </div>
 
                     <!-- Number of Entries -->
                     <div class="field mb-4">
-                        <p:outputLabel for="numberOfEntries" value="Number of Entries"/>
+                        <p:outputLabel for="numberOfEntries" value="Number of Entries" styleClass="block mb-1"/>
                         <p:inputText id="numberOfEntries"
                                      value="#{visitRequestControllerResident.newRequest.numberOfEntries}"
-                                     required="true"/>
+                                     required="true"
+                                     styleClass="w-full"/>
                     </div>
 
                     <!-- Purpose -->
                     <div class="field mb-4">
-                        <p:outputLabel for="purpose" value="Purpose"/>
+                        <p:outputLabel for="purpose" value="Purpose" styleClass="block mb-1"/>
                         <p:inputTextarea id="purpose"
                                          value="#{visitRequestControllerResident.newRequest.purpose}"
                                          required="true"
-                                         rows="3"/>
+                                         rows="3"
+                                         styleClass="w-full"/>
                     </div>
 
+                    <!-- Action Buttons -->
                     <div class="flex justify-content-end gap-4">
                         <p:commandButton value="Cancel"
                                          icon="pi pi-times"
-                                         onclick="PF('newRequestDialog').hide(); return false;"
-                                         styleClass="p-button-text mr-2"
+                                         onclick="PF('newRequestSidebar').hide(); return false;"
+                                         styleClass="p-button-text mr-2 ui-button-warning"
                                          immediate="true"/>
                         <p:commandButton value="Submit"
                                          icon="pi pi-check"
                                          action="#{visitRequestControllerResident.createRequest}"
                                          update=":messages @form :requestsTableForm:requestsTable :qrCodeForm"
                                          styleClass="p-button-primary"
-                                         oncomplete="if (!args.validationFailed) { PF('newRequestDialog').hide(); PF('qrCodeDialog').show(); }"/>
+                                         oncomplete="if (!args.validationFailed) { PF('newRequestSidebar').hide(); PF('qrCodeDialog').show(); }"/>
                     </div>
                 </div>
             </h:form>
-        </p:dialog>
+        </p:sidebar>
 
         <!-- QR Code Dialog -->
         <p:dialog header="Visit Verification Code"
@@ -115,11 +122,11 @@
         <h:form id="requestsTableForm">
             <p:toolbar>
                 <p:toolbarGroup>
-                    <!-- "New Request" triggers the same dialog you already have -->
+                    <!-- "New Request" triggers the sidebar now -->
                     <p:commandButton value="New Request"
                                      icon="pi pi-plus"
                                      styleClass="ui-button-success"
-                                     onclick="PF('newRequestDialog').show(); return false;"
+                                     onclick="PF('newRequestSidebar').show(); return false;"
                                      style="margin-right: .5rem"/>
                 </p:toolbarGroup>
             </p:toolbar>
@@ -192,7 +199,7 @@
                     <p:cellEditor>
                         <f:facet name="output">
                             <h:outputText value="#{req.numberOfEntries}"/>
-                        </f:facet>  
+                        </f:facet>
                         <f:facet name="input">
                             <p:inputText value="#{req.numberOfEntries}"
                                          required="true"/>
@@ -242,16 +249,16 @@
                     </p:cellEditor>
                 </p:column>
 
-                <!--  Updated At-->
+                <!-- Updated At-->
                 <p:column headerText="Updated At" sortBy="#{req.updatedAt}">
                     <pe:timeAgo value="#{req.updatedAt}"
-                                titlePattern="MM/dd/yy HH:mm"  />
+                                titlePattern="MM/dd/yy HH:mm"/>
                 </p:column>
 
-                <!--  Created At-->
+                <!-- Created At-->
                 <p:column headerText="Created At" sortBy="#{req.createdAt}">
                     <pe:timeAgo value="#{req.createdAt}"
-                                titlePattern="MM/dd/yy HH:mm"  />
+                                titlePattern="MM/dd/yy HH:mm"/>
                 </p:column>
 
                 <!-- Row edit events -->
