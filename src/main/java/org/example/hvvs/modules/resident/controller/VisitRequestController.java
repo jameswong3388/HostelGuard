@@ -21,29 +21,19 @@ import java.util.UUID;
 @Named("visitRequestControllerResident")
 @SessionScoped
 public class VisitRequestController implements Serializable {
-
-    private VisitRequests newRequest;
-    private List<VisitRequests> userRequests;
-    private ResidentProfiles residentProfile;
-
     @EJB
     private ResidentProfilesFacade residentProfilesFacade;
 
     @EJB
     private VisitRequestsFacade visitRequestsFacade;
 
+    private VisitRequests newRequest;
+    private List<VisitRequests> userRequests;
+    private ResidentProfiles residentProfile;
     private List<VisitRequests> selectedRequests;
     private List<VisitRequests> filteredRequests;
-
     private String currentQrCode;
-
-    public List<VisitRequests> getFilteredRequests() {
-        return filteredRequests;
-    }
-
-    public void setFilteredRequests(List<VisitRequests> filteredRequests) {
-        this.filteredRequests = filteredRequests;
-    }
+    private VisitRequests editingRequest;
 
     public boolean globalFilterFunction(Object value, Object filter, Locale locale) {
         String filterText = (filter == null) ? null : filter.toString().trim().toLowerCase();
@@ -84,41 +74,6 @@ public class VisitRequestController implements Serializable {
         loadUserRequests();
     }
 
-    public VisitRequests getNewRequest() {
-        return newRequest;
-    }
-
-    public void setNewRequest(VisitRequests newRequest) {
-        this.newRequest = newRequest;
-    }
-
-    public List<VisitRequests> getUserRequests() {
-        return userRequests;
-    }
-
-    public List<VisitRequests> getSelectedRequests() {
-        return selectedRequests;
-    }
-
-    public void setSelectedRequests(List<VisitRequests> selectedRequests) {
-        this.selectedRequests = selectedRequests;
-    }
-
-    public ResidentProfiles getResidentProfile() {
-        return residentProfile;
-    }
-
-    public void setResidentProfile(ResidentProfiles residentProfile) {
-        this.residentProfile = residentProfile;
-    }
-
-    public String getCurrentQrCode() {
-        return currentQrCode;
-    }
-
-    public void setCurrentQrCode(String currentQrCode) {
-        this.currentQrCode = currentQrCode;
-    }
     /**
      * Called in @PostConstruct or whenever you need to refresh the table data
      */
@@ -200,59 +155,107 @@ public class VisitRequestController implements Serializable {
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR,
                             "Error", "Failed to create visit request: " + e.getMessage()));
+            FacesContext.getCurrentInstance().validationFailed();
         }
     }
 
-    /**
-     * Called by PrimeFaces rowEdit event when a row is saved (after inline editing).
-     */
     @Transactional
-    public void onRowEdit(RowEditEvent<VisitRequests> event) {
+    public String revokeRequest() {
         try {
-            VisitRequests editedRequest = event.getObject();
-            editedRequest.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
-            visitRequestsFacade.edit(editedRequest);
-
-            FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_INFO, "Success", "Request updated"));
-        } catch (Exception e) {
-            FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Could not update request: " + e.getMessage()));
-        }
-    }
-
-    /**
-     * Called by PrimeFaces rowEdit event when a row edit is canceled.
-     */
-    public void onRowCancel(RowEditEvent<VisitRequests> event) {
-        FacesContext.getCurrentInstance().addMessage(null,
-                new FacesMessage(FacesMessage.SEVERITY_INFO, "Cancelled", "No changes were saved"));
-    }
-
-    @Transactional
-    public String cancelRequest(VisitRequests request) {
-        try {
-            // Mark as canceled (or any other logic you need)
-            request.setStatus("CANCELLED");
-            request.setRemarks("CANCELLED");
-            request.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
+            // Use the editingRequest field instead of a passed parameter
+            editingRequest.setStatus("CANCELLED");
+            editingRequest.setRemarks("CANCELLED");
+            editingRequest.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
 
             // Persist the changes
-            visitRequestsFacade.edit(request);
+            visitRequestsFacade.edit(editingRequest);
 
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_INFO,
                             "Success",
-                            "Request ID " + request.getId() + " was canceled."));
+                            "Request ID " + editingRequest.getId() + " was canceled."));
 
         } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR,
                             "Error",
                             "Could not cancel request: " + e.getMessage()));
+            FacesContext.getCurrentInstance().validationFailed();
         }
-
-        // return null to stay on the same page
         return null;
+    }
+
+    @Transactional
+    public void updateRequest() {
+        try {
+            editingRequest.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
+            visitRequestsFacade.edit(editingRequest);
+
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_INFO, "Success", "Visit request updated successfully"));
+            // Refresh the requests table
+            loadUserRequests();
+        } catch (Exception e) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Failed to update visit request: " + e.getMessage()));
+            FacesContext.getCurrentInstance().validationFailed();
+        }
+    }
+
+    public void prepareEdit(VisitRequests request) {
+        // Option 1: Edit in place. Option 2: Create a clone to edit separately.
+        this.editingRequest = request;
+    }
+
+    public List<VisitRequests> getFilteredRequests() {
+        return filteredRequests;
+    }
+
+    public void setFilteredRequests(List<VisitRequests> filteredRequests) {
+        this.filteredRequests = filteredRequests;
+    }
+
+    public VisitRequests getNewRequest() {
+        return newRequest;
+    }
+
+    public void setNewRequest(VisitRequests newRequest) {
+        this.newRequest = newRequest;
+    }
+
+    public List<VisitRequests> getUserRequests() {
+        return userRequests;
+    }
+
+    public List<VisitRequests> getSelectedRequests() {
+        return selectedRequests;
+    }
+
+    public void setSelectedRequests(List<VisitRequests> selectedRequests) {
+        this.selectedRequests = selectedRequests;
+    }
+
+    public ResidentProfiles getResidentProfile() {
+        return residentProfile;
+    }
+
+    public void setResidentProfile(ResidentProfiles residentProfile) {
+        this.residentProfile = residentProfile;
+    }
+
+    public String getCurrentQrCode() {
+        return currentQrCode;
+    }
+
+    public void setCurrentQrCode(String currentQrCode) {
+        this.currentQrCode = currentQrCode;
+    }
+
+    public VisitRequests getEditingRequest() {
+        return editingRequest;
+    }
+
+    public void setEditingRequest(VisitRequests editingRequest) {
+        this.editingRequest = editingRequest;
     }
 }
