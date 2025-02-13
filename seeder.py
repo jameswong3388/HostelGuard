@@ -186,6 +186,7 @@ def main():
             status            VARCHAR(20)  NOT NULL,
             remarks           TEXT,
             unit_number       VARCHAR(10)  NOT NULL,
+            number_of_entries INT UNSIGNED NOT NULL DEFAULT 1,
             created_at        TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
             updated_at        TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
             FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
@@ -482,8 +483,8 @@ def main():
         # Insert Visit Requests and Visitor Records
         print("Inserting Visit Requests and Visitor Records...")
         add_visit_request = ("INSERT INTO visit_requests "
-                             "(user_id, verification_code, visit_datetime, purpose, status, remarks, unit_number) "
-                             "VALUES (%s, %s, %s, %s, %s, %s, %s)")
+                             "(user_id, verification_code, visit_datetime, purpose, status, remarks, unit_number, number_of_entries) "
+                             "VALUES (%s, %s, %s, %s, %s, %s, %s, %s)")
         add_visitor_record = ("INSERT INTO visitor_records "
                               "(request_id, security_staff_id, visitor_name, visitor_ic, visitor_phone, check_in_time, check_out_time, remarks) "
                               "VALUES (%s, %s, %s, %s, %s, %s, %s, %s)")
@@ -503,14 +504,16 @@ def main():
             remarks = fake.sentence(nb_words=6)
             unit_number = resident_unit_map[user_id]
 
+            # Random number of visitors (1-5)
+            num_visitors = random.randint(1, 5)
+
             visit_request_data = (
-                user_id, verification_code, visit_datetime, purpose, status, remarks, unit_number
+                user_id, verification_code, visit_datetime, purpose, status, remarks, unit_number, num_visitors
             )
             cursor.execute(add_visit_request, visit_request_data)
             request_id = cursor.lastrowid
 
-            # Random number of visitors (1-5)
-            num_visitors = random.randint(1, 5)
+            # Then loop num_visitors times to create visitor records
             for _ in range(num_visitors):
                 security_staff_id = random.choice(security_staff_ids)
                 visitor_name = fake.name()

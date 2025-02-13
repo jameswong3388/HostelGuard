@@ -35,6 +35,9 @@ public class VisitRequests extends BaseEntity {
     @Column(name = "unit_number", nullable = false)
     private String unit_number;
 
+    @Column(name = "number_of_entries", nullable = false)
+    private int number_of_entries;
+
     @Column(name = "created_at", nullable = false)
     private Timestamp created_at;
 
@@ -46,7 +49,7 @@ public class VisitRequests extends BaseEntity {
     }
 
     public VisitRequests(Users user_id, String verification_code, Timestamp visit_datetime, String purpose, String status,
-                         String remarks, String unit_number, Timestamp created_at, Timestamp updated_at) {
+                         String remarks, String unit_number, int number_of_entries, Timestamp created_at, Timestamp updated_at) {
         this.user_id = user_id;
         this.verification_code = verification_code;
         this.visit_datetime = visit_datetime;
@@ -54,6 +57,7 @@ public class VisitRequests extends BaseEntity {
         this.status = status;
         this.remarks = remarks;
         this.unit_number = unit_number;
+        this.number_of_entries = number_of_entries;
         this.created_at = created_at;
         this.updated_at = updated_at;
     }
@@ -84,6 +88,10 @@ public class VisitRequests extends BaseEntity {
 
     public String getUnitNumber() {
         return unit_number;
+    }
+
+    public int getNumberOfEntries() {
+        return number_of_entries;
     }
 
     public Timestamp getCreatedAt() {
@@ -128,5 +136,9 @@ public class VisitRequests extends BaseEntity {
 
     public void setUnitNumber(String unit_number) {
         this.unit_number = unit_number;
+    }
+
+    public void setNumberOfEntries(int number_of_entries) {
+        this.number_of_entries = number_of_entries;
     }
 }

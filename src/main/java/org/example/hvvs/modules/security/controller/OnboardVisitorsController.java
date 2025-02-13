@@ -8,6 +8,7 @@ import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import org.example.hvvs.model.Users;
 import org.example.hvvs.model.VisitRequests;
+import org.example.hvvs.model.VisitRequestsFacade;
 import org.example.hvvs.model.VisitorRecords;
 import org.example.hvvs.modules.security.service.OnboardVisitorsService;
 import org.example.hvvs.utils.CommonParam;
@@ -17,6 +18,7 @@ import org.primefaces.model.file.UploadedFile;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.util.List;
 
 @Named
 @ViewScoped
@@ -24,6 +26,9 @@ public class OnboardVisitorsController implements Serializable {
     
     @EJB
     private OnboardVisitorsService securityVisitorService;
+
+    @EJB
+    private VisitRequestsFacade visitRequestsFacade;
     
     private int currentStep = 1;
     private String verificationCode;
@@ -31,6 +36,8 @@ public class OnboardVisitorsController implements Serializable {
     private VisitorRecords visitorRecord;
     private UploadedFile tempVisitorPhoto;
     private boolean isCheckIn = true;
+    private List<VisitorRecords> checkoutVisitors;
+    private VisitorRecords selectedVisitor;
 
     public OnboardVisitorsController() {
         visitorRecord = new VisitorRecords();
@@ -64,14 +71,14 @@ public class OnboardVisitorsController implements Serializable {
                         new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Invalid verification code"));
                 }
             } else {
-                visitorRecord = securityVisitorService.findVisitorForCheckout(verificationCode);
-                if (visitorRecord != null) {
+                checkoutVisitors = securityVisitorService.findVisitorsForCheckout(verificationCode);
+                if (!checkoutVisitors.isEmpty()) {
                     currentStep = 3;
-                    FacesContext.getCurrentInstance().addMessage(null, 
-                        new FacesMessage(FacesMessage.SEVERITY_INFO, "Success", "Visitor found"));
+                    FacesContext.getCurrentInstance().addMessage(null,
+                            new FacesMessage(FacesMessage.SEVERITY_INFO, "Success", "Visitor(s) found"));
                 } else {
-                    FacesContext.getCurrentInstance().addMessage(null, 
-                        new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "No active visitor found with this code"));
+                    FacesContext.getCurrentInstance().addMessage(null,
+                            new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "No active visitors found"));
                 }
             }
         } catch (Exception e) {
@@ -81,9 +88,7 @@ public class OnboardVisitorsController implements Serializable {
     }
 
     public void nextStep() {
-        if (isCheckIn && currentStep < 4) {
-            currentStep++;
-        } else if (!isCheckIn && currentStep < 3) {
+        if ((isCheckIn && currentStep < 4) || (!isCheckIn && currentStep < 4)) {
             currentStep++;
         }
     }
@@ -129,6 +134,11 @@ public class OnboardVisitorsController implements Serializable {
 
             securityVisitorService.registerVisitor(visitorRecord, tempVisitorPhoto);
             
+            // Decrement number_of_entries after successful check-in
+            int remainingEntries = visitRequest.getNumberOfEntries() - 1;
+            visitRequest.setNumberOfEntries(remainingEntries);
+            visitRequestsFacade.edit(visitRequest);
+
             FacesContext.getCurrentInstance().addMessage(null, 
                 new FacesMessage(FacesMessage.SEVERITY_INFO, "Success", "Visitor check-in completed"));
             
@@ -141,11 +151,11 @@ public class OnboardVisitorsController implements Serializable {
 
     public void completeCheckout() {
         try {
-            if (visitorRecord == null) {
+            if (selectedVisitor == null) {
                 throw new IllegalStateException("No visitor record found");
             }
 
-            securityVisitorService.checkoutVisitor(visitorRecord);
+            securityVisitorService.checkoutVisitor(selectedVisitor);
             
             FacesContext.getCurrentInstance().addMessage(null, 
                 new FacesMessage(FacesMessage.SEVERITY_INFO, "Success", "Visitor check-out completed"));
@@ -158,7 +168,7 @@ public class OnboardVisitorsController implements Serializable {
     }
 
     public Integer[] getStepSequence() {
-        int totalSteps = isCheckIn ? 4 : 3;
+        int totalSteps = 4;
         Integer[] sequence = new Integer[totalSteps];
         for (int i = 0; i < totalSteps; i++) {
             sequence[i] = i + 1;
@@ -213,4 +223,21 @@ public class OnboardVisitorsController implements Serializable {
     public void setCheckIn(boolean checkIn) {
         isCheckIn = checkIn;
     }
-} 
+
+    public VisitorRecords getSelectedVisitor() {
+        return selectedVisitor;
+    }
+
+    public void setSelectedVisitor(VisitorRecords selectedVisitor) {
+        this.selectedVisitor = selectedVisitor;
+        nextStep();
+    }
+
+    public List<VisitorRecords> getCheckoutVisitors() {
+        return checkoutVisitors;
+    }
+
+    public void setCheckoutVisitors(List<VisitorRecords> checkoutVisitors) {
+        this.checkoutVisitors = checkoutVisitors;
+    }
+}

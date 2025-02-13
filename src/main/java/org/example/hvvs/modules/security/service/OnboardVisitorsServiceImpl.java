@@ -16,6 +16,7 @@ import org.primefaces.model.file.UploadedFile;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Timestamp;
+import java.util.List;
 
 @Stateless
 public class OnboardVisitorsServiceImpl implements OnboardVisitorsService {
@@ -29,7 +30,9 @@ public class OnboardVisitorsServiceImpl implements OnboardVisitorsService {
     @Override
     public VisitRequests verifyVisitRequest(String verificationCode) {
         TypedQuery<VisitRequests> query = entityManager.createQuery(
-                "SELECT v FROM VisitRequests v WHERE v.verification_code = :code AND v.status = 'APPROVED'",
+                "SELECT v FROM VisitRequests v WHERE v.verification_code = :code " +
+                "AND v.number_of_entries >= 1 " +
+                "AND (v.status = 'APPROVED' OR v.status = 'PROGRESS')",
                 VisitRequests.class
         );
         query.setParameter("code", verificationCode);
@@ -77,22 +80,16 @@ public class OnboardVisitorsServiceImpl implements OnboardVisitorsService {
     }
 
     @Override
-    public VisitorRecords findVisitorForCheckout(String verificationCode) {
-        TypedQuery<VisitorRecords> query = entityManager.createQuery(
+    public List<VisitorRecords> findVisitorsForCheckout(String code) {
+        return entityManager.createQuery(
             "SELECT vr FROM VisitorRecords vr " +
             "JOIN vr.request_id r " +
             "WHERE r.verification_code = :code " +
             "AND r.status = 'PROGRESS' " +
             "AND vr.check_out_time IS NULL",
-            VisitorRecords.class
-        );
-        query.setParameter("code", verificationCode);
-        
-        try {
-            return query.getSingleResult();
-        } catch (Exception e) {
-            return null;
-        }
+            VisitorRecords.class)
+        .setParameter("code", code)
+        .getResultList();
     }
 
     @Override
@@ -104,15 +101,18 @@ public class OnboardVisitorsServiceImpl implements OnboardVisitorsService {
         // Update visitor record
         entityManager.merge(visitorRecord);
 
-        // Update visit request status
+        // Check remaining visitors without checkout
         VisitRequests request = visitorRecord.getRequestId();
-        request.setStatus("COMPLETED");
-        entityManager.merge(request);
-    }
+        Long remainingVisitors = entityManager.createQuery(
+            "SELECT COUNT(v) FROM VisitorRecords v WHERE v.request_id = :request AND v.check_out_time IS NULL",
+            Long.class)
+            .setParameter("request", request)
+            .getSingleResult();
 
-    private String getFileExtension(String fileName) {
-        if (fileName == null) return "";
-        int lastDot = fileName.lastIndexOf('.');
-        return lastDot > 0 ? fileName.substring(lastDot) : "";
+        // Update visit reqrequuest status only if all visitors have checked out
+        if (remainingVisitors == 0) {
+            request.setStatus("COMPLETED");
+            entityManager.merge(request);
+        }
     }
 } 

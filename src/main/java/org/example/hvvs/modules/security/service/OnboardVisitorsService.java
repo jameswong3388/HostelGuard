@@ -4,12 +4,14 @@ import org.example.hvvs.model.VisitRequests;
 import org.example.hvvs.model.VisitorRecords;
 import org.primefaces.model.file.UploadedFile;
 
+import java.util.List;
+
 public interface OnboardVisitorsService {
     VisitRequests verifyVisitRequest(String verificationCode);
 
     void registerVisitor(VisitorRecords visitorRecord, UploadedFile visitorPhoto);
 
-    VisitorRecords findVisitorForCheckout(String verificationCode);
+    List<VisitorRecords> findVisitorsForCheckout(String verificationCode);
 
     void checkoutVisitor(VisitorRecords visitorRecord);
 } 

@@ -49,6 +49,14 @@
                                       required="true"/>
                     </div>
 
+                    <!-- Number of Entries -->
+                    <div class="field mb-4">
+                        <p:outputLabel for="numberOfEntries" value="Number of Entries"/>
+                        <p:inputText id="numberOfEntries"
+                                     value="#{visitRequestControllerResident.newRequest.numberOfEntries}"
+                                     required="true"/>
+                    </div>
+
                     <!-- Purpose -->
                     <div class="field mb-4">
                         <p:outputLabel for="purpose" value="Purpose"/>
@@ -175,6 +183,19 @@
                                           showTime="true"
                                           showIcon="true"
                                           converter="timestampConverter"/>
+                        </f:facet>
+                    </p:cellEditor>
+                </p:column>
+
+                <!-- Number of Entries -->
+                <p:column headerText="Number of Entries" sortBy="#{req.numberOfEntries}">
+                    <p:cellEditor>
+                        <f:facet name="output">
+                            <h:outputText value="#{req.numberOfEntries}"/>
+                        </f:facet>  
+                        <f:facet name="input">
+                            <p:inputText value="#{req.numberOfEntries}"
+                                         required="true"/>
                         </f:facet>
                     </p:cellEditor>
                 </p:column>

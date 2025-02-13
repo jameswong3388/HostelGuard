@@ -140,12 +140,22 @@ public class VisitRequestController implements Serializable {
     public void createRequest() {
         try {
             // Basic validation
+            if (newRequest.getNumberOfEntries() <= 0) {
+                FacesContext.getCurrentInstance().addMessage(null,
+                        new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                                "Error", "Number of entries must be greater than 0"));
+                FacesContext.getCurrentInstance().validationFailed();
+                return;
+            }
+
             if (newRequest.getPurpose() == null || newRequest.getPurpose().trim().isEmpty()) {
                 FacesContext.getCurrentInstance().addMessage(null,
                         new FacesMessage(FacesMessage.SEVERITY_ERROR,
                                 "Error", "Please fill in all required fields"));
+                FacesContext.getCurrentInstance().validationFailed();
                 return;
             }
+
             // Get current user from session
             Users currentUser = (Users) FacesContext
                     .getCurrentInstance()
@@ -156,6 +166,7 @@ public class VisitRequestController implements Serializable {
             if (currentUser == null) {
                 FacesContext.getCurrentInstance().addMessage(null,
                         new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "User not authenticated"));
+                FacesContext.getCurrentInstance().validationFailed();
                 return;
             }
 

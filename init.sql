@@ -95,6 +95,7 @@ CREATE TABLE visit_requests
     status            VARCHAR(20)  NOT NULL,
     remarks           TEXT,
     unit_number       VARCHAR(10)  NOT NULL,
+    number_of_entries INT UNSIGNED NOT NULL DEFAULT 1,
     created_at        TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at        TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
