@@ -2,7 +2,7 @@
 
 A web-based Visitor Verification System.
 
-![](assets/Safari.mp4)
+https://github.com/user-attachments/assets/94c52765-d23f-4e6f-8851-109621c8119c
 
 ## Features
 
