@@ -190,7 +190,8 @@
                     <p:tag severity="#{req.status eq 'PENDING' ? 'warning' :
                           req.status eq 'APPROVED' ? 'info' :
                           req.status eq 'COMPLETED' ? 'success' :
-                          req.status eq 'CANCELLED' ? 'info' : 'danger'}"
+                          req.status eq 'CANCELLED' ? 'info' :
+                          req.status eq 'PROGRESS' ? 'warning': 'danger'}"
                            value="#{req.status}"/>
                 </p:column>
 
