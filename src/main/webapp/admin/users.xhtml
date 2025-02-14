@@ -15,38 +15,46 @@
                 styleClass="py-2 text-blue-600 font-medium focus:outline-none">Users</h:link>
         <h:link outcome="/admin/requests.xhtml"
                 styleClass="py-2 text-gray-500 hover:text-gray-700 focus:outline-none">Visit Requests</h:link>
-        <h:link outcome="/admin/visitor-records.xhtml" styleClass="py-2 text-gray-500 hover:text-gray-700 focus:outline-none">Vistor Records</h:link>
+        <h:link outcome="/admin/visitor-records.xhtml"
+                styleClass="py-2 text-gray-500 hover:text-gray-700 focus:outline-none">Vistor Records</h:link>
 
     </ui:define>
 
     <ui:define name="content">
-        <h:form id="newUserForm">
-            <!-- New User Dialog -->
-            <p:dialog header="New User"
-                      widgetVar="newUserDialog"
-                      modal="true"
-                      width="500">
-                <div class="p-fluid">
+        <!-- Replace dialog with sidebar for new user -->
+        <p:sidebar id="newUserSidebar"
+                   widgetVar="newUserSidebar"
+                   position="right"
+                   style="width:600px;">
+            <h:form id="newUserForm">
+                <div class="space-y-4">
+                    <!-- Sidebar Title -->
+                    <h2 class="text-xl font-semibold mb-4">New User</h2>
+
+
                     <!-- Username -->
                     <div class="field mb-4">
-                        <p:outputLabel for="username" value="Username"/>
+                        <p:outputLabel for="username" value="Username" styleClass="block mb-1"/>
                         <p:inputText id="username"
+                                     styleClass="w-full"
                                      value="#{usersController.newUser.username}"
                                      required="true"/>
                     </div>
 
                     <!-- Email -->
                     <div class="field mb-4">
-                        <p:outputLabel for="email" value="Email"/>
+                        <p:outputLabel for="email" value="Email" styleClass="block mb-1"/>
                         <p:inputText id="email"
+                                     styleClass="w-full"
                                      value="#{usersController.newUser.email}"
                                      required="true"/>
                     </div>
 
                     <!-- Password -->
                     <div class="field mb-4">
-                        <p:outputLabel for="password" value="Password"/>
+                        <p:outputLabel for="password" value="Password" styleClass="block mb-1"/>
                         <p:password id="password"
+                                    styleClass="w-full"
                                     value="#{usersController.newUser.password}"
                                     required="true"
                                     feedback="true"/>
@@ -54,44 +62,50 @@
 
                     <!-- First Name -->
                     <div class="field mb-4">
-                        <p:outputLabel for="firstName" value="First Name"/>
+                        <p:outputLabel for="firstName" value="First Name" styleClass="block mb-1"/>
                         <p:inputText id="firstName"
+                                     styleClass="w-full"
                                      value="#{usersController.newUser.firstName}"
                                      required="true"/>
                     </div>
 
                     <!-- Last Name -->
                     <div class="field mb-4">
-                        <p:outputLabel for="lastName" value="Last Name"/>
+                        <p:outputLabel for="lastName" value="Last Name" styleClass="block mb-1"/>
                         <p:inputText id="lastName"
+                                     styleClass="w-full"
                                      value="#{usersController.newUser.lastName}"
                                      required="true"/>
                     </div>
 
                     <!-- Phone Number -->
                     <div class="field mb-4">
-                        <p:outputLabel for="phoneNumber" value="Phone Number"/>
+                        <p:outputLabel for="phoneNumber" value="Phone Number" styleClass="block mb-1"/>
                         <p:inputText id="phoneNumber"
+                                     styleClass="w-full"
                                      value="#{usersController.newUser.phoneNumber}"
                                      required="true"/>
                     </div>
 
                     <div class="field mb-4">
-                        <p:outputLabel for="identity_number" value="Identity Number"/>
+                        <p:outputLabel for="identity_number" value="Identity Number" styleClass="block mb-1"/>
                         <p:inputText id="identity_number"
+                                     styleClass="w-full"
                                      value="#{usersController.newUser.identity_number}"
                                      required="true"/>
                     </div>
                     <div class="field mb-4">
-                        <p:outputLabel for="address" value="Address"/>
+                        <p:outputLabel for="address" value="Address" styleClass="block mb-1"/>
                         <p:inputText id="address"
+                                     styleClass="w-full"
                                      value="#{usersController.newUser.address}"
                                      required="true"/>
                     </div>
 
                     <div class="field mb-4">
-                        <p:outputLabel for="gender" value="Gender"/>
+                        <p:outputLabel for="gender" value="Gender" styleClass="block mb-1"/>
                         <p:selectOneMenu id="gender"
+                                         styleClass="w-full"
                                          value="#{usersController.newUser.gender}"
                                          required="true">
                             <f:selectItem itemLabel="Select Gender" itemValue=""/>
@@ -103,8 +117,9 @@
 
                     <!-- Role -->
                     <div class="field mb-4">
-                        <p:outputLabel for="role" value="Role"/>
+                        <p:outputLabel for="role" value="Role" styleClass="block mb-1"/>
                         <p:selectOneMenu id="role"
+                                         styleClass="w-full"
                                          value="#{usersController.newUser.role}"
                                          required="true">
                             <f:selectItem itemLabel="Select Role" itemValue=""/>
@@ -121,8 +136,9 @@
                         <!-- Resident Fields -->
                         <h:panelGroup rendered="#{usersController.newUser.role == 'RESIDENT'}">
                             <div class="field mb-4">
-                                <p:outputLabel for="unitNumber" value="Unit Number"/>
+                                <p:outputLabel for="unitNumber" value="Unit Number" styleClass="block mb-1"/>
                                 <p:inputText id="unitNumber"
+                                             styleClass="w-full"
                                              value="#{usersController.residentProfile.unitNumber}"
                                              required="true"/>
                             </div>
@@ -131,16 +147,18 @@
                         <!-- Security Staff Fields -->
                         <h:panelGroup rendered="#{usersController.newUser.role == 'SECURITY_STAFF'}">
                             <div class="field mb-4">
-                                <p:outputLabel for="badgeNumber" value="Badge Number"/>
+                                <p:outputLabel for="badgeNumber" value="Badge Number" styleClass="block mb-1"/>
                                 <p:inputText id="badgeNumber"
+                                             styleClass="w-full"
                                              value="#{usersController.securityStaffProfile.badgeNumber}"
                                              required="true"/>
                             </div>
                             <div class="field mb-4">
-                                <p:outputLabel for="shift" value="Shift"/>
+                                <p:outputLabel for="shift" value="Shift" styleClass="block mb-1"/>
                                 <p:selectOneMenu id="shift"
-                                                value="#{usersController.securityStaffProfile.shift}"
-                                                required="true">
+                                                 styleClass="w-full"
+                                                 value="#{usersController.securityStaffProfile.shift}"
+                                                 required="true">
                                     <f:selectItem itemLabel="Select Shift" itemValue=""/>
                                     <f:selectItem itemLabel="Morning" itemValue="MORNING"/>
                                     <f:selectItem itemLabel="Afternoon" itemValue="AFTERNOON"/>
@@ -152,10 +170,11 @@
                         <!-- Managing Staff Fields -->
                         <h:panelGroup rendered="#{usersController.newUser.role == 'MANAGING_STAFF'}">
                             <div class="field mb-4">
-                                <p:outputLabel for="department" value="Department"/>
+                                <p:outputLabel for="department" value="Department" styleClass="block mb-1"/>
                                 <p:selectOneMenu id="department"
-                                                value="#{usersController.managingStaffProfile.department}"
-                                                required="true">
+                                                 styleClass="w-full"
+                                                 value="#{usersController.managingStaffProfile.department}"
+                                                 required="true">
                                     <f:selectItem itemLabel="Select Department" itemValue=""/>
                                     <f:selectItem itemLabel="Administration" itemValue="ADMINISTRATION"/>
                                     <f:selectItem itemLabel="Operations" itemValue="OPERATIONS"/>
@@ -164,10 +183,11 @@
                                 </p:selectOneMenu>
                             </div>
                             <div class="field mb-4">
-                                <p:outputLabel for="position" value="Position"/>
+                                <p:outputLabel for="position" value="Position" styleClass="block mb-1"/>
                                 <p:selectOneMenu id="position"
-                                                value="#{usersController.managingStaffProfile.position}"
-                                                required="true">
+                                                 styleClass="w-full"
+                                                 value="#{usersController.managingStaffProfile.position}"
+                                                 required="true">
                                     <f:selectItem itemLabel="Select Position" itemValue=""/>
                                     <f:selectItem itemLabel="Manager" itemValue="MANAGER"/>
                                     <f:selectItem itemLabel="Supervisor" itemValue="SUPERVISOR"/>
@@ -177,38 +197,134 @@
                         </h:panelGroup>
                     </p:outputPanel>
 
+
+                    <!-- Action Buttons -->
                     <div class="flex justify-content-end gap-4">
                         <p:commandButton value="Cancel"
                                          icon="pi pi-times"
-                                         onclick="PF('newUserDialog').hide(); return false;"
-                                         styleClass="p-button-text mr-2"
+                                         onclick="PF('newUserSidebar').hide(); return false;"
+                                         styleClass="p-button-text mr-2 ui-button-warning"
                                          immediate="true"/>
                         <p:commandButton value="Create"
+                                         icon="pi pi-check"
                                          process="@form"
                                          update=":messages @form :usersTableForm:usersTable"
                                          action="#{usersController.createUser}"
-                                         oncomplete="if (!args.validationFailed) PF('newUserDialog').hide();"/>
+                                         styleClass="p-button-primary"
+                                         oncomplete="if (!args.validationFailed) PF('newUserSidebar').hide();"/>
                     </div>
                 </div>
-            </p:dialog>
+            </h:form>
+        </p:sidebar>
 
+        <!-- Add sidebar for editing user -->
+        <p:sidebar id="editUserSidebar"
+                   widgetVar="editUserSidebar"
+                   position="right"
+                   style="width:600px;">
+            <h:form id="editUserForm">
+                <div class="space-y-4">
+                    <!-- Sidebar Title -->
+                    <h2 class="text-xl font-semibold mb-4">Edit User</h2>
 
-            <!-- Confirmation Dialog -->
-            <p:confirmDialog global="true" showEffect="fade" hideEffect="fade" responsive="true">
-                <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no ui-button-flat"/>
-                <p:commandButton value="Yes" type="button" styleClass="ui-confirmdialog-yes"/>
-            </p:confirmDialog>
-        </h:form>
+                    <!-- Username -->
+                    <div class="field mb-4">
+                        <p:outputLabel for="editUsername" value="Username" styleClass="block mb-1"/>
+                        <p:inputText id="editUsername"
+                                     styleClass="w-full"
+                                     value="#{usersController.editingUser.username}"
+                                     required="true"/>
+                    </div>
+
+                    <!-- Email -->
+                    <div class="field mb-4">
+                        <p:outputLabel for="editEmail" value="Email" styleClass="block mb-1"/>
+                        <p:inputText id="editEmail"
+                                     styleClass="w-full"
+                                     value="#{usersController.editingUser.email}"
+                                     required="true"/>
+                    </div>
+
+                    <!-- First Name -->
+                    <div class="field mb-4">
+                        <p:outputLabel for="editFirstName" value="First Name" styleClass="block mb-1"/>
+                        <p:inputText id="editFirstName"
+                                     styleClass="w-full"
+                                     value="#{usersController.editingUser.firstName}"
+                                     required="true"/>
+                    </div>
+
+                    <!-- Last Name -->
+                    <div class="field mb-4">
+                        <p:outputLabel for="editLastName" value="Last Name" styleClass="block mb-1"/>
+                        <p:inputText id="editLastName"
+                                     styleClass="w-full"
+                                     value="#{usersController.editingUser.lastName}"
+                                     required="true"/>
+                    </div>
+
+                    <!-- Phone Number -->
+                    <div class="field mb-4">
+                        <p:outputLabel for="editPhoneNumber" value="Phone Number" styleClass="block mb-1"/>
+                        <p:inputText id="editPhoneNumber"
+                                     styleClass="w-full"
+                                     value="#{usersController.editingUser.phoneNumber}"
+                                     required="true"/>
+                    </div>
+
+                    <!-- Role -->
+                    <div class="field mb-4">
+                        <p:outputLabel for="editRole" value="Role" styleClass="block mb-1"/>
+                        <p:selectOneMenu id="editRole"
+                                         styleClass="w-full"
+                                         value="#{usersController.editingUser.role}"
+                                         required="true">
+                            <f:selectItem itemLabel="Resident" itemValue="RESIDENT"/>
+                            <f:selectItem itemLabel="Security Staff" itemValue="SECURITY_STAFF"/>
+                            <f:selectItem itemLabel="Managing Staff" itemValue="MANAGING_STAFF"/>
+                            <f:selectItem itemLabel="Admin" itemValue="ADMIN"/>
+                        </p:selectOneMenu>
+                    </div>
+
+                    <!-- Status -->
+                    <div class="field mb-4">
+                        <p:outputLabel for="editStatus" value="Status" styleClass="block mb-1"/>
+                        <p:selectBooleanButton id="editStatus"
+                                               styleClass="w-full"
+                                               value="#{usersController.editingUser.isActive}"
+                                               onLabel="Active"
+                                               offLabel="Inactive"
+                                               onIcon="pi pi-check"
+                                               offIcon="pi pi-times"/>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="flex justify-content-end gap-4">
+                        <p:commandButton value="Cancel"
+                                         icon="pi pi-times"
+                                         onclick="PF('editUserSidebar').hide(); return false;"
+                                         styleClass="p-button-text mr-2 ui-button-warning"
+                                         immediate="true"/>
+                        <p:commandButton value="Save"
+                                         icon="pi pi-check"
+                                         action="#{usersController.updateUser}"
+                                         update=":usersTableForm:usersTable :messages"
+                                         styleClass="p-button-primary"
+                                         oncomplete="if (!args.validationFailed) { PF('editUserSidebar').hide(); }"/>
+                    </div>
+                </div>
+            </h:form>
+        </p:sidebar>
 
         <!-- Users Table -->
         <h:form id="usersTableForm">
             <p:toolbar>
                 <p:toolbarGroup>
-                    <!-- "New Request" triggers the same dialog you already have -->
+                    <!-- Update button to trigger sidebar instead of dialog -->
                     <p:commandButton value="New User"
                                      icon="pi pi-plus"
                                      styleClass="ui-button-success"
-                                     onclick="PF('newUserDialog').show(); return false;"
+                                     onclick="PF('newUserSidebar').show(); return false;"
                                      style="margin-right: .5rem"/>
 
                     <p:commandButton id="delete-users-button"
@@ -220,7 +336,7 @@
                                      update="@this :usersTableForm:usersTable :messages"
                                      style="margin-right: .5rem">
                         <p:confirm header="Confirmation"
-                                   message="Delete the selected users?"
+                                   message="Are you sure you want to delete the selected users?"
                                    icon="pi pi-exclamation-triangle"/>
                     </p:commandButton>
 
@@ -235,6 +351,11 @@
                                      style="margin-right: .5rem"/>
                 </p:toolbarGroup>
             </p:toolbar>
+
+            <p:confirmDialog global="true" showEffect="fade" hideEffect="fade" responsive="true" width="350">
+                <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no ui-button-flat"/>
+                <p:commandButton value="Yes" type="button" styleClass="ui-confirmdialog-yes"/>
+            </p:confirmDialog>
 
             <p:dataTable id="usersTable"
                          var="users"
@@ -364,20 +485,22 @@
                 <!-- Updated At -->
                 <p:column headerText="Updated At" sortBy="#{users.updatedAt}">
                     <pe:timeAgo value="#{users.updatedAt}"
-                                titlePattern="MM/dd/yy HH:mm"  />
+                                titlePattern="MM/dd/yy HH:mm"/>
                 </p:column>
 
                 <!-- Created At -->
                 <p:column headerText="Created At" sortBy="#{users.createdAt}">
                     <pe:timeAgo value="#{users.createdAt}"
-                                titlePattern="MM/dd/yy HH:mm"  />
+                                titlePattern="MM/dd/yy HH:mm"/>
                 </p:column>
 
                 <!-- Actions -->
-                <p:column headerText="Actions" style="width:100px">
-                    <p:rowEditor editTitle="Edit Row"
-                                 cancelTitle="Cancel Edit"
-                                 saveTitle="Save Row"/>
+                <p:column headerText="Actions">
+                    <p:commandButton value="Edit"
+                                     icon="pi pi-pencil"
+                                     action="#{usersController.prepareEdit(users)}"
+                                     update=":editUserForm"
+                                     oncomplete="PF('editUserSidebar').show();"/>
                 </p:column>
 
                 <!-- trigger partial update to refresh the button label -->
@@ -388,11 +511,16 @@
                 <p:ajax event="toggleSelect" update=":usersTableForm:delete-users-button"/>
 
 
-                <p:ajax event="rowSelect" update=":usersTableForm:delete-users-button :usersTableForm:clearSelectionButton"/>
-                <p:ajax event="rowUnselect" update=":usersTableForm:delete-users-button :usersTableForm:clearSelectionButton"/>
-                <p:ajax event="rowSelectCheckbox" update=":usersTableForm:delete-users-button :usersTableForm:clearSelectionButton"/>
-                <p:ajax event="rowUnselectCheckbox" update=":usersTableForm:delete-users-button :usersTableForm:clearSelectionButton"/>
-                <p:ajax event="toggleSelect" update=":usersTableForm:delete-users-button :usersTableForm:clearSelectionButton"/>
+                <p:ajax event="rowSelect"
+                        update=":usersTableForm:delete-users-button :usersTableForm:clearSelectionButton"/>
+                <p:ajax event="rowUnselect"
+                        update=":usersTableForm:delete-users-button :usersTableForm:clearSelectionButton"/>
+                <p:ajax event="rowSelectCheckbox"
+                        update=":usersTableForm:delete-users-button :usersTableForm:clearSelectionButton"/>
+                <p:ajax event="rowUnselectCheckbox"
+                        update=":usersTableForm:delete-users-button :usersTableForm:clearSelectionButton"/>
+                <p:ajax event="toggleSelect"
+                        update=":usersTableForm:delete-users-button :usersTableForm:clearSelectionButton"/>
 
 
                 <!-- Row edit events -->

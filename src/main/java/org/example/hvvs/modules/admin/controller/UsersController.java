@@ -32,6 +32,7 @@ public class UsersController implements Serializable {
     private ResidentProfiles residentProfile;
     private SecurityStaffProfiles securityStaffProfile;
     private ManagingStaffProfiles managingStaffProfile;
+    private Users editingUser;
 
     @PostConstruct
     public void init() {
@@ -40,6 +41,7 @@ public class UsersController implements Serializable {
         residentProfile = new ResidentProfiles();
         securityStaffProfile = new SecurityStaffProfiles();
         managingStaffProfile = new ManagingStaffProfiles();
+        editingUser = new Users();
     }
 
     public void onRoleChange() {
@@ -200,6 +202,57 @@ public class UsersController implements Serializable {
         FacesContext.getCurrentInstance().addMessage(null, message);
     }
 
+    public void prepareEdit(Users user) {
+        this.editingUser = new Users();
+        this.editingUser.setId(user.getId());
+        this.editingUser.setUsername(user.getUsername());
+        this.editingUser.setEmail(user.getEmail());
+        this.editingUser.setPassword(user.getPassword());
+        this.editingUser.setSalt(user.getSalt());
+        this.editingUser.setFirstName(user.getFirstName());
+        this.editingUser.setLastName(user.getLastName());
+        this.editingUser.setAddress(user.getAddress());
+        this.editingUser.setPhoneNumber(user.getPhoneNumber());
+        this.editingUser.setRole(user.getRole());
+        this.editingUser.setIsActive(user.getIsActive());
+        this.editingUser.setIdentity_number(user.getIdentity_number());
+        this.editingUser.setIs_mfa_enable(user.getIs_mfa_enable());
+        this.editingUser.setUpdatedAt(user.getUpdatedAt());
+        this.editingUser.setCreatedAt(user.getCreatedAt());
+    }
+
+    public void updateUser() {
+        try {
+            Users existingUser = usersFacade.find(editingUser.getId());
+            if (!existingUser.getUsername().equals(editingUser.getUsername()) 
+                && usersFacade.isUsernameExists(editingUser.getUsername())) {
+                addErrorMessage("Username already exists");
+                return;
+            }
+            if (!existingUser.getEmail().equals(editingUser.getEmail()) 
+                && usersFacade.isEmailExists(editingUser.getEmail())) {
+                addErrorMessage("Email already exists");
+                return;
+            }
+
+            editingUser.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
+            usersFacade.edit(editingUser);
+            
+            users = usersFacade.findAll();
+            
+            addMessage("Success", "User updated successfully");
+        } catch (Exception e) {
+            addErrorMessage("Error updating user: " + e.getMessage());
+        }
+    }
+
+    public Users getEditingUser() {
+        return editingUser;
+    }
+
+    public void setEditingUser(Users editingUser) {
+        this.editingUser = editingUser;
+    }
 
     // Getters and Setters
     public List<Users> getUsers() {
