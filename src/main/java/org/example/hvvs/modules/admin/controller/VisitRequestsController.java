@@ -5,6 +5,7 @@ import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Named;
+import jakarta.transaction.Transactional;
 import org.example.hvvs.model.VisitRequests;
 import org.example.hvvs.model.VisitRequestsFacade;
 import org.primefaces.event.RowEditEvent;
@@ -17,6 +18,7 @@ import java.util.Locale;
 @Named
 @ViewScoped
 public class VisitRequestsController implements Serializable {
+
     @EJB
     private VisitRequestsFacade visitRequestsFacade;
 
@@ -24,6 +26,12 @@ public class VisitRequestsController implements Serializable {
     private List<VisitRequests> filteredRequests;
     private List<VisitRequests> selectedRequests;
 
+    // New field to hold the request being edited via sidebar
+    private VisitRequests editingRequest;
+
+    /**
+     * Loads all visit requests.
+     */
     public void init() {
         requests = visitRequestsFacade.findAll();
     }
@@ -40,8 +48,8 @@ public class VisitRequestsController implements Serializable {
     public void deleteSelectedRequests() {
         if (selectedRequests != null && !selectedRequests.isEmpty()) {
             try {
-                for (VisitRequests selectedRequests : selectedRequests) {
-                    VisitRequests managedRequest = visitRequestsFacade.find(selectedRequests.getId());
+                for (VisitRequests req : selectedRequests) {
+                    VisitRequests managedRequest = visitRequestsFacade.find(req.getId());
                     if (managedRequest != null) {
                         visitRequestsFacade.remove(managedRequest);
                     }
@@ -63,24 +71,6 @@ public class VisitRequestsController implements Serializable {
         }
     }
 
-    public void onRowEdit(RowEditEvent<VisitRequests> event) {
-        try {
-            VisitRequests record = event.getObject();
-            record.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
-            visitRequestsFacade.edit(record);
-            FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_INFO, "Success", "Request updated successfully"));
-        } catch (Exception e) {
-            FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Failed to update request"));
-        }
-    }
-
-    public void onRowCancel(RowEditEvent<VisitRequests> event) {
-        FacesContext.getCurrentInstance().addMessage(null,
-                new FacesMessage(FacesMessage.SEVERITY_INFO, "Cancelled", "Edit cancelled"));
-    }
-
     public boolean globalFilterFunction(Object value, Object filter, Locale locale) {
         String filterText = (filter == null) ? null : filter.toString().trim().toLowerCase();
         if (filterText == null || filterText.isEmpty()) {
@@ -97,7 +87,38 @@ public class VisitRequestsController implements Serializable {
                 || (request.getRemarks() != null && request.getRemarks().toLowerCase().contains(filterText));
     }
 
-    // Getters and Setters
+    // --- Methods for Sidebar Editing ---
+
+    /**
+     * Called when an admin clicks the "Edit" button.
+     * Prepares the selected visit request for editing in the sidebar.
+     *
+     * @param request the VisitRequests record to edit
+     */
+    public void prepareEdit(VisitRequests request) {
+        this.editingRequest = request;
+    }
+
+    /**
+     * Updates the edited visit request.
+     */
+    @Transactional
+    public void updateRequest() {
+        try {
+            editingRequest.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
+            visitRequestsFacade.edit(editingRequest);
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_INFO, "Success", "Visit request updated successfully"));
+            init(); // Refresh the list after update
+        } catch (Exception e) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Failed to update visit request: " + e.getMessage()));
+            FacesContext.getCurrentInstance().validationFailed();
+        }
+    }
+
+    // --- Getters and Setters ---
+
     public List<VisitRequests> getRequests() {
         if (requests == null) {
             init();
@@ -124,4 +145,12 @@ public class VisitRequestsController implements Serializable {
     public void setSelectedRequests(List<VisitRequests> selectedRequests) {
         this.selectedRequests = selectedRequests;
     }
-} 
+
+    public VisitRequests getEditingRequest() {
+        return editingRequest;
+    }
+
+    public void setEditingRequest(VisitRequests editingRequest) {
+        this.editingRequest = editingRequest;
+    }
+}

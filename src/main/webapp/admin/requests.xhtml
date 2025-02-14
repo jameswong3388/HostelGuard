@@ -12,7 +12,7 @@
         <h:link outcome="/admin/dashboard.xhtml" styleClass="py-2 text-gray-500 hover:text-gray-700 focus:outline-none">Dashboard</h:link>
         <h:link outcome="/admin/users.xhtml" styleClass="py-2 text-gray-500 hover:text-gray-700 focus:outline-none">Users</h:link>
         <h:link outcome="/admin/requests.xhtml" styleClass="py-2 text-blue-600 font-medium focus:outline-none">Visit Requests</h:link>
-        <h:link outcome="/admin/visitor-records.xhtml" styleClass="py-2 text-gray-500 hover:text-gray-700 focus:outline-none">Vistor Records</h:link>
+        <h:link outcome="/admin/visitor-records.xhtml" styleClass="py-2 text-gray-500 hover:text-gray-700 focus:outline-none">Visitor Records</h:link>
     </ui:define>
 
     <ui:define name="content">
@@ -21,46 +21,44 @@
             <p:toolbar>
                 <p:toolbarGroup>
                     <p:commandButton id="delete-requests-button"
-                                   value="#{visitRequestsController.deleteSelectedButtonLabel}"
-                                   icon="pi pi-trash"
-                                   actionListener="#{visitRequestsController.deleteSelectedRequests}"
-                                   styleClass="ui-button-danger"
-                                   disabled="#{empty visitRequestsController.selectedRequests}"
-                                   update="@this :requestsTableForm:requestsTable :messages"
-                                   style="margin-right: .5rem">
+                                     value="#{visitRequestsController.deleteSelectedButtonLabel}"
+                                     icon="pi pi-trash"
+                                     actionListener="#{visitRequestsController.deleteSelectedRequests}"
+                                     styleClass="ui-button-danger"
+                                     disabled="#{empty visitRequestsController.selectedRequests}"
+                                     update="@this :requestsTableForm:requestsTable :messages"
+                                     style="margin-right: .5rem">
                         <p:confirm header="Confirmation"
-                                 message="Delete the selected requests?"
-                                 icon="pi pi-exclamation-triangle"/>
+                                   message="Delete the selected requests?"
+                                   icon="pi pi-exclamation-triangle"/>
                     </p:commandButton>
 
                     <p:commandButton id="clearSelectionButton"
-                                   value="Clear Selection"
-                                   icon="pi pi-times"
-                                   styleClass="ui-button-secondary"
-                                   actionListener="#{visitRequestsController.clearSelection}"
-                                   process="@form"
-                                   update="@form :messages"
-                                   disabled="#{empty visitRequestsController.selectedRequests}"
-                                   style="margin-right: .5rem"/>
+                                     value="Clear Selection"
+                                     icon="pi pi-times"
+                                     styleClass="ui-button-secondary"
+                                     actionListener="#{visitRequestsController.clearSelection}"
+                                     process="@form"
+                                     update="@form :messages"
+                                     disabled="#{empty visitRequestsController.selectedRequests}"
+                                     style="margin-right: .5rem"/>
                 </p:toolbarGroup>
             </p:toolbar>
 
             <p:dataTable id="requestsTable"
-                        var="req"
-                        value="#{visitRequestsController.requests}"
-                        widgetVar="requestsTable"
-                        reflow="true"
-                        rowKey="#{req.id}"
-                        paginator="true"
-                        rows="10"
-                        paginatorPosition="bottom"
-                        styleClass="w-full border rounded-md mt-2"
-                        filteredValue="#{visitRequestsController.filteredRequests}"
-                        globalFilterFunction="#{visitRequestsController.globalFilterFunction}"
-                        editable="true"
-                        editMode="row"
-                        selection="#{visitRequestsController.selectedRequests}"
-                        selectionRowMode="add">
+                         var="req"
+                         value="#{visitRequestsController.requests}"
+                         widgetVar="requestsTable"
+                         reflow="true"
+                         rowKey="#{req.id}"
+                         paginator="true"
+                         rows="10"
+                         paginatorPosition="bottom"
+                         styleClass="w-full border rounded-md mt-2"
+                         filteredValue="#{visitRequestsController.filteredRequests}"
+                         globalFilterFunction="#{visitRequestsController.globalFilterFunction}"
+                         selection="#{visitRequestsController.selectedRequests}"
+                         selectionRowMode="add">
 
                 <!-- Selection column -->
                 <p:column selectionMode="multiple" style="width: 1px;"/>
@@ -71,12 +69,11 @@
                         <span class="filter-container ui-input-icon-left">
                             <i class="pi pi-search"></i>
                             <p:inputText id="globalFilter"
-                                       onkeyup="PF('requestsTable').filter()"
-                                       placeholder="Search all fields"/>
+                                         onkeyup="PF('requestsTable').filter()"
+                                         placeholder="Search all fields"/>
                         </span>
                     </div>
                 </f:facet>
-
 
                 <!-- Email -->
                 <p:column headerText="User Email" sortBy="#{req.userId.email}">
@@ -90,111 +87,58 @@
 
                 <!-- Verification Code -->
                 <p:column headerText="Verification Code" sortBy="#{req.verificationCode}">
-                    <p:cellEditor>
-                        <f:facet name="output">
-                            <h:outputText value="#{req.verificationCode}"/>
-                        </f:facet>
-                        <f:facet name="input">
-                            <p:inputText value="#{req.verificationCode}"/>
-                        </f:facet>
-                    </p:cellEditor>
+                    <h:outputText value="#{req.verificationCode}"/>
                 </p:column>
 
                 <!-- Visit Date/Time -->
                 <p:column headerText="Visit Date/Time" sortBy="#{req.visitDateTime}">
-                    <p:cellEditor>
-                        <f:facet name="output">
-                            <pe:timeAgo value="#{req.visitDateTime}"
-                                        titlePattern="MM/dd/yy HH:mm"  />
-                        </f:facet>
-                        <f:facet name="input">
-                            <p:datePicker id="visitDateTime"
-                                          value="#{req.visitDateTime}"
-                                          pattern="MM/dd/yy HH:mm"
-                                          showTime="true"
-                                          showIcon="true"
-                                          converter="timestampConverter"
-                                          required="true" />
-                        </f:facet>
-                    </p:cellEditor>
+                    <pe:timeAgo value="#{req.visitDateTime}"
+                                titlePattern="MM/dd/yy HH:mm"/>
                 </p:column>
 
                 <!-- Number of Entries -->
                 <p:column headerText="Number of Entries" sortBy="#{req.numberOfEntries}">
-                    <p:cellEditor>
-                        <f:facet name="output">
-                            <h:outputText value="#{req.numberOfEntries}"/>
-                        </f:facet>
-                        <f:facet name="input">
-                            <p:inputText value="#{req.numberOfEntries}"
-                                         required="true"/>
-                        </f:facet>
-                    </p:cellEditor>
+                    <h:outputText value="#{req.numberOfEntries}"/>
                 </p:column>
 
                 <!-- Purpose -->
                 <p:column headerText="Purpose" sortBy="#{req.purpose}">
-                    <p:cellEditor>
-                        <f:facet name="output">
-                            <h:outputText value="#{req.purpose}"/>
-                        </f:facet>
-                        <f:facet name="input">
-                            <p:inputText value="#{req.purpose}"/>
-                        </f:facet>
-                    </p:cellEditor>
+                    <h:outputText value="#{req.purpose}"/>
                 </p:column>
 
                 <!-- Status -->
                 <p:column headerText="Status" sortBy="#{req.status}">
-                    <p:cellEditor>
-                        <f:facet name="output">
-                            <p:tag severity="#{req.status eq 'PENDING' ? 'warning' : 
-                                              req.status eq 'APPROVED' ? 'info' : 
-                                              req.status eq 'COMPLETED' ? 'success' : 
-                                              req.status eq 'CANCELLED' ? 'info' : 'danger'}"
-                                  value="#{req.status}"/>
-                        </f:facet>
-                        <f:facet name="input">
-                            <p:selectOneMenu value="#{req.status}">
-                                <f:selectItem itemLabel="Pending" itemValue="PENDING"/>
-                                <f:selectItem itemLabel="Approved" itemValue="APPROVED"/>
-                                <f:selectItem itemLabel="Rejected" itemValue="REJECTED"/>
-                                <f:selectItem itemLabel="Completed" itemValue="COMPLETED"/>
-                                <f:selectItem itemLabel="Cancelled" itemValue="CANCELLED"/>
-                            </p:selectOneMenu>
-                        </f:facet>
-                    </p:cellEditor>
+                    <p:tag severity="#{req.status eq 'PENDING' ? 'warning' :
+                                      req.status eq 'APPROVED' ? 'info' :
+                                      req.status eq 'COMPLETED' ? 'success' :
+                                      req.status eq 'CANCELLED' ? 'info' : 'danger'}"
+                           value="#{req.status}"/>
                 </p:column>
 
                 <!-- Remarks -->
                 <p:column headerText="Remarks" sortBy="#{req.remarks}">
-                    <p:cellEditor>
-                        <f:facet name="output">
-                            <h:outputText value="#{req.remarks}"/>
-                        </f:facet>
-                        <f:facet name="input">
-                            <p:inputTextarea value="#{req.remarks}" rows="2"/>
-                        </f:facet>
-                    </p:cellEditor>
+                    <h:outputText value="#{req.remarks}"/>
                 </p:column>
 
                 <!-- Updated At -->
                 <p:column headerText="Updated At" sortBy="#{req.updatedAt}">
                     <pe:timeAgo value="#{req.updatedAt}"
-                                titlePattern="MM/dd/yy HH:mm"  />
+                                titlePattern="MM/dd/yy HH:mm"/>
                 </p:column>
 
                 <!-- Created At -->
                 <p:column headerText="Created At" sortBy="#{req.createdAt}">
                     <pe:timeAgo value="#{req.createdAt}"
-                                titlePattern="MM/dd/yy HH:mm"  />
+                                titlePattern="MM/dd/yy HH:mm"/>
                 </p:column>
 
-                <!-- Actions -->
+                <!-- Actions: trigger sidebar for editing -->
                 <p:column headerText="Actions" style="width:100px">
-                    <p:rowEditor editTitle="Edit Row"
-                               cancelTitle="Cancel Edit"
-                               saveTitle="Save Row"/>
+                    <p:commandButton value="Edit"
+                                     icon="pi pi-pencil"
+                                     action="#{visitRequestsController.prepareEdit(req)}"
+                                     update=":editRequestForm"
+                                     oncomplete="PF('editRequestSidebar').show();"/>
                 </p:column>
 
                 <!-- Selection Events -->
@@ -203,15 +147,6 @@
                 <p:ajax event="rowSelectCheckbox" update=":requestsTableForm:delete-requests-button :requestsTableForm:clearSelectionButton"/>
                 <p:ajax event="rowUnselectCheckbox" update=":requestsTableForm:delete-requests-button :requestsTableForm:clearSelectionButton"/>
                 <p:ajax event="toggleSelect" update=":requestsTableForm:delete-requests-button :requestsTableForm:clearSelectionButton"/>
-
-                <!-- Row Edit Events -->
-                <p:ajax event="rowEdit"
-                        listener="#{visitRequestsController.onRowEdit}"
-                        update=":requestsTableForm:requestsTable :messages"/>
-                <p:ajax event="rowEditCancel"
-                        listener="#{visitRequestsController.onRowCancel}"
-                        update=":requestsTableForm:requestsTable :messages"/>
-
             </p:dataTable>
 
             <!-- Confirmation Dialog -->
@@ -220,5 +155,96 @@
                 <p:commandButton value="Yes" type="button" styleClass="ui-confirmdialog-yes"/>
             </p:confirmDialog>
         </h:form>
+
+        <!-- Sidebar for Editing a Visit Request -->
+        <p:sidebar id="editRequestSidebar"
+                   widgetVar="editRequestSidebar"
+                   position="right"
+                   style="width:600px;">
+            <h:form id="editRequestForm">
+                <div class="space-y-4">
+                    <!-- Sidebar Title -->
+                    <h2 class="text-xl font-semibold mb-4">Edit Visit Request</h2>
+
+                    <!-- Verification Code (Now Editable) -->
+                    <div class="field mb-4">
+                        <p:outputLabel for="editVerificationCode" value="Verification Code" styleClass="block mb-1"/>
+                        <p:inputText id="editVerificationCode"
+                                     value="#{visitRequestsController.editingRequest.verificationCode}"
+                                     required="true"
+                                     styleClass="w-full"/>
+                    </div>
+
+                    <!-- Visit Date/Time -->
+                    <div class="field mb-4">
+                        <p:outputLabel for="editVisitDateTime" value="Visit Date/Time" styleClass="block mb-1"/>
+                        <p:datePicker id="editVisitDateTime"
+                                      value="#{visitRequestsController.editingRequest.visitDateTime}"
+                                      pattern="MM/dd/yy HH:mm"
+                                      showTime="true"
+                                      showIcon="true"
+                                      converter="timestampConverter"
+                                      required="true"
+                                      styleClass="w-full"/>
+                    </div>
+
+                    <!-- Number of Entries -->
+                    <div class="field mb-4">
+                        <p:outputLabel for="editNumberOfEntries" value="Number of Entries" styleClass="block mb-1"/>
+                        <p:inputText id="editNumberOfEntries"
+                                     value="#{visitRequestsController.editingRequest.numberOfEntries}"
+                                     required="true"
+                                     styleClass="w-full"/>
+                    </div>
+
+                    <!-- Purpose -->
+                    <div class="field mb-4">
+                        <p:outputLabel for="editPurpose" value="Purpose" styleClass="block mb-1"/>
+                        <p:inputTextarea id="editPurpose"
+                                         value="#{visitRequestsController.editingRequest.purpose}"
+                                         required="true"
+                                         rows="3"
+                                         styleClass="w-full"/>
+                    </div>
+
+                    <!-- Status -->
+                    <div class="field mb-4">
+                        <p:outputLabel for="editStatus" value="Status" styleClass="block mb-1"/>
+                        <p:selectOneMenu id="editStatus" value="#{visitRequestsController.editingRequest.status}" styleClass="w-full">
+                            <f:selectItem itemLabel="Pending" itemValue="PENDING" />
+                            <f:selectItem itemLabel="Approved" itemValue="APPROVED" />
+                            <f:selectItem itemLabel="Rejected" itemValue="REJECTED" />
+                            <f:selectItem itemLabel="Completed" itemValue="COMPLETED" />
+                            <f:selectItem itemLabel="Cancelled" itemValue="CANCELLED" />
+                        </p:selectOneMenu>
+                    </div>
+
+                    <!-- Remarks -->
+                    <div class="field mb-4">
+                        <p:outputLabel for="editRemarks" value="Remarks" styleClass="block mb-1"/>
+                        <p:inputTextarea id="editRemarks"
+                                         value="#{visitRequestsController.editingRequest.remarks}"
+                                         rows="3"
+                                         styleClass="w-full"/>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="flex justify-content-end gap-4">
+                        <p:commandButton value="Cancel"
+                                         icon="pi pi-times"
+                                         onclick="PF('editRequestSidebar').hide(); return false;"
+                                         styleClass="p-button-text mr-2 ui-button-warning"
+                                         immediate="true"/>
+                        <p:commandButton value="Save"
+                                         icon="pi pi-check"
+                                         action="#{visitRequestsController.updateRequest}"
+                                         update=":requestsTableForm:requestsTable :messages"
+                                         styleClass="p-button-primary"
+                                         oncomplete="if (!args.validationFailed) { PF('editRequestSidebar').hide(); }"/>
+                    </div>
+                </div>
+            </h:form>
+        </p:sidebar>
+
     </ui:define>
 </ui:composition>
