@@ -6,10 +6,9 @@ import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Named;
-import org.example.hvvs.model.VisitRequests;
+import jakarta.transaction.Transactional;
 import org.example.hvvs.model.VisitorRecords;
 import org.example.hvvs.model.VisitorRecordsFacade;
-import org.primefaces.event.RowEditEvent;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
@@ -24,6 +23,9 @@ public class VisitorRecordController implements Serializable {
     private List<VisitorRecords> records;
     private List<VisitorRecords> filteredRecords;
     private List<VisitorRecords> selectedRecords;
+    
+    // New field to hold the record being edited via sidebar
+    private VisitorRecords editingRecord;
 
     @PostConstruct
     public void init() {
@@ -33,41 +35,57 @@ public class VisitorRecordController implements Serializable {
     public void deleteSelectedRecords() {
         if (selectedRecords != null && !selectedRecords.isEmpty()) {
             try {
-                for (VisitorRecords selectedRecords : selectedRecords) {
-                    VisitorRecords managedRecord = visitorRecordsFacade.find(selectedRecords.getId());
+                for (VisitorRecords selectedRecord : selectedRecords) {
+                    VisitorRecords managedRecord = visitorRecordsFacade.find(selectedRecord.getId());
                     if (managedRecord != null) {
                         visitorRecordsFacade.remove(managedRecord);
                     }
                 }
-
                 selectedRecords.clear();
                 init(); // Refresh the list
                 FacesContext.getCurrentInstance().addMessage(null,
-                        new FacesMessage(FacesMessage.SEVERITY_INFO, "Success", "Selected requests deleted successfully"));
+                        new FacesMessage(FacesMessage.SEVERITY_INFO, "Success", "Selected records deleted successfully"));
             } catch (Exception e) {
                 FacesContext.getCurrentInstance().addMessage(null,
-                        new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Failed to delete selected requests"));
+                        new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Failed to delete selected records"));
             }
-            FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_INFO, "Success", "Selected records deleted"));
         }
     }
 
     public void clearSelection() {
-        selectedRecords = null;
+        if (selectedRecords != null) {
+            selectedRecords.clear();
+        }
     }
 
-    public void onRowEdit(RowEditEvent<VisitorRecords> event) {
-        VisitorRecords record = event.getObject();
-        record.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
-        visitorRecordsFacade.edit(record);
-        FacesContext.getCurrentInstance().addMessage(null,
-                new FacesMessage(FacesMessage.SEVERITY_INFO, "Success", "Record updated"));
+    // --- Methods for Sidebar Editing ---
+
+    /**
+     * Called when an admin clicks the "Edit" button.
+     * Prepares the selected visitor record for editing in the sidebar.
+     *
+     * @param record the VisitorRecords record to edit
+     */
+    public void prepareEdit(VisitorRecords record) {
+        this.editingRecord = record;
     }
 
-    public void onRowCancel(RowEditEvent<VisitorRecords> event) {
-        FacesContext.getCurrentInstance().addMessage(null,
-                new FacesMessage(FacesMessage.SEVERITY_INFO, "Cancelled", "Edit cancelled"));
+    /**
+     * Updates the edited visitor record.
+     */
+    @Transactional
+    public void updateRecord() {
+        try {
+            editingRecord.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
+            visitorRecordsFacade.edit(editingRecord);
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_INFO, "Success", "Visitor record updated successfully"));
+            init(); // Refresh the list after update
+        } catch (Exception e) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Failed to update visitor record: " + e.getMessage()));
+            FacesContext.getCurrentInstance().validationFailed();
+        }
     }
 
     public boolean globalFilterFunction(Object value, Object filter, String filterField) {
@@ -87,11 +105,16 @@ public class VisitorRecordController implements Serializable {
         if (selectedRecords == null || selectedRecords.isEmpty()) {
             return "Delete Selected Visitor Record";
         }
-        return String.format("Delete (%d)", selectedRecords.size());
+        return selectedRecords.size() > 1 ?
+                String.format("Delete (%d records)", selectedRecords.size()) :
+                "Delete (1 record)";
     }
 
     // Getters and Setters
     public List<VisitorRecords> getRecords() {
+        if (records == null) {
+            init();
+        }
         return records;
     }
 
@@ -113,5 +136,13 @@ public class VisitorRecordController implements Serializable {
 
     public void setSelectedRecords(List<VisitorRecords> selectedRecords) {
         this.selectedRecords = selectedRecords;
+    }
+
+    public VisitorRecords getEditingRecord() {
+        return editingRecord;
+    }
+
+    public void setEditingRecord(VisitorRecords editingRecord) {
+        this.editingRecord = editingRecord;
     }
 } 
