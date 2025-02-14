@@ -95,6 +95,18 @@
                     countdownEl.innerHTML = value;
                 }
             }
+
+            // Listen for visibility change events
+            document.addEventListener("visibilitychange", function() {
+                if (document.hidden) {
+                    // Option: Immediately warn the user or adjust the timer logic
+                    PF('idleDialog').show();
+                    startIdleTimer();
+                } else {
+                    PF('idleDialog').hide();
+                    stopIdleTimer();
+                }
+            });
         </script>
 
         <!-- Idle Dialog -->
