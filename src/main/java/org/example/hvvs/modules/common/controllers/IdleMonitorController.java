@@ -53,8 +53,15 @@ public class IdleMonitorController implements Serializable {
                 session.invalidate();
             }
 
+            FacesContext.getCurrentInstance().getExternalContext().getFlash().setKeepMessages(true);
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_INFO,
+                            "Session Expired",
+                            "Your session has expired due to inactivity."));
+
             return "/auth/sign-in.xhtml?faces-redirect=true";
         } catch (Exception e) {
+            FacesContext.getCurrentInstance().getExternalContext().getFlash().setKeepMessages(true);
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error",
                             "Error handling idle timeout " + e.getMessage()));
