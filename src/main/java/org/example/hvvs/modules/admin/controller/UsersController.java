@@ -7,11 +7,14 @@ import jakarta.faces.context.FacesContext;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Named;
 import org.example.hvvs.model.*;
+import org.example.hvvs.modules.common.service.SessionService;
+import org.example.hvvs.utils.CommonParam;
 import org.primefaces.event.RowEditEvent;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Named
 @ViewScoped
@@ -24,6 +27,8 @@ public class UsersController implements Serializable {
     private SecurityStaffProfilesFacade securityStaffProfilesFacade;
     @EJB
     private ManagingStaffProfilesFacade managingStaffProfilesFacade;
+    @EJB
+    private SessionService sessionService;
 
     private List<Users> users;
     private List<Users> filteredUsers;
@@ -145,11 +150,27 @@ public class UsersController implements Serializable {
     public void deleteSelectedUsers() {
         try {
             if (selectedUsers != null && !selectedUsers.isEmpty()) {
-                for (Users user : selectedUsers) {
+                Users currentUser = (Users) FacesContext.getCurrentInstance()
+                    .getExternalContext().getSessionMap().get(CommonParam.SESSION_SELF);
+                
+                // Filter out current user from deletion
+                List<Users> usersToDelete = selectedUsers.stream()
+                    .filter(user -> !user.getId().equals(currentUser.getId()))
+                    .toList();
+
+                if (usersToDelete.isEmpty()) {
+                    addErrorMessage("Cannot delete currently logged in user.");
+                    return;
+                }
+
+                for (Users user : usersToDelete) {
+                    // Revoke all sessions first
+                    sessionService.revokeAllSessions(user.getId());
                     usersFacade.remove(user);
                 }
+
                 // Remove from the local list so that the table UI updates
-                users.removeAll(selectedUsers);
+                users.removeAll(usersToDelete);
 
                 // Clear the selection
                 selectedUsers.clear();
