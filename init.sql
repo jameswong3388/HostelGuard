@@ -34,7 +34,7 @@ CREATE TABLE users
 -- Create mfa_methods table
 CREATE TABLE mfa_methods
 (
-    id             INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    id             CHAR(36) PRIMARY KEY,
     user_id        INT UNSIGNED NOT NULL,
     method         VARCHAR(20)  NOT NULL,
     secret         VARCHAR(255),
@@ -43,9 +43,8 @@ CREATE TABLE mfa_methods
     is_enabled     BOOLEAN               DEFAULT TRUE,
     created_at     TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at     TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    backup_codes   JSON,
     FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
-    CHECK (method IN ('TOTP', 'SMS', 'EMAIL', 'BACKUP_CODE'))
+    CHECK (method IN ('TOTP', 'SMS', 'EMAIL', 'RECOVERY_CODES'))
 );
 
 -- Create resident_profiles table
@@ -150,24 +149,9 @@ CREATE TABLE user_sessions
     FOREIGN KEY (user_id) REFERENCES users (id)
 );
 
-CREATE TABLE mfa_methods
-(
-    id             CHAR(36) PRIMARY KEY,
-    user_id        INT UNSIGNED NOT NULL,
-    method         VARCHAR(20)  NOT NULL,
-    secret         VARCHAR(255),
-    recovery_codes JSON,
-    is_primary     BOOLEAN               DEFAULT FALSE,
-    is_enabled     BOOLEAN               DEFAULT TRUE,
-    created_at     TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at     TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
-    CHECK (method IN ('TOTP', 'SMS', 'EMAIL', 'RECOVERY_CODES'))
-);
-
 -- Create indexes for better query performance
-CREATE INDEX idx_user_sessions_user_active ON user_sessions (user_id, is_active);
-CREATE INDEX idx_user_sessions_expires_active ON user_sessions (expires_at, is_active);
+CREATE INDEX idx_user_sessions_user_active ON user_sessions (user_id);
+CREATE INDEX idx_user_sessions_expires_active ON user_sessions (expires_at);
 CREATE INDEX idx_user_sessions_last_access ON user_sessions (last_access);
 
 CREATE INDEX idx_visit_requests_verification_code ON visit_requests (verification_code);
