@@ -372,10 +372,8 @@
                          editable="true"
                          editMode="row"
                          selection="#{usersController.selectedUsers}"
-                         selectionRowMode="add">
-
-                <!-- Add this selection column at the start (or any place you prefer) -->
-                <p:column selectionMode="multiple" style="width: 1px;"/>
+                         selectionRowMode="add"
+                         tableStyle="min-width: 1200px; table-layout: fixed;">
 
                 <!-- Global search bar in the header facet -->
                 <f:facet name="header">
@@ -389,8 +387,10 @@
                     </div>
                 </f:facet>
 
+                <p:column selectionMode="multiple" selectionBox="true" style="width: 12px;"/>
+
                 <!-- Username -->
-                <p:column headerText="Username" sortBy="#{users.username}">
+                <p:column headerText="Username" sortBy="#{users.username}" style="width: 150px;">
                     <p:cellEditor>
                         <f:facet name="output">
                             <h:outputText value="#{users.username}"/>
@@ -402,7 +402,7 @@
                 </p:column>
 
                 <!-- Email -->
-                <p:column headerText="Email" sortBy="#{users.email}">
+                <p:column headerText="Email" sortBy="#{users.email}" style="width: 200px;">
                     <p:cellEditor>
                         <f:facet name="output">
                             <h:outputText value="#{users.email}"/>
@@ -414,7 +414,7 @@
                 </p:column>
 
                 <!-- First Name -->
-                <p:column headerText="First Name" sortBy="#{users.firstName}">
+                <p:column headerText="First Name" sortBy="#{users.firstName}" style="width: 150px;">
                     <p:cellEditor>
                         <f:facet name="output">
                             <h:outputText value="#{users.firstName}"/>
@@ -426,7 +426,7 @@
                 </p:column>
 
                 <!-- Last Name -->
-                <p:column headerText="Last Name" sortBy="#{users.lastName}">
+                <p:column headerText="Last Name" sortBy="#{users.lastName}" style="width: 150px;">
                     <p:cellEditor>
                         <f:facet name="output">
                             <h:outputText value="#{users.lastName}"/>
@@ -438,7 +438,7 @@
                 </p:column>
 
                 <!-- Phone Number -->
-                <p:column headerText="Phone Number" sortBy="#{users.phoneNumber}">
+                <p:column headerText="Phone Number" sortBy="#{users.phoneNumber}" style="width: 150px;">
                     <p:cellEditor>
                         <f:facet name="output">
                             <h:outputText value="#{users.phoneNumber}"/>
@@ -450,7 +450,7 @@
                 </p:column>
 
                 <!-- Role -->
-                <p:column headerText="Role" sortBy="#{users.role}">
+                <p:column headerText="Role" sortBy="#{users.role}" style="width: 150px;">
                     <p:cellEditor>
                         <f:facet name="output">
                             <h:outputText value="#{users.role}"/>
@@ -466,7 +466,7 @@
                 </p:column>
 
                 <!-- Active Status -->
-                <p:column headerText="Status" sortBy="#{users.isActive}">
+                <p:column headerText="Status" sortBy="#{users.isActive}" style="width: 120px;">
                     <p:cellEditor>
                         <f:facet name="output">
                             <p:tag severity="#{users.isActive ? 'success' : 'warning'}"
@@ -483,19 +483,19 @@
                 </p:column>
 
                 <!-- Updated At -->
-                <p:column headerText="Updated At" sortBy="#{users.updatedAt}">
+                <p:column headerText="Updated At" sortBy="#{users.updatedAt}" style="width: 150px;">
                     <pe:timeAgo value="#{users.updatedAt}"
                                 titlePattern="MM/dd/yy HH:mm"/>
                 </p:column>
 
                 <!-- Created At -->
-                <p:column headerText="Created At" sortBy="#{users.createdAt}">
+                <p:column headerText="Created At" sortBy="#{users.createdAt}" style="width: 150px;">
                     <pe:timeAgo value="#{users.createdAt}"
                                 titlePattern="MM/dd/yy HH:mm"/>
                 </p:column>
 
                 <!-- Actions -->
-                <p:column headerText="Actions">
+                <p:column headerText="Actions" style="width: 100px;">
                     <p:commandButton value="Edit"
                                      icon="pi pi-pencil"
                                      action="#{usersController.prepareEdit(users)}"

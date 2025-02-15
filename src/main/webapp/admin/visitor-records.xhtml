@@ -61,10 +61,11 @@
                         editable="true"
                         editMode="row"
                         selection="#{visitorRecordController.selectedRecords}"
-                        selectionRowMode="add">
+                        selectionRowMode="add"
+                        tableStyle="min-width: 1200px; table-layout: fixed;">
 
                 <!-- Selection column -->
-                <p:column selectionMode="multiple" style="width: 1px;"/>
+                <p:column selectionMode="multiple" selectionBox="true" style="width: 12px;"/>
 
                 <!-- Global search bar -->
                 <f:facet name="header">
@@ -79,17 +80,17 @@
                 </f:facet>
 
                 <!-- Security Staff -->
-                <p:column headerText="Security Staff Username" sortBy="#{record.securityStaffId.username}">
+                <p:column headerText="Security Staff Username" sortBy="#{record.securityStaffId.username}" style="width: 150px;">
                     <h:outputText value="#{record.securityStaffId.username}"/>
                 </p:column>
 
                 <!-- Request ID -->
-                <p:column headerText="Unit Number" sortBy="#{record.requestId.unitNumber}">
+                <p:column headerText="Unit Number" sortBy="#{record.requestId.unitNumber}" style="width: 120px;">
                     <h:outputText value="#{record.requestId.unitNumber}"/>
                 </p:column>
                 
                 <!-- Visitor Name -->
-                <p:column headerText="Visitor Name" sortBy="#{record.visitorName}">
+                <p:column headerText="Visitor Name" sortBy="#{record.visitorName}" style="width: 150px;">
                     <p:cellEditor>
                         <f:facet name="output">
                             <h:outputText value="#{record.visitorName}"/>
@@ -101,7 +102,7 @@
                 </p:column>
 
                 <!-- Visitor IC -->
-                <p:column headerText="Visitor IC" sortBy="#{record.visitorIc}">
+                <p:column headerText="Visitor IC" sortBy="#{record.visitorIc}" style="width: 150px;">
                     <p:cellEditor>
                         <f:facet name="output">
                             <h:outputText value="#{record.visitorIc}"/>
@@ -113,7 +114,7 @@
                 </p:column>
 
                 <!-- Visitor Phone -->
-                <p:column headerText="Visitor Phone" sortBy="#{record.visitorPhone}">
+                <p:column headerText="Visitor Phone" sortBy="#{record.visitorPhone}" style="width: 150px;">
                     <p:cellEditor>
                         <f:facet name="output">
                             <h:outputText value="#{record.visitorPhone}"/>
@@ -125,7 +126,7 @@
                 </p:column>
 
                 <!-- Check In Time -->
-                <p:column headerText="Check In Time" sortBy="#{record.checkInTime}">
+                <p:column headerText="Check In Time" sortBy="#{record.checkInTime}" style="width: 150px;">
                     <p:cellEditor>
                         <f:facet name="output">
                             <h:outputText value="#{record.checkInTime}">
@@ -137,14 +138,13 @@
                                          pattern="MM/dd/yy HH:mm"
                                          showTime="true"
                                          showIcon="true"
-                                          converter="timestampConverter"
-                            />
+                                         converter="timestampConverter"/>
                         </f:facet>
                     </p:cellEditor>
                 </p:column>
 
                 <!-- Check Out Time -->
-                <p:column headerText="Check Out Time" sortBy="#{record.checkOutTime}">
+                <p:column headerText="Check Out Time" sortBy="#{record.checkOutTime}" style="width: 150px;">
                     <p:cellEditor>
                         <f:facet name="output">
                             <h:outputText value="#{record.checkOutTime}">
@@ -156,14 +156,13 @@
                                          pattern="MM/dd/yy HH:mm"
                                          showTime="true"
                                          showIcon="true"
-                                          converter="timestampConverter"
-                            />
+                                         converter="timestampConverter"/>
                         </f:facet>
                     </p:cellEditor>
                 </p:column>
 
                 <!-- Remarks -->
-                <p:column headerText="Remarks" sortBy="#{record.remarks}">
+                <p:column headerText="Remarks" sortBy="#{record.remarks}" style="width: 200px;">
                     <p:cellEditor>
                         <f:facet name="output">
                             <h:outputText value="#{record.remarks}"/>
@@ -175,19 +174,19 @@
                 </p:column>
 
                 <!-- Updated At -->
-                <p:column headerText="Updated At" sortBy="#{record.updatedAt}">
+                <p:column headerText="Updated At" sortBy="#{record.updatedAt}" style="width: 150px;">
                     <pe:timeAgo value="#{record.updatedAt}"
-                                titlePattern="MM/dd/yy HH:mm"  />
+                               titlePattern="MM/dd/yy HH:mm"/>
                 </p:column>
 
                 <!-- Created At -->
-                <p:column headerText="Created At" sortBy="#{record.createdAt}">
+                <p:column headerText="Created At" sortBy="#{record.createdAt}" style="width: 150px;">
                     <pe:timeAgo value="#{record.createdAt}"
-                                titlePattern="MM/dd/yy HH:mm"  />
+                               titlePattern="MM/dd/yy HH:mm"/>
                 </p:column>
 
                 <!-- Actions -->
-                <p:column headerText="Actions" style="width:100px">
+                <p:column headerText="Actions" style="width: 100px;">
                     <p:commandButton value="Edit"
                                    icon="pi pi-pencil"
                                    action="#{visitorRecordController.prepareEdit(record)}"

@@ -146,47 +146,48 @@
                          selection="#{visitRequestControllerResident.selectedRequests}"
                          styleClass="w-full border rounded-md mt-2"
                          filteredValue="#{visitRequestControllerResident.filteredRequests}"
-                         globalFilterFunction="#{visitRequestControllerResident.globalFilterFunction}">
+                         globalFilterFunction="#{visitRequestControllerResident.globalFilterFunction}"
+                         tableStyle="min-width: 1200px; table-layout: fixed;">
 
                 <!-- Global search bar -->
                 <f:facet name="header">
                     <div class="flex justify-between">
-            <span class="filter-container ui-input-icon-left">
-                <i class="pi pi-search"></i>
-                <p:inputText id="globalFilter"
-                             onkeyup="PF('requestsTable').filter()"
-                             placeholder="Search all fields"/>
-            </span>
+                        <span class="filter-container ui-input-icon-left">
+                            <i class="pi pi-search"></i>
+                            <p:inputText id="globalFilter"
+                                         onkeyup="PF('requestsTable').filter()"
+                                         placeholder="Search all fields"/>
+                        </span>
                     </div>
                 </f:facet>
 
                 <!-- Multi-select checkbox column -->
-                <p:column selectionMode="multiple" exportable="false" style="width:1px"/>
+                <p:column selectionMode="multiple" selectionBox="true" style="width: 12px;"/>
 
                 <!-- Verification Code column -->
-                <p:column headerText="Verification Code" sortBy="#{req.verificationCode}">
+                <p:column headerText="Verification Code" sortBy="#{req.verificationCode}" style="width: 325px;">
                     <h:outputText value="#{req.verificationCode}"/>
                 </p:column>
 
                 <!-- Visit Date/Time column -->
-                <p:column headerText="Visit Date/Time" sortBy="#{req.visitDateTime}">
+                <p:column headerText="Visit Date/Time" sortBy="#{req.visitDateTime}" style="width: 150px;">
                     <h:outputText value="#{req.visitDateTime}">
                         <f:convertDateTime pattern="MM/dd/yy HH:mm"/>
                     </h:outputText>
                 </p:column>
 
                 <!-- Number of Entries column -->
-                <p:column headerText="Number of Entries" sortBy="#{req.numberOfEntries}">
+                <p:column headerText="Number of Entries" sortBy="#{req.numberOfEntries}" style="width: 120px;">
                     <h:outputText value="#{req.numberOfEntries}"/>
                 </p:column>
 
                 <!-- Purpose column -->
-                <p:column headerText="Purpose" sortBy="#{req.purpose}">
+                <p:column headerText="Purpose" sortBy="#{req.purpose}" style="width: 200px;">
                     <h:outputText value="#{req.purpose}"/>
                 </p:column>
 
-                <!-- Status column (non-editable) -->
-                <p:column headerText="Status" sortBy="#{req.status}">
+                <!-- Status column -->
+                <p:column headerText="Status" sortBy="#{req.status}" style="width: 120px;">
                     <p:tag severity="#{req.status eq 'PENDING' ? 'warning' :
                           req.status eq 'APPROVED' ? 'info' :
                           req.status eq 'COMPLETED' ? 'success' :
@@ -195,23 +196,23 @@
                            value="#{req.status}"/>
                 </p:column>
 
-                <!-- Remarks column (non-editable) -->
-                <p:column headerText="Remarks" sortBy="#{req.remarks}">
+                <!-- Remarks column -->
+                <p:column headerText="Remarks" sortBy="#{req.remarks}" style="width: 200px;">
                     <h:outputText value="#{req.remarks}"/>
                 </p:column>
 
                 <!-- Updated At column -->
-                <p:column headerText="Updated At" sortBy="#{req.updatedAt}">
+                <p:column headerText="Updated At" sortBy="#{req.updatedAt}" style="width: 150px;">
                     <pe:timeAgo value="#{req.updatedAt}" titlePattern="MM/dd/yy HH:mm"/>
                 </p:column>
 
                 <!-- Created At column -->
-                <p:column headerText="Created At" sortBy="#{req.createdAt}">
+                <p:column headerText="Created At" sortBy="#{req.createdAt}" style="width: 150px;">
                     <pe:timeAgo value="#{req.createdAt}" titlePattern="MM/dd/yy HH:mm"/>
                 </p:column>
 
-                <!-- Actions Column: Edit & Cancel -->
-                <p:column headerText="Actions">
+                <!-- Actions Column -->
+                <p:column headerText="Actions" style="width: 100px;">
                     <p:commandButton value="Edit"
                                      icon="pi pi-pencil"
                                      action="#{visitRequestControllerResident.prepareEdit(req)}"

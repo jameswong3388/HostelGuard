@@ -153,10 +153,9 @@ CREATE TABLE user_sessions
 CREATE INDEX idx_user_sessions_user_active ON user_sessions (user_id);
 CREATE INDEX idx_user_sessions_expires_active ON user_sessions (expires_at);
 CREATE INDEX idx_user_sessions_last_access ON user_sessions (last_access);
+CREATE INDEX idx_user_sessions_user_expires ON user_sessions (user_id, expires_at);
 
-CREATE INDEX idx_visit_requests_verification_code ON visit_requests (verification_code);
-CREATE INDEX idx_visit_requests_status ON visit_requests (status);
-CREATE INDEX idx_visit_requests_user_status ON visit_requests (user_id, status);
+CREATE INDEX idx_visit_requests_verification_status_entries ON visit_requests (verification_code, status, number_of_entries);
 
 CREATE INDEX idx_resident_profiles_user_id ON resident_profiles (user_id);
 CREATE INDEX idx_security_staff_profiles_user_id ON security_staff_profiles (user_id);
@@ -167,3 +166,5 @@ CREATE INDEX idx_medias_collection ON medias (collection);
 
 CREATE INDEX idx_mfa_methods_user ON mfa_methods (user_id);
 CREATE INDEX idx_mfa_methods_user_method ON mfa_methods (user_id, method);
+
+CREATE INDEX idx_medias_model_composite ON medias (model, model_id);
