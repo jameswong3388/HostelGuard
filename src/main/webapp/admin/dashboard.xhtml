@@ -7,6 +7,31 @@
 
     <ui:define name="title">Dashboard - HostelGuard™</ui:define>
 
+    <ui:define name="head ">
+        <style>
+            .legacy .ui-panel, .legacy.div.ui-state-hover {
+                margin: 10px;
+            }
+            .legacy .ui-dashboard-column {
+                width: 220px;
+            }
+            .ui-dashboard-active {
+                border-color: var(- -primary-color);
+                border-width: 3px !important;
+                border-style: dashed;
+            }
+            .ui-dashboard-hover {
+                border-color: #C2E085;
+                border-width: 3px !important;
+                border-style: solid;
+            }
+            body .ui-panel.chart-dashlet .ui-panel-content .ui-chart {
+                height: 250px;
+                max-height: 250px;
+            }
+        </style>
+    </ui:define>
+
     <ui:define name="navigation">
         <h:link outcome="/admin/dashboard.xhtml" styleClass="py-2 text-blue-600 font-medium focus:outline-none">Dashboard</h:link>
         <h:link outcome="/admin/users.xhtml" styleClass="py-2 text-gray-500 hover:text-gray-700 focus:outline-none">Users</h:link>
@@ -15,64 +40,113 @@
     </ui:define>
 
     <ui:define name="content">
-        <!-- Page Title -->
-        <div class="mb-8">
-            <h2 class="text-2xl font-bold">Analytics Dashboard</h2>
-        </div>
 
-        <!-- First Row - Visitor Reports -->
-        <div class="grid grid-cols-2 gap-4 mb-6">
-            <!-- Daily Visitor Activity -->
-            <div class="bg-white p-4 rounded-lg shadow">
-                <h3 class="text-lg font-semibold mb-4">Daily Visitor Activity</h3>
-                <p:chart value="#{dashboardController.lineModel}"
-                         style="width: 100%; height: 300px"/>
+        <h:form id="form">
+            <p:growl id="msgs" showDetail="true" skipDetailIfEqualsSummary="true">
+                <p:autoUpdate />
+            </p:growl>
+
+            <div class="card">
+                <p:dashboard id="responsive" model="#{dashboardView.responsiveModel}" responsive="true">
+                    <p:ajax event="reorder" listener="#{dashboardView.handleReorder}" />
+
+                    <p:panel id="bar" header="Bar" closable="true" styleClass="chart-dashlet" >
+                        <p:ajax event="close" listener="#{dashboardView.handleClose}" />
+                        <f:facet name="options">
+                            <p:menu>
+                                <p:submenu label="Panel Size">
+                                    <p:menuitem action="#{dashboardView.onDashboardResize('bar', 'xl:col-4')}" immediate="true" update="@form">
+                                        1/3 <p:graphicImage name="demo/images/dashboard/onethird.png" styleClass="ml-2" alt="one third" />
+                                    </p:menuitem>
+                                    <p:menuitem action="#{dashboardView.onDashboardResize('bar', 'xl:col-6')}" immediate="true" update="@form">
+                                        1/2 <p:graphicImage name="demo/images/dashboard/onehalf.png" styleClass="ml-2" alt="one half" />
+                                    </p:menuitem>
+                                    <p:menuitem action="#{dashboardView.onDashboardResize('bar', 'xl:col-8')}" immediate="true" update="@form">
+                                        2/3 <p:graphicImage name="demo/images/dashboard/twothirds.png" styleClass="ml-2" alt="two thirds" />
+                                    </p:menuitem>
+                                    <p:menuitem action="#{dashboardView.onDashboardResize('bar', 'xl:col-12')}" immediate="true" update="@form">
+                                        Full <p:graphicImage name="demo/images/dashboard/full.png" styleClass="ml-2" alt="full" />
+                                    </p:menuitem>
+                                </p:submenu>
+                            </p:menu>
+                        </f:facet>
+
+                        <p:chart value="#{chartView.barModel}" style="width: 100%; height: 100%;" />
+                    </p:panel>
+
+                    <p:panel id="stacked" header="Stacked" closable="true" styleClass="chart-dashlet" >
+                        <p:ajax event="close" listener="#{dashboardView.handleClose}" />
+                        <f:facet name="options">
+                            <p:menu>
+                                <p:submenu label="Panel Size">
+                                    <p:menuitem action="#{dashboardView.onDashboardResize('stacked', 'xl:col-4')}" immediate="true" update="@form">
+                                        1/3 <p:graphicImage name="demo/images/dashboard/onethird.png" styleClass="ml-2" alt="one third" />
+                                    </p:menuitem>
+                                    <p:menuitem action="#{dashboardView.onDashboardResize('stacked', 'xl:col-6')}" immediate="true" update="@form">
+                                        1/2 <p:graphicImage name="demo/images/dashboard/onehalf.png" styleClass="ml-2" alt="one half" />
+                                    </p:menuitem>
+                                    <p:menuitem action="#{dashboardView.onDashboardResize('stacked', 'xl:col-8')}" immediate="true" update="@form">
+                                        2/3 <p:graphicImage name="demo/images/dashboard/twothirds.png" styleClass="ml-2" alt="two thirds" />
+                                    </p:menuitem>
+                                    <p:menuitem action="#{dashboardView.onDashboardResize('stacked', 'xl:col-12')}" immediate="true" update="@form">
+                                        Full <p:graphicImage name="demo/images/dashboard/full.png" styleClass="ml-2" alt="full" />
+                                    </p:menuitem>
+                                </p:submenu>
+                            </p:menu>
+                        </f:facet>
+                        <p:chart value="#{chartView.stackedBarModel}" style="width: 100%; height: 100%;" />
+                    </p:panel>
+
+                    <p:panel id="donut" header="Doughnut" closable="true" styleClass="chart-dashlet" >
+                        <p:ajax event="close" listener="#{dashboardView.handleClose}" />
+                        <f:facet name="options">
+                            <p:menu>
+                                <p:submenu label="Panel Size">
+                                    <p:menuitem action="#{dashboardView.onDashboardResize('donut', 'xl:col-4')}" immediate="true" update="@form">
+                                        1/3 <p:graphicImage name="demo/images/dashboard/onethird.png" styleClass="ml-2" alt="one third" />
+                                    </p:menuitem>
+                                    <p:menuitem action="#{dashboardView.onDashboardResize('donut', 'xl:col-6')}" immediate="true" update="@form">
+                                        1/2 <p:graphicImage name="demo/images/dashboard/onehalf.png" styleClass="ml-2" alt="one half" />
+                                    </p:menuitem>
+                                    <p:menuitem action="#{dashboardView.onDashboardResize('donut', 'xl:col-8')}" immediate="true" update="@form">
+                                        2/3 <p:graphicImage name="demo/images/dashboard/twothirds.png" styleClass="ml-2" alt="two thirds" />
+                                    </p:menuitem>
+                                    <p:menuitem action="#{dashboardView.onDashboardResize('donut', 'xl:col-12')}" immediate="true" update="@form">
+                                        Full <p:graphicImage name="demo/images/dashboard/full.png" styleClass="ml-2" alt="full" />
+                                    </p:menuitem>
+                                </p:submenu>
+                            </p:menu>
+                        </f:facet>
+
+                        <p:chart value="#{chartView.donutModel}" style="width: 100%; height: 100%;" />
+                    </p:panel>
+
+                    <p:panel id="cartesian" header="Cartesian" closable="true" styleClass="chart-dashlet" >
+                        <p:ajax event="close" listener="#{dashboardView.handleClose}" />
+                        <f:facet name="options">
+                            <p:menu>
+                                <p:submenu label="Panel Size">
+                                    <p:menuitem action="#{dashboardView.onDashboardResize('cartesian', 'xl:col-4')}" immediate="true" update="@form">
+                                        1/3 <p:graphicImage name="demo/images/dashboard/onethird.png" styleClass="ml-2" alt="one third" />
+                                    </p:menuitem>
+                                    <p:menuitem action="#{dashboardView.onDashboardResize('cartesian', 'xl:col-6')}" immediate="true" update="@form">
+                                        1/2 <p:graphicImage name="demo/images/dashboard/onehalf.png" styleClass="ml-2" alt="one half" />
+                                    </p:menuitem>
+                                    <p:menuitem action="#{dashboardView.onDashboardResize('cartesian', 'xl:col-8')}" immediate="true" update="@form">
+                                        2/3 <p:graphicImage name="demo/images/dashboard/twothirds.png" styleClass="ml-2" alt="two thirds" />
+                                    </p:menuitem>
+                                    <p:menuitem action="#{dashboardView.onDashboardResize('cartesian', 'xl:col-12')}" immediate="true" update="@form">
+                                        Full <p:graphicImage name="demo/images/dashboard/full.png" styleClass="ml-2" alt="full" />
+                                    </p:menuitem>
+                                </p:submenu>
+                            </p:menu>
+                        </f:facet>
+
+                        <p:chart id="chartline" value="#{chartView.cartesianLinerModel}" style="width: 100%; height: 100%;" />
+                    </p:panel>
+                </p:dashboard>
             </div>
-        </div>
-
-        <!-- Second Row - Visit Request Insights -->
-<!--        <div class="grid grid-cols-2 gap-4 mb-6">-->
-<!--            &lt;!&ndash; Visit Request Status &ndash;&gt;-->
-<!--            <div class="bg-white p-4 rounded-lg shadow">-->
-<!--                <h3 class="text-lg font-semibold mb-4">Visit Request Status</h3>-->
-<!--                <p:chart type="bar" model="#{mediaManagementController.visitRequestStatusChart}" -->
-<!--                         style="width: 100%; height: 300px"/>-->
-<!--            </div>-->
-
-<!--            &lt;!&ndash; Top Residents by Visits &ndash;&gt;-->
-<!--            <div class="bg-white p-4 rounded-lg shadow">-->
-<!--                <h3 class="text-lg font-semibold mb-4">Top Residents by Visits</h3>-->
-<!--                <p:chart type="bar" model="#{mediaManagementController.topResidentsChart}" -->
-<!--                         style="width: 100%; height: 300px"/>-->
-<!--            </div>-->
-<!--        </div>-->
-
-        <!-- Third Row - Security Insights -->
-<!--        <div class="grid grid-cols-2 gap-4 mb-6">-->
-<!--            &lt;!&ndash; Security Staff Performance &ndash;&gt;-->
-<!--            <div class="bg-white p-4 rounded-lg shadow">-->
-<!--                <h3 class="text-lg font-semibold mb-4">Security Staff Performance</h3>-->
-<!--                <p:chart type="bar" model="#{mediaManagementController.securityStaffPerformanceChart}" -->
-<!--                         style="width: 100%; height: 300px"/>-->
-<!--            </div>-->
-
-<!--            &lt;!&ndash; Staff Shift Distribution &ndash;&gt;-->
-<!--            <div class="bg-white p-4 rounded-lg shadow">-->
-<!--                <h3 class="text-lg font-semibold mb-4">Staff Shift Distribution</h3>-->
-<!--                <p:chart type="pie" model="#{mediaManagementController.shiftDistributionChart}" -->
-<!--                         style="width: 100%; height: 300px"/>-->
-<!--            </div>-->
-<!--        </div>-->
-
-        <!-- Fourth Row - Time Analysis -->
-<!--        <div class="grid grid-cols-1 gap-4">-->
-<!--            &lt;!&ndash; Visits by Time of Day &ndash;&gt;-->
-<!--            <div class="bg-white p-4 rounded-lg shadow">-->
-<!--                <h3 class="text-lg font-semibold mb-4">Visits by Time of Day</h3>-->
-<!--                <p:chart type="line" model="#{mediaManagementController.visitsByTimeChart}" -->
-<!--                         style="width: 100%; height: 300px"/>-->
-<!--            </div>-->
-<!--        </div>-->
+        </h:form>
     </ui:define>
 
 </ui:composition>
