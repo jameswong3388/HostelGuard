@@ -14,6 +14,7 @@ https://github.com/user-attachments/assets/94c52765-d23f-4e6f-8851-109621c8119c
 - File upload handling with content validation
 - Rate limiting for authentication endpoints
 - Lazy loading data tables with server-side filtering and sorting
+- Automatic session timeout after 60 seconds of inactivity with 15 second warning dialog
 
 ### Security Features
 - QR code generation/validation system for visitor verification
