@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+<h:head>
+    <title><ui:insert name="title">Default Title</ui:insert></title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- PrimeFaces Icons -->
+    <h:outputStylesheet name="primeicons/primeicons.css" library="primefaces"/>
+    <ui:insert name="head"/>
+
+    <style>
+        body .ui-chkbox .ui-chkbox-box .ui-chkbox-icon {
+            overflow: visible;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            margin-left: -0.5rem;
+            margin-top: -0.7rem;
+        }
+    </style>
+</h:head>
+
+<h:body class="bg-gray-50 text-gray-800">
+    <!-- Top Nav -->
+    <header class="flex items-center justify-between px-12 py-4 bg-white border-b">
+        <!-- Left: Brand/Title -->
+        <h:link outcome="/god/users.xhtml" styleClass="text-xl font-semibold hover:text-blue-600">
+            HostelGuard™
+        </h:link>
+
+        <!-- Right: Icons or Profile -->
+        <h:form>
+            <div class="flex items-center space-x-4">
+                <p:button icon="pi pi-bell" styleClass="p-button-text text-gray-700" outcome="/god/notifications"/>
+
+                <div class="relative">
+                    <p:commandButton id="profileBtn"
+                                     icon="pi pi-user"
+                                     styleClass="p-button-text p-button-rounded"
+                                     type="button"/>
+
+                    <p:menu id="profileMenu"
+                            overlay="true"
+                            trigger="profileBtn"
+                            my="left top+10"
+                            at="left bottom">
+                        <p:menuitem value="Settings" outcome="/god/settings/general" icon="pi pi-cog"/>
+                        <p:separator/>
+                        <p:menuitem value="Sign Out" icon="pi pi-sign-out" action="#{signOutController.signOut()}"
+                                    ajax="false"/>
+                    </p:menu>
+                </div>
+            </div>
+        </h:form>
+    </header>
+
+    <!-- Messages -->
+    <p:growl id="messages" showDetail="true"/>
+
+    <!-- Idle Monitor Form -->
+    <h:form id="globalForm">
+        <!-- Idle Monitor -->
+        <p:idleMonitor
+                timeout="60000"
+                onidle="handleIdle()"
+                onactive="handleActive()"/>
+
+        <!-- Hidden logout button for automatic logout -->
+        <p:commandButton id="autoLogoutBtn"
+                         style="display:none;"
+                         action="#{IdleMonitorController.handleIdle}"
+                         process="@this"
+                         update=":globalForm"/>
+
+        <script type="text/javascript">
+            var idleDialogTimer;
+            var countdownDuration = 15; // seconds
+
+            function handleIdle() {
+                PF('idleDialog').show();
+                startCountdown();
+            }
+
+            // Called when activity is detected again
+            function handleActive() {
+                PF('idleDialog').hide();
+                stopCountdown();
+            }
+
+            function startCountdown() {
+                var timeLeft = countdownDuration;
+                updateCountdownDisplay(timeLeft);
+                idleDialogTimer = setInterval(function () {
+                    timeLeft--;
+                    updateCountdownDisplay(timeLeft);
+                    if (timeLeft &lt;= 0) {
+                        clearInterval(idleDialogTimer);
+                        PF('idleDialog').hide();
+                        // Trigger auto logout
+                        document.getElementById('globalForm:autoLogoutBtn').click();
+                    }
+                }, 1000);
+            }
+
+            function stopCountdown() {
+                if (idleDialogTimer) {
+                    clearInterval(idleDialogTimer);
+                }
+            }
+
+            function updateCountdownDisplay(value) {
+                var countdownEl = document.getElementById('countdown');
+                if (countdownEl) {
+                    countdownEl.innerHTML = value;
+                }
+            }
+
+            // Optionally, add more listeners to catch activity:
+            ['mousemove', 'keydown', 'scroll', 'click'].forEach(function (eventName) {
+                document.addEventListener(eventName, function () {
+                    // If dialog is showing and user interacts, consider them active.
+                    if (PF('idleDialog').isVisible()) {
+                        handleActive();
+                    }
+                });
+            });
+        </script>
+
+        <!-- Idle Dialog -->
+        <p:dialog
+                widgetVar="idleDialog"
+                header="Session Timeout Warning"
+                modal="true"
+                closable="false"
+                resizable="false"
+                appendTo="@body">
+            <h:panelGrid columns="1" styleClass="p-4">
+                <h:outputText
+                        value="You have been inactive for a while. You will be logged out unless you continue your session."
+                        styleClass="text-gray-700"/>
+                <br/>
+                <h:outputText value="You will be logged out in " styleClass="text-gray-700"/>
+                <span id="countdown" class="text-red-600 font-bold"></span>
+                <h:outputText value=" seconds." styleClass="text-gray-700"/>
+            </h:panelGrid>
+        </p:dialog>
+    </h:form>
+
+    <!-- Secondary Tab Nav -->
+    <nav class="flex items-center space-x-8 px-12 py-2 bg-white border-b">
+        <ui:insert name="navigation">
+            <h:link outcome="/god/users.xhtml"
+                    styleClass="py-2 text-gray-500 hover:text-gray-700 focus:outline-none">
+                Users
+            </h:link>
+        </ui:insert>
+    </nav>
+
+    <!-- Main Content Container -->
+    <main class="mx-auto px-12 py-8">
+        <ui:insert name="content">
+            <!-- Default content -->
+        </ui:insert>
+    </main>
+</h:body>
+</html>

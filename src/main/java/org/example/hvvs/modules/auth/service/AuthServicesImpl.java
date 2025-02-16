@@ -129,7 +129,7 @@ public class AuthServicesImpl implements AuthServices {
             case RESIDENT -> "/resident/requests.xhtml?faces-redirect=true";
             case SECURITY_STAFF -> "/security/onboard-visitors.xhtml?faces-redirect=true";
             case MANAGING_STAFF -> "/admin/dashboard.xhtml?faces-redirect=true";
-            case SUPER_ADMIN -> "/admin/dashboard.xhtml?faces-redirect=true";
+            case SUPER_ADMIN -> "/god/users.xhtml?faces-redirect=true";
         };
     }
 

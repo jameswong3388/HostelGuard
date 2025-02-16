@@ -41,7 +41,8 @@ public class Middleware implements Filter {
     private static final List<PathRole> PATH_ROLES = Arrays.asList(
             new PathRole("/resident/", Users.Role.RESIDENT),
             new PathRole("/security/", Users.Role.SECURITY_STAFF),
-            new PathRole("/admin/", Users.Role.MANAGING_STAFF)
+            new PathRole("/admin/", Users.Role.MANAGING_STAFF),
+            new PathRole("/god/", Users.Role.SUPER_ADMIN)
     );
 
     // Session expiration thresholds
@@ -187,7 +188,8 @@ public class Middleware implements Filter {
         switch (role) {
             case RESIDENT -> resp.sendRedirect(contextPath + "/resident/requests.xhtml");
             case SECURITY_STAFF -> resp.sendRedirect(contextPath + "/security/onboard-visitors.xhtml");
-            case MANAGING_STAFF, SUPER_ADMIN -> resp.sendRedirect(contextPath + "/admin/dashboard.xhtml");
+            case MANAGING_STAFF -> resp.sendRedirect(contextPath + "/admin/dashboard.xhtml");
+            case SUPER_ADMIN -> resp.sendRedirect(contextPath + "/god/users.xhtml");
             default -> resp.sendRedirect(contextPath + "/auth/sign-in.xhtml");
         }
     }

@@ -3,22 +3,30 @@
                 xmlns:f="http://xmlns.jcp.org/jsf/core"
                 xmlns:p="http://primefaces.org/ui"
                 xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
-                template="/WEB-INF/templates/resident-layout.xhtml">
+                template="/WEB-INF/templates/god-layout.xhtml">
 
-    <!-- Keep your other <ui:define> blocks for title, navigation, etc. -->
+    <!-- Page Title -->
     <ui:define name="title">General Settings - HostelGuard™</ui:define>
 
-    <!--    <ui:define name="navigation">-->
-    <!--        <h:link outcome="/resident/settings/general.xhtml"-->
-    <!--                styleClass="py-2 text-blue-600 font-medium focus:outline-none">General</h:link>-->
-    <!--        <h:link outcome="/resident/requests.xhtml"-->
-    <!--                styleClass="py-2 text-gray-500 hover:text-gray-700 focus:outline-none">Coming Soon</h:link>-->
-    <!--    </ui:define>-->
-
+    <!-- Navigation links -->
+    <ui:define name="navigation">
+        <h:link outcome="/god/settings/general.xhtml"
+                styleClass="py-2 text-blue-600 font-medium focus:outline-none">
+            General
+        </h:link>
+        <h:link outcome="/god/settings/account.xhtml"
+                styleClass="py-2 text-gray-500 hover:text-gray-700 focus:outline-none">
+            Account
+        </h:link>
+        <h:link outcome="/god/settings/authentication-security.xhtml"
+                styleClass="py-2 text-gray-500 hover:text-gray-700 focus:outline-none">
+            Authentication &amp; Security
+        </h:link>
+    </ui:define>
     <!-- Replace only the content block with the new design -->
     <ui:define name="content">
+        <!-- Profile Picture Section -->
         <div class="space-y-10">
-            <!-- Profile Picture Section -->
             <section aria-labelledby="profiling-information">
                 <h:form enctype="multipart/form-data">
                     <div class="grid grid-cols-1 gap-x-14 gap-y-8 md:grid-cols-3">
@@ -193,23 +201,36 @@
                                 Additional information
                             </h2>
                             <p class="mt-1 text-sm leading-6 text-gray-500">
-                                View and manage your residential details.
+                                View and manage your organizational department and position details.
                             </p>
                         </div>
 
                         <div class="md:col-span-2">
                             <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
 
-                                <!-- Unit Number -->
+                                <!-- Block Number -->
                                 <div class="col-span-full sm:col-span-3">
-                                    <h:outputLabel for="unitNumber" value="Unit Number" styleClass="font-medium"/>
-                                    <p:inputText id="unitNumber"
-                                                 value="#{SettingsController.residentProfile.unitNumber}"
+                                    <h:outputLabel for="department" value="Department" styleClass="font-medium"/>
+                                    <p:inputText id="department"
+                                                 value="#{SettingsController.managingStaffProfile.department}"
                                                  placeholder="Block A"
                                                  disabled="true"
                                                  styleClass="mt-2 w-full"/>
                                     <p class="mt-2 text-xs text-gray-500">
-                                        Unit Number can only be changed by a system admin.
+                                        Department can only be changed by a system admin.
+                                    </p>
+                                </div>
+
+                                <!-- Room Number -->
+                                <div class="col-span-full sm:col-span-3">
+                                    <h:outputLabel for="position" value="Position" styleClass="font-medium"/>
+                                    <p:inputText id="position"
+                                                 value="#{SettingsController.managingStaffProfile.position}"
+                                                 placeholder="101"
+                                                 disabled="true"
+                                                 styleClass="mt-2 w-full"/>
+                                    <p class="mt-2 text-xs text-gray-500">
+                                        Position can only be changed by a system admin.
                                     </p>
                                 </div>
                             </div>
@@ -302,5 +323,4 @@
             </section>
         </div>
     </ui:define>
-
 </ui:composition>

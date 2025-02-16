@@ -4,21 +4,9 @@
                 xmlns:p="http://primefaces.org/ui"
                 xmlns:pe="http://primefaces.org/ui/extensions"
                 xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
-                template="/WEB-INF/templates/admin-layout.xhtml">
+                template="/WEB-INF/templates/god-layout.xhtml">
 
     <ui:define name="title">Users - HostelGuard™</ui:define>
-
-    <ui:define name="navigation">
-        <h:link outcome="/admin/dashboard.xhtml"
-                styleClass="py-2 text-gray-500 hover:text-gray-700 focus:outline-none">Dashboard</h:link>
-        <h:link outcome="/admin/users.xhtml"
-                styleClass="py-2 text-blue-600 font-medium focus:outline-none">Users</h:link>
-        <h:link outcome="/admin/requests.xhtml"
-                styleClass="py-2 text-gray-500 hover:text-gray-700 focus:outline-none">Visit Requests</h:link>
-        <h:link outcome="/admin/visitor-records.xhtml"
-                styleClass="py-2 text-gray-500 hover:text-gray-700 focus:outline-none">Vistor Records</h:link>
-
-    </ui:define>
 
     <ui:define name="content">
         <!-- Replace dialog with sidebar for new user -->
@@ -125,6 +113,7 @@
                             <f:selectItem itemLabel="Select Role" itemValue=""/>
                             <f:selectItem itemLabel="Resident" itemValue="RESIDENT"/>
                             <f:selectItem itemLabel="Security Staff" itemValue="SECURITY_STAFF"/>
+                            <f:selectItem itemLabel="Managing Staff" itemValue="MANAGING_STAFF"/>
                             <p:ajax update="roleSpecificFields" listener="#{usersController.onRoleChange}"/>
                         </p:selectOneMenu>
                     </div>
@@ -279,6 +268,7 @@
                                          required="true">
                             <f:selectItem itemLabel="Resident" itemValue="RESIDENT"/>
                             <f:selectItem itemLabel="Security Staff" itemValue="SECURITY_STAFF"/>
+                            <f:selectItem itemLabel="Managing Staff" itemValue="MANAGING_STAFF"/>
                         </p:selectOneMenu>
                     </div>
 
@@ -468,6 +458,8 @@
                         <f:facet name="input">
                             <p:selectOneMenu value="#{users.role}">
                                 <f:selectItem itemLabel="Resident" itemValue="RESIDENT"/>
+                                <f:selectItem itemLabel="Security Staff" itemValue="SECURITY_STAFF"/>
+                                <f:selectItem itemLabel="Managing Staff" itemValue="MANAGING_STAFF"/>
                             </p:selectOneMenu>
                         </f:facet>
                     </p:cellEditor>
