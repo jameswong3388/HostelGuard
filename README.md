@@ -101,7 +101,10 @@ mail.smtp.starttls.enable=false
 - Select Wildfly
 - Add URL `https://localhost:8443/HVVS-1.0-SNAPSHOT/` to Server section
 - Add `HVVS:war exploded` to Deployment section
-- Run
+7. Setup GeoLite
+- Download `GeoLite2-City.mmdb` from https://github.com/P3TERX/GeoLite.mmdb
+- Place `GeoLite2-City.mmdb` in `src/main/webapp/WEB-INF/GeoLite2-City.mmdb`
+8. Run
 
 ## Usage
 
