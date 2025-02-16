@@ -137,7 +137,7 @@ def main():
             is_mfa_enable   BOOLEAN               DEFAULT FALSE,
             created_at      TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
             updated_at      TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-            CHECK (role IN ('RESIDENT', 'SECURITY_STAFF', 'MANAGING_STAFF'))
+            CHECK (role IN ('RESIDENT', 'SECURITY_STAFF', 'MANAGING_STAFF', 'SUPER_ADMIN'))
         );
 
         -- Create resident_profiles table
@@ -352,6 +352,40 @@ def main():
         position = "Manager"
         managing_profile_data = (managing_staff_id, department, position)
         cursor.execute(add_managing_profile, managing_profile_data)
+
+        # Insert Super Admin
+        print("Inserting Super Admin...")
+        super_username = "super.admin"
+        super_email = "super.admin@example.com"
+        existing_usernames.add(super_username)
+        existing_emails.add(super_email)
+
+        first_name = "Super"
+        last_name = "Admin"
+        username = super_username
+        email = super_email
+        phone_number = generate_malaysia_phone_number()
+        identity_number = generate_unique_identity(existing_identity_numbers)
+        address = "789 Admin Tower, Admin City"
+        gender = "Other"
+        salt = FIXED_SALT
+        password = FIXED_PASSWORD
+        is_mfa_enable = False
+
+        super_admin_data = (
+            username, salt, password, email, first_name, last_name,
+            phone_number, identity_number, address, gender, 'SUPER_ADMIN',
+            is_mfa_enable, True  # is_active set to True
+        )
+        cursor.execute(add_user, super_admin_data)
+        super_admin_id = cursor.lastrowid
+
+        # Insert into managing_staff_profiles for Super Admin
+        add_managing_profile = ("INSERT INTO managing_staff_profiles "
+                                "(user_id, department, position) "
+                                "VALUES (%s, %s, %s)")
+        super_admin_profile_data = (super_admin_id, 'Administration', 'Super Admin')
+        cursor.execute(add_managing_profile, super_admin_profile_data)
 
         # Insert Security Staff
         print("Inserting Security Staff...")
@@ -658,6 +692,7 @@ def main():
 
         print("Data generation and insertion completed successfully.")
         print("\n--- Test Users ---")
+        print(f"Super Admin:\n  Username: {super_username}\n  Email: {super_email}\n  Department: Administration\n  Position: Super Admin")
         print(f"Managing Staff:\n  Username: {managing_username}\n  Email: {managing_email}")
         print(f"Security Staff:")
         print(f"  Username: {security_username}\n  Email: {security_email}")
