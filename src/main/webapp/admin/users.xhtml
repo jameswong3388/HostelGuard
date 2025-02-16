@@ -27,7 +27,7 @@
                    position="right"
                    style="width:600px;">
             <h:form id="newUserForm">
-                <div class="space-y-4">
+                <div class="space-y-4 overflow-y-auto max-h-[95vh]">
                     <!-- Sidebar Title -->
                     <h2 class="text-xl font-semibold mb-4">New User</h2>
 
@@ -223,7 +223,7 @@
                    position="right"
                    style="width:600px;">
             <h:form id="editUserForm">
-                <div class="space-y-4">
+                <div class="space-y-4 overflow-y-auto max-h-[95vh]">
                     <!-- Sidebar Title -->
                     <h2 class="text-xl font-semibold mb-4">Edit User</h2>
 
@@ -358,22 +358,23 @@
             </p:confirmDialog>
 
             <p:dataTable id="usersTable"
+                         value="#{usersController.lazyUsersModel}"
+                         lazy="true"
                          var="users"
-                         value="#{usersController.users}"
-                         widgetVar="usersTable"
                          reflow="true"
-                         rowKey="#{users.id}"
+                         widgetVar="usersTable"
                          paginator="true"
                          rows="10"
                          paginatorPosition="bottom"
                          styleClass="w-full border rounded-md mt-2"
-                         filteredValue="#{usersController.filteredUsers}"
-                         globalFilterFunction="#{usersController.globalFilterFunction}"
-                         editable="true"
-                         editMode="row"
+                         rowKey="#{users.id}"
                          selection="#{usersController.selectedUsers}"
                          selectionRowMode="add"
-                         tableStyle="min-width: 1200px; table-layout: fixed;">
+                         tableStyle="min-width: 1200px; table-layout: fixed;"
+                         filteredValue="#{usersController.filteredUsers}"
+                         globalFilterFunction="#{usersController.globalFilterFunction}"
+                         filter="#{usersController.globalFilter}"
+            >
 
                 <!-- Global search bar in the header facet -->
                 <f:facet name="header">
@@ -381,6 +382,7 @@
                         <span class="filter-container ui-input-icon-left">
                             <i class="pi pi-search"></i>
                             <p:inputText id="globalFilter"
+                                         value="#{usersController.globalFilter}"
                                          onkeyup="PF('usersTable').filter()"
                                          placeholder="Search all fields"/>
                         </span>
@@ -389,6 +391,18 @@
 
                 <p:column selectionMode="multiple" selectionBox="true" style="width: 12px;"/>
 
+                <!-- UserId -->
+                <p:column headerText="User ID" sortBy="#{users.id}" style="width: 100px;">
+                    <p:cellEditor>
+                        <f:facet name="output">
+                            <h:outputText value="#{users.id}"/>
+                        </f:facet>
+                        <f:facet name="input">
+                            <p:inputText value="#{users.id}"/>
+                        </f:facet>
+                    </p:cellEditor>
+                </p:column>
+                 
                 <!-- Username -->
                 <p:column headerText="Username" sortBy="#{users.username}" style="width: 150px;">
                     <p:cellEditor>

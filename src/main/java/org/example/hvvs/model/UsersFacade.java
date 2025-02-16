@@ -16,6 +16,14 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.Base64;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.Order;
+import org.primefaces.model.SortMeta;
 
 /**
  *
@@ -119,4 +127,61 @@ public class UsersFacade extends AbstractFacade<Users> {
         }
     }
     
+    public List<Users> findRange(int first, int pageSize, String filter, Map<String, SortMeta> sortBy) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<Users> cq = cb.createQuery(Users.class);
+        Root<Users> root = cq.from(Users.class);
+        
+        // Filtering
+        Predicate filterPredicate = buildFilterPredicate(cb, root, filter);
+        if (filterPredicate != null) {
+            cq.where(filterPredicate);
+        }
+        
+        // Sorting
+        if (sortBy != null && !sortBy.isEmpty()) {
+            List<Order> orders = sortBy.values().stream()
+                .map(sort -> sort.getOrder().isAscending() ? 
+                    cb.asc(root.get(sort.getField())) : 
+                    cb.desc(root.get(sort.getField())))
+                .collect(Collectors.toList());
+            cq.orderBy(orders);
+        }
+        
+        return em.createQuery(cq)
+                .setFirstResult(first)
+                .setMaxResults(pageSize)
+                .getResultList();
+    }
+
+    public int count(String filter) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+        Root<Users> root = cq.from(Users.class);
+        
+        cq.select(cb.count(root));
+        
+        Predicate filterPredicate = buildFilterPredicate(cb, root, filter);
+        if (filterPredicate != null) {
+            cq.where(filterPredicate);
+        }
+        
+        return em.createQuery(cq).getSingleResult().intValue();
+    }
+
+    private Predicate buildFilterPredicate(CriteriaBuilder cb, Root<Users> root, String filter) {
+        if (filter == null || filter.isEmpty()) {
+            return null;
+        }
+        
+        String pattern = "%" + filter.toLowerCase() + "%";
+        return cb.or(
+            cb.like(cb.lower(root.get("username")), pattern),
+            cb.like(cb.lower(root.get("email")), pattern),
+            cb.like(cb.lower(root.get("first_name")), pattern),
+            cb.like(cb.lower(root.get("last_name")), pattern),
+            cb.like(cb.lower(root.get("phone_number")), pattern),
+            cb.like(cb.lower(root.get("role")), pattern)
+        );
+    }
 }

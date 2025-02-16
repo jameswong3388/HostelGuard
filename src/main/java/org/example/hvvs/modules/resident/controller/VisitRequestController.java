@@ -10,6 +10,9 @@ import jakarta.transaction.Transactional;
 import org.example.hvvs.model.*;
 import org.example.hvvs.utils.CommonParam;
 import org.primefaces.event.RowEditEvent;
+import org.primefaces.model.LazyDataModel;
+import org.primefaces.model.SortMeta;
+import org.primefaces.model.FilterMeta;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
@@ -17,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
+import java.util.Map;
 
 @Named("visitRequestControllerResident")
 @SessionScoped
@@ -34,8 +38,10 @@ public class VisitRequestController implements Serializable {
     private List<VisitRequests> filteredRequests;
     private String currentQrCode;
     private VisitRequests editingRequest;
+    private LazyDataModel<VisitRequests> lazyRequestsModel;
+    private String globalFilter;
 
-    public boolean globalFilterFunction(Object value, Object filter, Locale locale) {
+    public boolean globalFilterFunction(Object value, Object filter, String filterLocale) {
         String filterText = (filter == null) ? null : filter.toString().trim().toLowerCase();
         if (filterText == null || filterText.isEmpty()) {
             return true;
@@ -45,12 +51,12 @@ public class VisitRequestController implements Serializable {
         return request.getVerificationCode().toLowerCase().contains(filterText)
                 || request.getPurpose().toLowerCase().contains(filterText)
                 || request.getStatus().toLowerCase().contains(filterText)
-                || (request.getRemarks() != null && request.getRemarks().toLowerCase().contains(filterText))
-                || request.getVisitDateTime().toString().toLowerCase().contains(filterText);
+                || request.getRemarks().toLowerCase().contains(filterText);
     }
 
     @PostConstruct
     public void init() {
+        initializeLazyModel();
         // Prepare the 'newRequest' object for the dialog
         this.newRequest = new VisitRequests();
         String verificationCode = UUID.randomUUID().toString();
@@ -69,9 +75,6 @@ public class VisitRequestController implements Serializable {
             // Load resident profile
             this.residentProfile = residentProfilesFacade.find(currentUser.getId());
         }
-
-        // Load existing requests for current user
-        loadUserRequests();
     }
 
     /**
@@ -89,6 +92,44 @@ public class VisitRequestController implements Serializable {
         } else {
             userRequests = new ArrayList<>();
         }
+    }
+
+    private void initializeLazyModel() {
+        lazyRequestsModel = new LazyDataModel<VisitRequests>() {
+            @Override
+            public int count(Map<String, FilterMeta> map) {
+                return 0;
+            }
+
+            @Override
+            public List<VisitRequests> load(int first, int pageSize,
+                                            Map<String, SortMeta> sortBy, Map<String, FilterMeta> filterBy) {
+                Users currentUser = (Users) FacesContext.getCurrentInstance()
+                    .getExternalContext()
+                    .getSessionMap()
+                    .get(CommonParam.SESSION_SELF);
+                
+                List<VisitRequests> results = visitRequestsFacade.findRange(
+                    first,
+                    pageSize,
+                    globalFilter,
+                    sortBy,
+                    currentUser
+                );
+                lazyRequestsModel.setRowCount(visitRequestsFacade.count(globalFilter));
+                return results;
+            }
+
+            @Override
+            public VisitRequests getRowData(String rowKey) {
+                return visitRequestsFacade.find(Integer.valueOf(rowKey));
+            }
+
+            @Override
+            public String getRowKey(VisitRequests request) {
+                return String.valueOf(request.getId());
+            }
+        };
     }
 
     @Transactional
@@ -257,5 +298,17 @@ public class VisitRequestController implements Serializable {
 
     public void setEditingRequest(VisitRequests editingRequest) {
         this.editingRequest = editingRequest;
+    }
+
+    public LazyDataModel<VisitRequests> getLazyRequestsModel() {
+        return lazyRequestsModel;
+    }
+
+    public String getGlobalFilter() {
+        return globalFilter;
+    }
+
+    public void setGlobalFilter(String globalFilter) {
+        this.globalFilter = globalFilter;
     }
 }

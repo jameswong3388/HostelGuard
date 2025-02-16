@@ -47,22 +47,21 @@
             </p:toolbar>
 
             <p:dataTable id="recordsTable"
+                        value="#{visitorRecordController.lazyRecordsModel}"
+                        lazy="true"
                         var="record"
-                        value="#{visitorRecordController.records}"
                         widgetVar="recordsTable"
-                        reflow="true"
                         rowKey="#{record.id}"
                         paginator="true"
                         rows="10"
                         paginatorPosition="bottom"
                         styleClass="w-full border rounded-md mt-2"
-                        filteredValue="#{visitorRecordController.filteredRecords}"
-                        globalFilterFunction="#{visitorRecordController.globalFilterFunction}"
-                        editable="true"
-                        editMode="row"
                         selection="#{visitorRecordController.selectedRecords}"
                         selectionRowMode="add"
-                        tableStyle="min-width: 1200px; table-layout: fixed;">
+                        tableStyle="min-width: 1200px; table-layout: fixed;"
+                        filteredValue="#{visitorRecordController.filteredRecords}"
+                        globalFilterFunction="#{visitorRecordController.globalFilterFunction}"
+                        filter="#{visitorRecordController.globalFilter}">
 
                 <!-- Selection column -->
                 <p:column selectionMode="multiple" selectionBox="true" style="width: 12px;"/>
@@ -73,6 +72,7 @@
                         <span class="filter-container ui-input-icon-left">
                             <i class="pi pi-search"></i>
                             <p:inputText id="globalFilter"
+                                       value="#{visitorRecordController.globalFilter}"
                                        onkeyup="PF('recordsTable').filter()"
                                        placeholder="Search all fields"/>
                         </span>

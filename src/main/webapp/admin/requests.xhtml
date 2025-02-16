@@ -9,10 +9,14 @@
     <ui:define name="title">Requests - HostelGuard™</ui:define>
 
     <ui:define name="navigation">
-        <h:link outcome="/admin/dashboard.xhtml" styleClass="py-2 text-gray-500 hover:text-gray-700 focus:outline-none">Dashboard</h:link>
-        <h:link outcome="/admin/users.xhtml" styleClass="py-2 text-gray-500 hover:text-gray-700 focus:outline-none">Users</h:link>
-        <h:link outcome="/admin/requests.xhtml" styleClass="py-2 text-blue-600 font-medium focus:outline-none">Visit Requests</h:link>
-        <h:link outcome="/admin/visitor-records.xhtml" styleClass="py-2 text-gray-500 hover:text-gray-700 focus:outline-none">Visitor Records</h:link>
+        <h:link outcome="/admin/dashboard.xhtml"
+                styleClass="py-2 text-gray-500 hover:text-gray-700 focus:outline-none">Dashboard</h:link>
+        <h:link outcome="/admin/users.xhtml"
+                styleClass="py-2 text-gray-500 hover:text-gray-700 focus:outline-none">Users</h:link>
+        <h:link outcome="/admin/requests.xhtml"
+                styleClass="py-2 text-blue-600 font-medium focus:outline-none">Visit Requests</h:link>
+        <h:link outcome="/admin/visitor-records.xhtml"
+                styleClass="py-2 text-gray-500 hover:text-gray-700 focus:outline-none">Visitor Records</h:link>
     </ui:define>
 
     <ui:define name="content">
@@ -46,24 +50,23 @@
             </p:toolbar>
 
             <p:dataTable id="requestsTable"
+                         value="#{visitRequestsController.lazyRequestsModel}"
+                         lazy="true"
                          var="req"
-                         value="#{visitRequestsController.requests}"
-                         widgetVar="requestsTable"
                          reflow="true"
-                         rowKey="#{req.id}"
+                         widgetVar="requestsTable"
                          paginator="true"
                          rows="10"
                          paginatorPosition="bottom"
                          styleClass="w-full border rounded-md mt-2"
-                         filteredValue="#{visitRequestsController.filteredRequests}"
-                         globalFilterFunction="#{visitRequestsController.globalFilterFunction}"
+                         rowKey="#{req.id}"
                          selection="#{visitRequestsController.selectedRequests}"
                          selectionRowMode="add"
-                         scrollable="true"
-                         scrollHeight="500"
-                         resizableColumns="true"
-                         liveResize="true"
-                         tableStyle="min-width: 1200px; table-layout: fixed">
+                         tableStyle="min-width: 1200px; table-layout: fixed;"
+                         filteredValue="#{visitRequestsController.filteredRequests}"
+                         globalFilterFunction="#{visitRequestsController.globalFilterFunction}"
+                         filter="#{visitRequestsController.globalFilter}"
+            >
 
                 <!-- Global search bar -->
                 <f:facet name="header">
@@ -71,6 +74,7 @@
                         <span class="filter-container ui-input-icon-left">
                             <i class="pi pi-search"></i>
                             <p:inputText id="globalFilter"
+                                         value="#{visitRequestsController.globalFilter}"
                                          onkeyup="PF('requestsTable').filter()"
                                          placeholder="Search all fields"/>
                         </span>
@@ -80,38 +84,38 @@
                 <p:column selectionMode="multiple" selectionBox="true" style="width: 12px;"/>
 
                 <!-- Email -->
-                <p:column headerText="User Email" sortBy="#{req.userId.email}" style="width: 200px;">
+                <p:column headerText="User Email" sortBy="userId.email" style="width: 200px;">
                     <h:outputText value="#{req.userId.email}"/>
                 </p:column>
 
                 <!-- Unit Number -->
-                <p:column headerText="Unit Number" sortBy="#{req.unitNumber}" style="width: 120px;">
+                <p:column headerText="Unit Number" sortBy="unitNumber" style="width: 120px;">
                     <h:outputText value="#{req.unitNumber}"/>
                 </p:column>
 
                 <!-- Verification Code -->
-                <p:column headerText="Verification Code" sortBy="#{req.verificationCode}" style="width: 325px;">
+                <p:column headerText="Verification Code" sortBy="verificationCode" style="width: 325px;">
                     <h:outputText value="#{req.verificationCode}"/>
                 </p:column>
 
                 <!-- Visit Date/Time -->
-                <p:column headerText="Visit Date/Time" sortBy="#{req.visitDateTime}" style="width: 150px;">
+                <p:column headerText="Visit Date/Time" sortBy="visitDateTime" style="width: 150px;">
                     <pe:timeAgo value="#{req.visitDateTime}"
                                 titlePattern="MM/dd/yy HH:mm"/>
                 </p:column>
 
                 <!-- Number of Entries -->
-                <p:column headerText="Number of Entries" sortBy="#{req.numberOfEntries}" style="width: 120px;">
+                <p:column headerText="Number of Entries" sortBy="numberOfEntries" style="width: 120px;">
                     <h:outputText value="#{req.numberOfEntries}"/>
                 </p:column>
 
                 <!-- Purpose -->
-                <p:column headerText="Purpose" sortBy="#{req.purpose}" style="width: 200px;">
+                <p:column headerText="Purpose" sortBy="purpose" style="width: 200px;">
                     <h:outputText value="#{req.purpose}"/>
                 </p:column>
 
                 <!-- Status -->
-                <p:column headerText="Status" sortBy="#{req.status}" style="width: 120px;">
+                <p:column headerText="Status" sortBy="status" style="width: 120px;">
                     <p:tag severity="#{req.status eq 'PENDING' ? 'warning' :
                                       req.status eq 'APPROVED' ? 'info' :
                                       req.status eq 'COMPLETED' ? 'success' :
@@ -120,18 +124,18 @@
                 </p:column>
 
                 <!-- Remarks -->
-                <p:column headerText="Remarks" sortBy="#{req.remarks}" style="width: 200px;">
+                <p:column headerText="Remarks" sortBy="remarks" style="width: 200px;">
                     <h:outputText value="#{req.remarks}"/>
                 </p:column>
 
                 <!-- Updated At -->
-                <p:column headerText="Updated At" sortBy="#{req.updatedAt}" style="width: 150px;">
+                <p:column headerText="Updated At" sortBy="updatedAt" style="width: 150px;">
                     <pe:timeAgo value="#{req.updatedAt}"
                                 titlePattern="MM/dd/yy HH:mm"/>
                 </p:column>
 
                 <!-- Created At -->
-                <p:column headerText="Created At" sortBy="#{req.createdAt}" style="width: 150px;">
+                <p:column headerText="Created At" sortBy="createdAt" style="width: 150px;">
                     <pe:timeAgo value="#{req.createdAt}"
                                 titlePattern="MM/dd/yy HH:mm"/>
                 </p:column>
@@ -146,11 +150,16 @@
                 </p:column>
 
                 <!-- Selection Events -->
-                <p:ajax event="rowSelect" update=":requestsTableForm:delete-requests-button :requestsTableForm:clearSelectionButton"/>
-                <p:ajax event="rowUnselect" update=":requestsTableForm:delete-requests-button :requestsTableForm:clearSelectionButton"/>
-                <p:ajax event="rowSelectCheckbox" update=":requestsTableForm:delete-requests-button :requestsTableForm:clearSelectionButton"/>
-                <p:ajax event="rowUnselectCheckbox" update=":requestsTableForm:delete-requests-button :requestsTableForm:clearSelectionButton"/>
-                <p:ajax event="toggleSelect" update=":requestsTableForm:delete-requests-button :requestsTableForm:clearSelectionButton"/>
+                <p:ajax event="rowSelect"
+                        update=":requestsTableForm:delete-requests-button :requestsTableForm:clearSelectionButton"/>
+                <p:ajax event="rowUnselect"
+                        update=":requestsTableForm:delete-requests-button :requestsTableForm:clearSelectionButton"/>
+                <p:ajax event="rowSelectCheckbox"
+                        update=":requestsTableForm:delete-requests-button :requestsTableForm:clearSelectionButton"/>
+                <p:ajax event="rowUnselectCheckbox"
+                        update=":requestsTableForm:delete-requests-button :requestsTableForm:clearSelectionButton"/>
+                <p:ajax event="toggleSelect"
+                        update=":requestsTableForm:delete-requests-button :requestsTableForm:clearSelectionButton"/>
             </p:dataTable>
 
             <!-- Confirmation Dialog -->
@@ -214,12 +223,13 @@
                     <!-- Status -->
                     <div class="field mb-4">
                         <p:outputLabel for="editStatus" value="Status" styleClass="block mb-1"/>
-                        <p:selectOneMenu id="editStatus" value="#{visitRequestsController.editingRequest.status}" styleClass="w-full">
-                            <f:selectItem itemLabel="Pending" itemValue="PENDING" />
-                            <f:selectItem itemLabel="Approved" itemValue="APPROVED" />
-                            <f:selectItem itemLabel="Rejected" itemValue="REJECTED" />
-                            <f:selectItem itemLabel="Completed" itemValue="COMPLETED" />
-                            <f:selectItem itemLabel="Cancelled" itemValue="CANCELLED" />
+                        <p:selectOneMenu id="editStatus" value="#{visitRequestsController.editingRequest.status}"
+                                         styleClass="w-full">
+                            <f:selectItem itemLabel="Pending" itemValue="PENDING"/>
+                            <f:selectItem itemLabel="Approved" itemValue="APPROVED"/>
+                            <f:selectItem itemLabel="Rejected" itemValue="REJECTED"/>
+                            <f:selectItem itemLabel="Completed" itemValue="COMPLETED"/>
+                            <f:selectItem itemLabel="Cancelled" itemValue="CANCELLED"/>
                         </p:selectOneMenu>
                     </div>
 

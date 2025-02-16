@@ -9,10 +9,14 @@ import jakarta.inject.Named;
 import jakarta.transaction.Transactional;
 import org.example.hvvs.model.VisitorRecords;
 import org.example.hvvs.model.VisitorRecordsFacade;
+import org.primefaces.model.LazyDataModel;
+import org.primefaces.model.SortMeta;
+import org.primefaces.model.FilterMeta;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.Map;
 
 @Named
 @ViewScoped
@@ -27,9 +31,44 @@ public class VisitorRecordController implements Serializable {
     // New field to hold the record being edited via sidebar
     private VisitorRecords editingRecord;
 
+    private LazyDataModel<VisitorRecords> lazyRecordsModel;
+    private String globalFilter;
+
     @PostConstruct
     public void init() {
-        records = visitorRecordsFacade.findAll();
+        initializeLazyModel();
+    }
+
+    private void initializeLazyModel() {
+        lazyRecordsModel = new LazyDataModel<VisitorRecords>() {
+            @Override
+            public int count(Map<String, FilterMeta> map) {
+                return 0;
+            }
+
+            @Override
+            public List<VisitorRecords> load(int first, int pageSize, 
+                    Map<String, SortMeta> sortBy, Map<String, FilterMeta> filterBy) {
+                List<VisitorRecords> results = visitorRecordsFacade.findRange(
+                    first, 
+                    pageSize, 
+                    globalFilter,
+                    sortBy
+                );
+                lazyRecordsModel.setRowCount(visitorRecordsFacade.count(globalFilter));
+                return results;
+            }
+            
+            @Override
+            public VisitorRecords getRowData(String rowKey) {
+                return visitorRecordsFacade.find(Integer.valueOf(rowKey));
+            }
+            
+            @Override
+            public String getRowKey(VisitorRecords record) {
+                return String.valueOf(record.getId());
+            }
+        };
     }
 
     public void deleteSelectedRecords() {
@@ -88,7 +127,7 @@ public class VisitorRecordController implements Serializable {
         }
     }
 
-    public boolean globalFilterFunction(Object value, Object filter, String filterField) {
+    public boolean globalFilterFunction(Object value, Object filter, String filterLocale) {
         String filterText = (filter == null) ? null : filter.toString().trim().toLowerCase();
         if (filterText == null || filterText.isEmpty()) {
             return true;
@@ -98,7 +137,8 @@ public class VisitorRecordController implements Serializable {
         return record.getVisitorName().toLowerCase().contains(filterText)
                 || record.getVisitorIc().toLowerCase().contains(filterText)
                 || record.getVisitorPhone().toLowerCase().contains(filterText)
-                || (record.getRemarks() != null && record.getRemarks().toLowerCase().contains(filterText));
+                || record.getSecurityStaffId().getUsername().toLowerCase().contains(filterText)
+                || record.getRequestId().getUnitNumber().toLowerCase().contains(filterText);
     }
 
     public String getDeleteSelectedButtonLabel() {
@@ -144,5 +184,17 @@ public class VisitorRecordController implements Serializable {
 
     public void setEditingRecord(VisitorRecords editingRecord) {
         this.editingRecord = editingRecord;
+    }
+
+    public LazyDataModel<VisitorRecords> getLazyRecordsModel() {
+        return lazyRecordsModel;
+    }
+
+    public String getGlobalFilter() {
+        return globalFilter;
+    }
+
+    public void setGlobalFilter(String globalFilter) {
+        this.globalFilter = globalFilter;
     }
 } 

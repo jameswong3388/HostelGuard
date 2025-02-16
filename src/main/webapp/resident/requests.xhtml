@@ -134,20 +134,23 @@
             <!-- DataTable with multi-select, global filter, paging, row editing -->
             <!-- DataTable with editing via sidebar -->
             <p:dataTable id="requestsTable"
-                         widgetVar="requestsTable"
+                         value="#{visitRequestControllerResident.lazyRequestsModel}"
+                         lazy="true"
                          var="req"
-                         value="#{visitRequestControllerResident.userRequests}"
                          reflow="true"
-                         rowKey="#{req.id}"
+                         widgetVar="requestsTable"
                          paginator="true"
                          rows="10"
-                         selectionRowMode="add"
                          paginatorPosition="bottom"
-                         selection="#{visitRequestControllerResident.selectedRequests}"
                          styleClass="w-full border rounded-md mt-2"
+                         rowKey="#{req.id}"
+                         selection="#{visitRequestControllerResident.selectedRequests}"
+                         selectionRowMode="add"
+                         tableStyle="min-width: 1200px; table-layout: fixed;"
                          filteredValue="#{visitRequestControllerResident.filteredRequests}"
                          globalFilterFunction="#{visitRequestControllerResident.globalFilterFunction}"
-                         tableStyle="min-width: 1200px; table-layout: fixed;">
+                         filter="#{visitRequestControllerResident.globalFilter}"
+            >
 
                 <!-- Global search bar -->
                 <f:facet name="header">
@@ -155,6 +158,7 @@
                         <span class="filter-container ui-input-icon-left">
                             <i class="pi pi-search"></i>
                             <p:inputText id="globalFilter"
+                                         value="#{visitRequestControllerResident.globalFilter}"
                                          onkeyup="PF('requestsTable').filter()"
                                          placeholder="Search all fields"/>
                         </span>
@@ -210,6 +214,12 @@
                 <p:column headerText="Created At" sortBy="#{req.createdAt}" style="width: 150px;">
                     <pe:timeAgo value="#{req.createdAt}" titlePattern="MM/dd/yy HH:mm"/>
                 </p:column>
+
+                <f:facet name="empty">
+                    <div class="p-4 text-gray-500 text-center">
+                        <i class="pi pi-info-circle mr-2"></i> No records found
+                    </div>
+                </f:facet>
 
                 <!-- Actions Column -->
                 <p:column headerText="Actions" style="width: 100px;">
@@ -282,7 +292,7 @@
                                          update=":requestsTableForm:requestsTable :messages"
                                          styleClass="ui-button-danger"
                                          oncomplete="PF('editRequestSidebar').hide();"
-                                         rendered="#{visitRequestControllerResident.editingRequest.status eq 'PENDING'}" />
+                                         rendered="#{visitRequestControllerResident.editingRequest.status eq 'PENDING'}"/>
                         <p:commandButton value="Cancel"
                                          icon="pi pi-times"
                                          onclick="PF('editRequestSidebar').hide(); return false;"

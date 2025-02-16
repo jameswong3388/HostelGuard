@@ -10,11 +10,14 @@ import org.example.hvvs.model.*;
 import org.example.hvvs.modules.common.service.SessionService;
 import org.example.hvvs.utils.CommonParam;
 import org.primefaces.event.RowEditEvent;
+import org.primefaces.model.LazyDataModel;
+import org.primefaces.model.SortMeta;
+import org.primefaces.model.FilterMeta;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Map;
 
 @Named
 @ViewScoped
@@ -30,7 +33,8 @@ public class UsersController implements Serializable {
     @EJB
     private SessionService sessionService;
 
-    private List<Users> users;
+    private LazyDataModel<Users> lazyUsersModel;
+    private String globalFilter;
     private List<Users> filteredUsers;
     private Users newUser;
     private List<Users> selectedUsers;
@@ -41,12 +45,43 @@ public class UsersController implements Serializable {
 
     @PostConstruct
     public void init() {
-        users = usersFacade.findAll();
+        initializeLazyModel();
         newUser = new Users();
         residentProfile = new ResidentProfiles();
         securityStaffProfile = new SecurityStaffProfiles();
         managingStaffProfile = new ManagingStaffProfiles();
         editingUser = new Users();
+    }
+
+    private void initializeLazyModel() {
+        lazyUsersModel = new LazyDataModel<Users>() {
+            @Override
+            public int count(Map<String, FilterMeta> map) {
+                return 0;
+            }
+
+            @Override
+            public List<Users> load(int first, int pageSize, Map<String, SortMeta> sortBy, Map<String, FilterMeta> filterBy) {
+                List<Users> results = usersFacade.findRange(
+                    first, 
+                    pageSize, 
+                    globalFilter,
+                    sortBy
+                );
+                lazyUsersModel.setRowCount(usersFacade.count(globalFilter));
+                return results;
+            }
+            
+            @Override
+            public Users getRowData(String rowKey) {
+                return usersFacade.find(Integer.valueOf(rowKey));
+            }
+            
+            @Override
+            public String getRowKey(Users user) {
+                return String.valueOf(user.getId());
+            }
+        };
     }
 
     public void onRoleChange() {
@@ -121,7 +156,7 @@ public class UsersController implements Serializable {
                     break;
             }
 
-            users = usersFacade.findAll(); // Refresh the list
+            lazyUsersModel.setRowCount(usersFacade.count(globalFilter)); // Refresh count
             newUser = new Users(); // Reset the form
             residentProfile = new ResidentProfiles(); // Reset profiles
             securityStaffProfile = new SecurityStaffProfiles();
@@ -169,8 +204,7 @@ public class UsersController implements Serializable {
                     usersFacade.remove(user);
                 }
 
-                // Remove from the local list so that the table UI updates
-                users.removeAll(usersToDelete);
+                lazyUsersModel.setRowCount(usersFacade.count(globalFilter)); // Refresh count
 
                 // Clear the selection
                 selectedUsers.clear();
@@ -259,7 +293,7 @@ public class UsersController implements Serializable {
             editingUser.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
             usersFacade.edit(editingUser);
             
-            users = usersFacade.findAll();
+            lazyUsersModel.setRowCount(usersFacade.count(globalFilter)); // Refresh count
             
             addMessage("Success", "User updated successfully");
         } catch (Exception e) {
@@ -276,12 +310,8 @@ public class UsersController implements Serializable {
     }
 
     // Getters and Setters
-    public List<Users> getUsers() {
-        return users;
-    }
-
-    public void setUsers(List<Users> users) {
-        this.users = users;
+    public LazyDataModel<Users> getLazyUsersModel() {
+        return lazyUsersModel;
     }
 
     public List<Users> getFilteredUsers() {
@@ -290,6 +320,14 @@ public class UsersController implements Serializable {
 
     public void setFilteredUsers(List<Users> filteredUsers) {
         this.filteredUsers = filteredUsers;
+    }
+
+    public String getGlobalFilter() {
+        return globalFilter;
+    }
+    
+    public void setGlobalFilter(String globalFilter) {
+        this.globalFilter = globalFilter;
     }
 
     public Users getNewUser() {
