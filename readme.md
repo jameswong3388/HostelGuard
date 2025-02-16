@@ -13,6 +13,7 @@ https://github.com/user-attachments/assets/94c52765-d23f-4e6f-8851-109621c8119c
 - Role-based access control (Resident/Security/Admin) with hierarchical permissions
 - File upload handling with content validation
 - Rate limiting for authentication endpoints
+- Lazy loading data tables with server-side filtering and sorting
 
 ### Security Features
 - QR code generation/validation system for visitor verification
@@ -48,6 +49,8 @@ https://github.com/user-attachments/assets/94c52765-d23f-4e6f-8851-109621c8119c
 - GeoIP2 integration for location tracking
 - User agent parsing for device identification
 - Caffeine caching for frequent queries
+- LazyDataModel implementation for efficient data retrieval
+- Server-side filtering and sorting for improved performance
 
 ## Installation
 
@@ -62,56 +65,3 @@ https://github.com/user-attachments/assets/94c52765-d23f-4e6f-8851-109621c8119c
 1. Database Setup:
 
 Boot up mysql server
-```bash
-docker compose up -d 
-```
-2. Add new module in Wildfly directory
-- Create `/mysql/main` in `/opt/homebrew/Cellar/wildfly-as/35.0.1/libexec/modules/system/layers/base/com`
-- Download `mysql-connector-j-8.0.33.jar` and place in `/opt/homebrew/Cellar/wildfly-as/35.0.1/libexec/modules/system/layers/base/com/mysql/main/mysql-connector-j-8.0.33.jar`
-- Create `module.xml` and place in `/opt/homebrew/Cellar/wildfly-as/35.0.1/libexec/modules/system/layers/base/com/mysql/main/`
-```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<module xmlns="urn:jboss:module:1.5" name="com.mysql">
-    <resources>
-        <resource-root path="mysql-connector-j-8.0.33.jar"/>
-    </resources>
-    <dependencies>
-        <module name="javax.api"/>
-        <module name="javax.transaction.api"/>
-    </dependencies>
-</module>
-```
-3. JDBC Driver Setup (Wildfly -> Configuration -> Subsystems -> Datasources & Drivers)
-- Name: mysql
-- Driver Module name: com.mysql
-- Driver Class Name com.mysql.cj.jdbc.Driver
-4. JDBC Datasource Setup
-5. Create env (Optional)
-- Create `application.properties` and place in `META-INF/application.properties`
-- Copy below to apply
-```text
-# Email Configuration
-mail.smtp.host=
-mail.smtp.port=587
-mail.smtp.username=
-mail.smtp.password=
-mail.smtp.from=
-mail.smtp.auth=true
-mail.smtp.starttls.enable=false
-```
-6. WildFly Settings (IntelliJ):
-- Add new configuration
-- Select Wildfly
-- Add URL `https://localhost:8443/HVVS-1.0-SNAPSHOT/` to Server section
-- Add `HVVS:war exploded` to Deployment section
-- Run
-
-## Usage
-
-Access via: `https://your-domain:8443/HVVS-1.0-SNAPSHOT/`
-
-| Role              | Default Landing Page       |
-|-------------------|-----------------------------|
-| Resident          | /resident/requests.xhtml    |
-| Security Staff    | /security/onboard-visitors.xhtml |
-| Admin             | /admin/dashboard.xhtml      |
