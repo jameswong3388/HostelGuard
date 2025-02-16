@@ -12,8 +12,6 @@ public class NotificationServiceImpl implements NotificationService {
     @EJB
     private NotificationsFacade notificationsFacade;
 
-    @EJB
-
     public void createNotification(Users user, Notifications.NotificationType type, String title, String message,
                                    String relatedEntityType, String relatedEntityId) {
 
