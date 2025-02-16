@@ -149,6 +149,22 @@ CREATE TABLE user_sessions
     FOREIGN KEY (user_id) REFERENCES users (id)
 );
 
+CREATE TABLE notifications
+(
+    id                  CHAR(36) PRIMARY KEY,
+    user_id             INT UNSIGNED NOT NULL,
+    type                VARCHAR(50)  NOT NULL,
+    title               VARCHAR(255) NOT NULL,
+    message             TEXT         NOT NULL,
+    status              ENUM ('UNREAD', 'READ') DEFAULT 'UNREAD',
+    related_entity_type VARCHAR(50),
+    related_entity_id   CHAR(36),
+    created_at          TIMESTAMP               DEFAULT CURRENT_TIMESTAMP,
+    read_at             TIMESTAMP    NULL,
+    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
+    CHECK (type IN ('VISIT_APPROVAL', 'SECURITY_ALERT', 'SYSTEM_UPDATE', 'VISIT_REMINDER', 'ENTRY_EXIT'))
+);
+
 -- Create indexes for better query performance
 CREATE INDEX idx_user_sessions_user_active ON user_sessions (user_id);
 CREATE INDEX idx_user_sessions_expires_active ON user_sessions (expires_at);

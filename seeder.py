@@ -103,6 +103,7 @@ def main():
         DROP TABLE IF EXISTS managing_staff_profiles;
         DROP TABLE IF EXISTS mfa_methods;
         DROP TABLE IF EXISTS user_sessions;
+        DROP TABLE IF EXISTS notifications;
         DROP TABLE IF EXISTS users;
         DROP TABLE IF EXISTS medias;
         """
@@ -256,6 +257,23 @@ def main():
             CHECK (method IN ('TOTP', 'SMS', 'EMAIL', 'RECOVERY_CODES'))
         );
 
+        -- Create notifications table
+        CREATE TABLE notifications
+        (
+            id                  CHAR(36) PRIMARY KEY,
+            user_id             INT UNSIGNED NOT NULL,
+            type                VARCHAR(50)  NOT NULL,
+            title               VARCHAR(255) NOT NULL,
+            message             TEXT         NOT NULL,
+            status              ENUM ('UNREAD', 'READ') DEFAULT 'UNREAD',
+            related_entity_type VARCHAR(50),
+            related_entity_id   CHAR(36),
+            created_at          TIMESTAMP               DEFAULT CURRENT_TIMESTAMP,
+            read_at             TIMESTAMP    NULL,
+            FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
+            CHECK (type IN ('VISIT_APPROVAL', 'SECURITY_ALERT', 'SYSTEM_UPDATE', 'VISIT_REMINDER', 'ENTRY_EXIT'))
+        );
+
         -- Create indexes for better query performance
         CREATE INDEX idx_user_sessions_user_active ON user_sessions (user_id);
         CREATE INDEX idx_user_sessions_expires_active ON user_sessions (expires_at);
@@ -270,7 +288,7 @@ def main():
 
         CREATE INDEX idx_medias_model_id ON medias (model_id);
         CREATE INDEX idx_medias_collection ON medias (collection);
-        
+
         CREATE INDEX idx_mfa_methods_user ON mfa_methods (user_id);
         CREATE INDEX idx_mfa_methods_user_method ON mfa_methods (user_id, method);
 
@@ -384,7 +402,7 @@ def main():
             email = generate_unique_email(existing_emails, username)
             phone_number = generate_malaysia_phone_number()
             identity_number = generate_unique_identity(existing_identity_numbers)
-            address = fake.address().replace('\n', ', ')
+            address = fake.address().replace('\n', ', ')[:100]  # Truncate to 100 characters
             gender = random.choice(['Male', 'Female', 'Other'])
             # Fixed salt and password
             salt = FIXED_SALT
@@ -428,7 +446,7 @@ def main():
         # Fixed salt and password
         salt = FIXED_SALT
         password = FIXED_PASSWORD
-        is_mfa_enable = False  
+        is_mfa_enable = False
 
         resident_data = (
             username, salt, password, email, first_name, last_name,
@@ -456,7 +474,7 @@ def main():
             email = generate_unique_email(existing_emails, username)
             phone_number = generate_malaysia_phone_number()
             identity_number = generate_unique_identity(existing_identity_numbers)
-            address = fake.address().replace('\n', ', ')
+            address = fake.address().replace('\n', ', ')[:100]  # Truncate to 100 characters
             gender = random.choice(['Male', 'Female', 'Other'])
             # Fixed salt and password
             salt = FIXED_SALT
@@ -537,7 +555,7 @@ def main():
             "Mortgage Consultation",
             "Insurance Claim Visit",
             "Tax Consultation",
-            "Doctor’s Home Visit",
+            "Doctor's Home Visit",
             "Nursing Service Visit",
             "Childcare Pickup",
             "Tutoring Session",
@@ -560,7 +578,7 @@ def main():
             "After-School Activity Pickup",
             "Sports Coaching Session",
             "Personal Training Session",
-            "Driver’s License Appointment",
+            "Driver's License Appointment",
             "Vehicle Inspection Coordination",
             "Recycling Collection",
             "Courier Return Pickup",
