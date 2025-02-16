@@ -1,4 +1,4 @@
-package org.example.hvvs.commonClasses;
+package org.example.hvvs.model;
 
 import jakarta.persistence.*;
 

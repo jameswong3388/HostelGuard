@@ -1,4 +1,4 @@
-package org.example.hvvs.commonClasses;
+package org.example.hvvs.utils;
 
 import java.io.IOException;
 import java.io.InputStream;
