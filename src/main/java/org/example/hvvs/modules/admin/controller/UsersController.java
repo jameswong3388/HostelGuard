@@ -85,28 +85,29 @@ public class UsersController implements Serializable {
     }
 
     public void onRoleChange() {
-        if ("RESIDENT".equals(newUser.getRole())) {
-            if (residentProfile == null) {
-                residentProfile = new ResidentProfiles();
-            }
-            securityStaffProfile = null;
-            managingStaffProfile = null;
-        } else if ("SECURITY_STAFF".equals(newUser.getRole())) {
-            if (securityStaffProfile == null) {
-                securityStaffProfile = new SecurityStaffProfiles();
-            }
-            residentProfile = null;
-            managingStaffProfile = null;
-        } else if ("MANAGING_STAFF".equals(newUser.getRole())) {
-            if (managingStaffProfile == null) {
-                managingStaffProfile = new ManagingStaffProfiles();
-            }
-            residentProfile = null;
-            securityStaffProfile = null;
-        } else {
-            residentProfile = null;
-            securityStaffProfile = null;
-            managingStaffProfile = null;
+        switch (newUser.getRole()) {
+            case RESIDENT:
+                if (residentProfile == null) {
+                    residentProfile = new ResidentProfiles();
+                }
+                securityStaffProfile = null;
+                managingStaffProfile = null;
+                break;
+            case SECURITY_STAFF:
+                if (securityStaffProfile == null) {
+                    securityStaffProfile = new SecurityStaffProfiles();
+                }
+                residentProfile = null;
+                managingStaffProfile = null;
+                break;
+            case MANAGING_STAFF:
+            case SUPER_ADMIN:
+                if (managingStaffProfile == null) {
+                    managingStaffProfile = new ManagingStaffProfiles();
+                }
+                residentProfile = null;
+                securityStaffProfile = null;
+                break;
         }
     }
 
@@ -128,7 +129,7 @@ public class UsersController implements Serializable {
             Timestamp now = new Timestamp(System.currentTimeMillis());
 
             switch (newUser.getRole()) {
-                case "RESIDENT":
+                case RESIDENT:
                     if (residentProfile != null) {
                         residentProfile.setUserId(createdUser);
                         residentProfile.setCreatedAt(now);
@@ -137,7 +138,7 @@ public class UsersController implements Serializable {
                     }
                     break;
 
-                case "SECURITY_STAFF":
+                case SECURITY_STAFF:
                     if (securityStaffProfile != null) {
                         securityStaffProfile.setUserId(createdUser);
                         securityStaffProfile.setCreatedAt(now);
@@ -146,7 +147,7 @@ public class UsersController implements Serializable {
                     }
                     break;
 
-                case "MANAGING_STAFF":
+                case MANAGING_STAFF:
                     if (managingStaffProfile != null) {
                         managingStaffProfile.setUserId(createdUser);
                         managingStaffProfile.setCreatedAt(now);
@@ -238,7 +239,7 @@ public class UsersController implements Serializable {
                 || users.getFirstName().toLowerCase().contains(filterText)
                 || users.getLastName().toLowerCase().contains(filterText)
                 || users.getPhoneNumber().toLowerCase().contains(filterText)
-                || users.getRole().toLowerCase().contains(filterText);
+                || users.getRole().toString().toLowerCase().contains(filterText);
     }
 
     public void clearSelection() {

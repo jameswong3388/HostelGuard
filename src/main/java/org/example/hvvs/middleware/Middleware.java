@@ -6,10 +6,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.example.hvvs.model.UserSessions;
-import org.example.hvvs.model.Users;
 import org.example.hvvs.modules.common.service.SessionService;
 import org.example.hvvs.utils.CommonParam;
 import org.example.hvvs.utils.SessionCacheManager;
+import org.example.hvvs.model.Users;
 
 import java.io.IOException;
 import java.sql.Timestamp;
@@ -39,9 +39,9 @@ public class Middleware implements Filter {
 
     // Role-specific path mappings
     private static final List<PathRole> PATH_ROLES = Arrays.asList(
-            new PathRole("/resident/", CommonParam.SESSION_ROLE_RESIDENT),
-            new PathRole("/security/", CommonParam.SESSION_ROLE_SECURITY_STAFF),
-            new PathRole("/admin/", CommonParam.SESSION_ROLE_MANAGING_STAFF)
+            new PathRole("/resident/", Users.Role.RESIDENT),
+            new PathRole("/security/", Users.Role.SECURITY_STAFF),
+            new PathRole("/admin/", Users.Role.MANAGING_STAFF)
     );
 
     // Session expiration thresholds
@@ -175,27 +175,20 @@ public class Middleware implements Filter {
         return false;
     }
 
-    private boolean isAuthorized(String path, String role) {
+    private boolean isAuthorized(String path, Users.Role role) {
         return PATH_ROLES.stream()
                 .filter(pr -> path.startsWith(pr.path))
-                .anyMatch(pr -> pr.role.equals(role));
+                .anyMatch(pr -> pr.role == role);
     }
 
-    private void redirectToDashboard(HttpServletRequest req, HttpServletResponse resp, String role)
+    private void redirectToDashboard(HttpServletRequest req, HttpServletResponse resp, Users.Role role)
             throws IOException {
         String contextPath = req.getContextPath();
         switch (role) {
-            case CommonParam.SESSION_ROLE_RESIDENT:
-                resp.sendRedirect(contextPath + "/resident/requests.xhtml");
-                break;
-            case CommonParam.SESSION_ROLE_SECURITY_STAFF:
-                resp.sendRedirect(contextPath + "/security/onboard-visitors.xhtml");
-                break;
-            case CommonParam.SESSION_ROLE_MANAGING_STAFF:
-                resp.sendRedirect(contextPath + "/admin/dashboard.xhtml");
-                break;
-            default:
-                redirectToLogin(req, resp);
+            case RESIDENT -> resp.sendRedirect(contextPath + "/resident/requests.xhtml");
+            case SECURITY_STAFF -> resp.sendRedirect(contextPath + "/security/onboard-visitors.xhtml");
+            case MANAGING_STAFF, SUPER_ADMIN -> resp.sendRedirect(contextPath + "/admin/dashboard.xhtml");
+            default -> resp.sendRedirect(contextPath + "/auth/sign-in.xhtml");
         }
     }
 
@@ -212,9 +205,9 @@ public class Middleware implements Filter {
     // Helper class for path-role mapping
     private static class PathRole {
         final String path;
-        final String role;
+        final Users.Role role;
 
-        PathRole(String path, String role) {
+        PathRole(String path, Users.Role role) {
             this.path = path;
             this.role = role;
         }

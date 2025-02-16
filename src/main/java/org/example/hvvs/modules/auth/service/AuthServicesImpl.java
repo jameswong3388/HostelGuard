@@ -126,10 +126,10 @@ public class AuthServicesImpl implements AuthServices {
 
     public String redirectBasedOnRole(Users user) {
         return switch (user.getRole()) {
-            case CommonParam.SESSION_ROLE_RESIDENT -> "/resident/requests.xhtml?faces-redirect=true";
-            case CommonParam.SESSION_ROLE_SECURITY_STAFF -> "/security/onboard-visitors.xhtml?faces-redirect=true";
-            case CommonParam.SESSION_ROLE_MANAGING_STAFF -> "/admin/dashboard.xhtml?faces-redirect=true";
-            default -> throw new IllegalStateException("Invalid role: " + user.getRole());
+            case RESIDENT -> "/resident/requests.xhtml?faces-redirect=true";
+            case SECURITY_STAFF -> "/security/onboard-visitors.xhtml?faces-redirect=true";
+            case MANAGING_STAFF -> "/admin/dashboard.xhtml?faces-redirect=true";
+            case SUPER_ADMIN -> "/admin/dashboard.xhtml?faces-redirect=true";
         };
     }
 

@@ -5,6 +5,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.NamedQueries;
 import jakarta.persistence.Table;
 import jakarta.persistence.NamedQuery;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.EnumType;
 
 import java.sql.Timestamp;
 
@@ -22,7 +24,6 @@ import java.sql.Timestamp;
         @NamedQuery(name = "User.findByCreatedAt", query = "SELECT u FROM Users u WHERE u.created_at = :created_at"),
         @NamedQuery(name = "User.findByUpdatedAt", query = "SELECT u FROM Users u WHERE u.updated_at = :updated_at"),
 })
-
 
 public class Users extends BaseEntity {
     @Column(name = "username", nullable = false, unique = true)
@@ -58,8 +59,9 @@ public class Users extends BaseEntity {
     @Column(name = "is_active")
     private boolean is_active = true;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false)
-    private String role;
+    private Role role;
 
     @Column(name = "is_mfa_enable")
     private Boolean is_mfa_enable;
@@ -76,7 +78,7 @@ public class Users extends BaseEntity {
 
     public Users(String username, String salt, String password, String email,
                  String first_name, String last_name, String phone_number,
-                 boolean is_active, String role, Boolean is_mfa_enable, Timestamp created_at, Timestamp updated_at) {
+                 boolean is_active, Role role, Boolean is_mfa_enable, Timestamp created_at, Timestamp updated_at) {
         this.username = username;
         this.salt = salt;
         this.password = password;
@@ -89,6 +91,13 @@ public class Users extends BaseEntity {
         this.is_mfa_enable = is_mfa_enable;
         this.created_at = created_at;
         this.updated_at = updated_at;
+    }
+
+    public enum Role {
+        RESIDENT,
+        SECURITY_STAFF,
+        MANAGING_STAFF,
+        SUPER_ADMIN
     }
 
     public String getUsername() {
@@ -123,7 +132,7 @@ public class Users extends BaseEntity {
         return is_active;
     }
 
-    public String getRole() {
+    public Role getRole() {
         return role;
     }
 
@@ -167,7 +176,7 @@ public class Users extends BaseEntity {
         this.is_active = is_active;
     }
 
-    public void setRole(String role) {
+    public void setRole(Role role) {
         this.role = role;
     }
 

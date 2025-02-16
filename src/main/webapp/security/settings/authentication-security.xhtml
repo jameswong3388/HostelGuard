@@ -33,7 +33,7 @@
             <!-- Password Section -->
             <section aria-labelledby="password-settings">
                 <h:form>
-                    <f:event type="preRenderView" listener="#{SettingsControllerSecurity.reloadSessions}"/>
+                    <f:event type="preRenderView" listener="#{SettingsController.reloadSessions}"/>
                     <div class="grid grid-cols-1 gap-x-14 gap-y-8 md:grid-cols-3">
                         <!-- Left column: heading & description -->
                         <div>
@@ -57,7 +57,7 @@
                             <div class="mb-4">
                                 <h:outputLabel for="oldPassword" value="Current password" styleClass="font-medium"/>
                                 <p:password id="oldPassword"
-                                            value="#{SettingsControllerSecurity.oldPassword}"
+                                            value="#{SettingsController.oldPassword}"
                                             styleClass="mt-2 w-full"
                                             autocomplete="current-password"
                                             required="true"
@@ -68,7 +68,7 @@
                             <div class="mb-4">
                                 <h:outputLabel for="newPassword" value="New password" styleClass="font-medium"/>
                                 <p:password id="newPassword"
-                                            value="#{SettingsControllerSecurity.newPassword}"
+                                            value="#{SettingsController.newPassword}"
                                             styleClass="mt-2 w-full"
                                             autocomplete="new-password"
                                             required="true"
@@ -85,7 +85,7 @@
                                 <h:outputLabel for="confirmNewPassword" value="Confirm new password"
                                                styleClass="font-medium"/>
                                 <p:password id="confirmNewPassword"
-                                            value="#{SettingsControllerSecurity.confirmNewPassword}"
+                                            value="#{SettingsController.confirmNewPassword}"
                                             styleClass="mt-2 w-full"
                                             autocomplete="new-password"
                                             required="true"
@@ -94,7 +94,7 @@
 
                             <!-- Change Password Button -->
                             <p:commandButton value="Change password"
-                                             action="#{SettingsControllerSecurity.updatePassword}"
+                                             action="#{SettingsController.updatePassword}"
                                              update="@form messages"
                                              styleClass="p-button-raised p-button-primary"/>
                         </div>
@@ -108,7 +108,7 @@
             <!-- Two-Factor Authentication Section -->
             <section aria-labelledby="two-factor-authentication">
                 <h:form id="twoFactorForm">
-                    <f:event type="preRenderView" listener="#{SettingsControllerSecurity.reloadSessions}"/>
+                    <f:event type="preRenderView" listener="#{SettingsController.reloadSessions}"/>
                     <div class="grid grid-cols-1 gap-x-14 gap-y-8 md:grid-cols-3">
                         <!-- Left column: heading & description -->
                         <div>
@@ -134,36 +134,36 @@
                                     Two-Factor Authentication Status
                                 </h4>
                                 <div class="flex items-center gap-2">
-                                    <h:outputText value="#{SettingsControllerSecurity.preferredMfaStatus}"
+                                    <h:outputText value="#{SettingsController.preferredMfaStatus}"
                                                   styleClass="text-sm font-medium"/>
                                     <h:outputText value="Disabled" styleClass="text-sm text-red-600"
-                                                  rendered="#{SettingsControllerSecurity.preferredMfaStatus.startsWith('Disabled')}"/>
+                                                  rendered="#{SettingsController.preferredMfaStatus.startsWith('Disabled')}"/>
                                     <h:outputText value="Needs Attention" styleClass="text-sm text-yellow-600"
-                                                  rendered="#{SettingsControllerSecurity.preferredMfaStatus.startsWith('Multiple')}"/>
+                                                  rendered="#{SettingsController.preferredMfaStatus.startsWith('Multiple')}"/>
                                     <h:outputText value="Enabled" styleClass="text-sm text-green-600"
-                                                  rendered="#{SettingsControllerSecurity.preferredMfaStatus.startsWith('Enabled') and !SettingsControllerSecurity.preferredMfaStatus.contains('Multiple')}"/>
+                                                  rendered="#{SettingsController.preferredMfaStatus.startsWith('Enabled') and !SettingsController.preferredMfaStatus.contains('Multiple')}"/>
                                 </div>
 
                                 <p:outputPanel
-                                        rendered="#{SettingsControllerSecurity.enabledMfaMethods.size() > 1}">
+                                        rendered="#{SettingsController.enabledMfaMethods.size() > 1}">
                                     <div class="mt-4 space-y-3">
 
                                         <h:outputLabel value="Set New Primary Method:"
                                                        styleClass="text-sm font-medium"/>
-                                        <p:selectOneMenu value="#{SettingsControllerSecurity.selectedPrimaryMethod}"
+                                        <p:selectOneMenu value="#{SettingsController.selectedPrimaryMethod}"
                                                          styleClass="w-full">
                                             <f:selectItem itemLabel="Select a method" itemValue=""
                                                           noSelectionOption="true"/>
-                                            <f:selectItems value="#{SettingsControllerSecurity.enabledMfaMethods}"
+                                            <f:selectItems value="#{SettingsController.enabledMfaMethods}"
                                                            var="method"
                                                            itemLabel="#{method.method}"
                                                            itemValue="#{method.method}"/>
                                             <p:ajax event="change" update="@form"/>
                                         </p:selectOneMenu>
                                         <p:commandButton value="Set as Primary"
-                                                         action="#{SettingsControllerSecurity.updatePrimaryMethod}"
+                                                         action="#{SettingsController.updatePrimaryMethod}"
                                                          update=":twoFactorForm :messages"
-                                                         disabled="#{empty SettingsControllerSecurity.selectedPrimaryMethod}"
+                                                         disabled="#{empty SettingsController.selectedPrimaryMethod}"
                                                          styleClass="p-button-primary p-button-sm"/>
 
                                     </div>
@@ -187,24 +187,24 @@
                                                 <span class="font-medium">Authenticator app</span>
                                                 <h:outputText value="Configured"
                                                               styleClass="ml-1 text-sm text-green-600"
-                                                              rendered="#{SettingsControllerSecurity.hasTOTPEnabled}"/>
+                                                              rendered="#{SettingsController.hasTOTPEnabled}"/>
                                                 <h:outputText value="Not configured"
                                                               styleClass="ml-1 text-sm text-gray-500"
-                                                              rendered="#{!SettingsControllerSecurity.hasTOTPEnabled}"/>
+                                                              rendered="#{!SettingsController.hasTOTPEnabled}"/>
                                                 <p class="text-sm text-gray-500">
                                                     Use an authenticator app to get two-factor codes.
                                                 </p>
                                             </div>
                                             <p:commandButton value="Setup"
                                                              oncomplete="PF('totpSetupDialog').show()"
-                                                             action="#{SettingsControllerSecurity.initializeTOTP2FA()}"
+                                                             action="#{SettingsController.initializeTOTP2FA()}"
                                                              update="totpSetupForm"
-                                                             rendered="#{!SettingsControllerSecurity.hasTOTPEnabled}"
+                                                             rendered="#{!SettingsController.hasTOTPEnabled}"
                                                              styleClass="p-button-text p-button-sm"/>
                                             <p:commandButton value="Remove"
-                                                             action="#{SettingsControllerSecurity.disableTOTP}"
+                                                             action="#{SettingsController.disableTOTP}"
                                                              update="twoFactorForm messages"
-                                                             rendered="#{SettingsControllerSecurity.hasTOTPEnabled}"
+                                                             rendered="#{SettingsController.hasTOTPEnabled}"
                                                              styleClass="ui-button-danger p-button-text p-button-sm"/>
                                         </li>
                                         <!-- SMS/Text message -->
@@ -213,24 +213,24 @@
                                                 <span class="font-medium">SMS/Text message</span>
                                                 <h:outputText value="Configured"
                                                               styleClass="ml-1 text-sm text-green-600"
-                                                              rendered="#{SettingsControllerSecurity.hasSMSEnabled}"/>
+                                                              rendered="#{SettingsController.hasSMSEnabled}"/>
                                                 <h:outputText value="Not configured"
                                                               styleClass="ml-1 text-sm text-gray-500"
-                                                              rendered="#{!SettingsControllerSecurity.hasSMSEnabled}"/>
+                                                              rendered="#{!SettingsController.hasSMSEnabled}"/>
                                                 <p class="text-sm text-gray-500">
                                                     Get one-time codes via SMS to complete authentication.
                                                 </p>
                                             </div>
                                             <p:commandButton value="Setup"
                                                              oncomplete="PF('smsVerifyDialog').show()"
-                                                             action="#{SettingsControllerSecurity.initializeSMS2FA}"
+                                                             action="#{SettingsController.initializeSMS2FA}"
                                                              update="smsVerifyForm"
-                                                             rendered="#{!SettingsControllerSecurity.hasSMSEnabled}"
+                                                             rendered="#{!SettingsController.hasSMSEnabled}"
                                                              styleClass="p-button-text p-button-sm"/>
                                             <p:commandButton value="Remove"
-                                                             action="#{SettingsControllerSecurity.disableSMS2FA()}"
+                                                             action="#{SettingsController.disableSMS2FA()}"
                                                              update="twoFactorForm messages"
-                                                             rendered="#{SettingsControllerSecurity.hasSMSEnabled}"
+                                                             rendered="#{SettingsController.hasSMSEnabled}"
                                                              styleClass="ui-button-danger p-button-text p-button-sm"/>
                                         </li>
                                         <!-- Email -->
@@ -239,24 +239,24 @@
                                                 <span class="font-medium">Email authentication</span>
                                                 <h:outputText value="Configured"
                                                               styleClass="ml-1 text-sm text-green-600"
-                                                              rendered="#{SettingsControllerSecurity.hasEmailEnabled}"/>
+                                                              rendered="#{SettingsController.hasEmailEnabled}"/>
                                                 <h:outputText value="Not configured"
                                                               styleClass="ml-1 text-sm text-gray-500"
-                                                              rendered="#{!SettingsControllerSecurity.hasEmailEnabled}"/>
+                                                              rendered="#{!SettingsController.hasEmailEnabled}"/>
                                                 <p class="text-sm text-gray-500">
                                                     Receive authentication codes via email.
                                                 </p>
                                             </div>
                                             <p:commandButton value="Setup"
                                                              oncomplete="PF('emailVerifyDialog').show()"
-                                                             action="#{SettingsControllerSecurity.initializeEmail2FA()}"
+                                                             action="#{SettingsController.initializeEmail2FA()}"
                                                              update="emailVerifyForm"
-                                                             rendered="#{!SettingsControllerSecurity.hasEmailEnabled}"
+                                                             rendered="#{!SettingsController.hasEmailEnabled}"
                                                              styleClass="p-button-text p-button-sm"/>
                                             <p:commandButton value="Remove"
-                                                             action="#{SettingsControllerSecurity.disableEmail2FA()}"
+                                                             action="#{SettingsController.disableEmail2FA()}"
                                                              update="twoFactorForm messages"
-                                                             rendered="#{SettingsControllerSecurity.hasEmailEnabled}"
+                                                             rendered="#{SettingsController.hasEmailEnabled}"
                                                              styleClass="ui-button-danger p-button-text p-button-sm"/>
                                         </li>
                                         <!-- Recovery codes -->
@@ -265,14 +265,14 @@
                                                 <span class="font-medium">Recovery codes</span>
                                                 <h:outputText value="Generated"
                                                               styleClass="ml-1 text-sm text-yellow-600"
-                                                              rendered="#{SettingsControllerSecurity.enabledMfaMethods.size() gt 0}"/>
+                                                              rendered="#{SettingsController.enabledMfaMethods.size() gt 0}"/>
                                                 <p class="text-sm text-gray-500">
                                                     Use recovery codes to regain access to your account if you lose your device.
                                                 </p>
                                             </div>
                                             <p:commandButton value="View codes"
                                                              styleClass="p-button-text p-button-sm"
-                                                             disabled="#{SettingsControllerSecurity.enabledMfaMethods.size() lt 1}"
+                                                             disabled="#{SettingsController.enabledMfaMethods.size() lt 1}"
                                                              oncomplete="PF('recoveryCodesDialog').show()"
                                                              update=":recoveryCodesForm"/>
                                         </li>
@@ -306,7 +306,7 @@
 
                                 <pe:qrCode
                                         label="HostelGuard™"
-                                        text="#{SettingsControllerSecurity.qrCodeUrl}"
+                                        text="#{SettingsController.qrCodeUrl}"
                                         fillColor="#000000"
                                         fontColor="#2b5cf2"
                                         renderMethod="canvas"
@@ -314,7 +314,7 @@
                                         size="200"
                                         radius="0.5"
                                         ecLevel="H"
-                                        rendered="#{not empty SettingsControllerSecurity.qrCodeUrl}"
+                                        rendered="#{not empty SettingsController.qrCodeUrl}"
                                 />
                             </div>
 
@@ -326,13 +326,13 @@
                                 </p>
                                 <div class="flex items-center gap-4">
                                     <p:inputText id="totpCode"
-                                                 value="#{SettingsControllerSecurity.totpCode}"
+                                                 value="#{SettingsController.totpCode}"
                                                  styleClass="w-32"
                                                  placeholder="000000"
                                                  maxlength="6"
                                     />
                                     <p:commandButton value="Verify and enable"
-                                                     action="#{SettingsControllerSecurity.verifyAndEnableTOTP}"
+                                                     action="#{SettingsController.verifyAndEnableTOTP}"
                                                      update="twoFactorForm totpSetupForm messages :recoveryCodesForm"
                                                      oncomplete="if (args &amp;&amp; !args.validationFailed) {
                                                                     PF('totpSetupDialog').hide();
@@ -360,7 +360,7 @@
                                 Each code can only be used once.
                             </p>
                             <div class="grid grid-cols-2 gap-2">
-                                <ui:repeat value="#{SettingsControllerSecurity.recoveryCodes}" var="code">
+                                <ui:repeat value="#{SettingsController.recoveryCodes}" var="code">
                                     <div class="p-2 bg-gray-50 rounded text-mono text-sm">
                                         #{code}
                                     </div>
@@ -388,12 +388,12 @@
                             </p>
                             <div class="flex items-center gap-4">
                                 <p:inputText id="emailCode"
-                                             value="#{SettingsControllerSecurity.emailVerificationCode}"
+                                             value="#{SettingsController.emailVerificationCode}"
                                              placeholder="Enter 6-digit code"
                                              maxlength="6"
                                              styleClass="w-40"/>
                                 <p:commandButton value="Verify"
-                                                 action="#{SettingsControllerSecurity.verifyAndEnableEmailVerification}"
+                                                 action="#{SettingsController.verifyAndEnableEmailVerification}"
                                                  update=":twoFactorForm :emailVerifyForm :recoveryCodesForm :messages"
                                                  oncomplete="if (args &amp;&amp; !args.validationFailed) {
                                                                     PF('emailVerifyDialog').hide();
@@ -415,12 +415,12 @@
                             </p>
                             <div class="flex items-center gap-4">
                                 <p:inputText id="smsCode"
-                                             value="#{SettingsControllerSecurity.smsVerificationCode}"
+                                             value="#{SettingsController.smsVerificationCode}"
                                              maxlength="6"
                                              styleClass="w-40"
                                              placeholder="Enter 6-digit code"/>
                                 <p:commandButton value="Verify"
-                                                 action="#{SettingsControllerSecurity.verifyAndEnableSMSVerification}"
+                                                 action="#{SettingsController.verifyAndEnableSMSVerification}"
                                                  update=":twoFactorForm @smsVerifyForm :recoveryCodesForm :messages"
                                                  oncomplete="if (args &amp;&amp; !args.validationFailed) {
                                                                     PF('smsVerifyDialog').hide();
@@ -439,7 +439,7 @@
             <!-- Web Sessions Section -->
             <section aria-labelledby="web-sessions">
                 <h:form>
-                    <f:event type="preRenderView" listener="#{SettingsControllerSecurity.reloadSessions}"/>
+                    <f:event type="preRenderView" listener="#{SettingsController.reloadSessions}"/>
                     <div class="grid grid-cols-1 gap-x-14 gap-y-8 md:grid-cols-3">
                         <!-- Left column: heading & description -->
                         <div>
@@ -454,13 +454,13 @@
 
                         <!-- Right column: session list -->
                         <div class="md:col-span-2 space-y-6">
-                            <ui:repeat value="#{SettingsControllerSecurity.sessions}" var="userSession">
+                            <ui:repeat value="#{SettingsController.sessions}" var="userSession">
                                 <div class="p-4 border border-gray-200 rounded-md flex items-center justify-between">
                                     <div>
                                         <p class="text-sm font-medium text-gray-900">
                                             #{userSession.city} #{userSession.ipAddress}
                                             <h:outputLabel class="ml-2 inline-block text-green-600 text-xs"
-                                                           rendered="#{userSession.session_id eq SettingsControllerSecurity.currentSessionId}">
+                                                           rendered="#{userSession.session_id eq SettingsController.currentSessionId}">
                                                 Your current session
                                             </h:outputLabel>
                                         </p>
@@ -486,10 +486,10 @@
                                                          update="@form messages"
                                                          styleClass="p-button-text p-button-sm"/>
                                         <p:commandButton value="Revoke"
-                                                         action="#{SettingsControllerSecurity.revokeSession(userSession.session_id)}"
+                                                         action="#{SettingsController.revokeSession(userSession.session_id)}"
                                                          update="@form messages"
                                                          styleClass="ui-button-danger p-button-sm"
-                                                         rendered="#{userSession.session_id ne SettingsControllerSecurity.currentSessionId}"/>
+                                                         rendered="#{userSession.session_id ne SettingsController.currentSessionId}"/>
                                     </div>
                                 </div>
                             </ui:repeat>
@@ -504,7 +504,7 @@
             <!-- GitHub Mobile Sessions Section -->
             <section aria-labelledby="github-mobile-sessions">
                 <h:form>
-                    <f:event type="preRenderView" listener="#{SettingsControllerSecurity.reloadSessions}"/>
+                    <f:event type="preRenderView" listener="#{SettingsController.reloadSessions}"/>
                     <div class="grid grid-cols-1 gap-x-14 gap-y-8 md:grid-cols-3">
                         <!-- Left column: heading & description -->
                         <div>
@@ -540,7 +540,7 @@
                                     </p>
                                 </div>
                                 <p:commandButton value="Revoke"
-                                                 action="#{SettingsControllerSecurity.revokeMobileSession}"
+                                                 action="#{SettingsController.revokeMobileSession}"
                                                  update="@form messages"
                                                  styleClass="ui-button-danger p-button-text p-button-sm"/>
                             </div>
@@ -562,7 +562,7 @@
                                     </p>
                                 </div>
                                 <p:commandButton value="Revoke"
-                                                 action="#{SettingsControllerSecurity.revokeMobileSession}"
+                                                 action="#{SettingsController.revokeMobileSession}"
                                                  update="@form messages"
                                                  styleClass="ui-button-danger p-button-text p-button-sm"/>
                             </div>
@@ -577,7 +577,7 @@
             <!-- (Optional) Danger Zone Section -->
             <section aria-labelledby="danger-zone">
                 <h:form>
-                    <f:event type="preRenderView" listener="#{SettingsControllerSecurity.reloadSessions}"/>
+                    <f:event type="preRenderView" listener="#{SettingsController.reloadSessions}"/>
                     <div class="grid grid-cols-1 gap-x-14 gap-y-8 md:grid-cols-3">
                         <div>
                             <h2 id="danger-zone"
@@ -601,7 +601,7 @@
                                     </p>
                                 </div>
                                 <p:commandButton value="Sign out everywhere"
-                                                 action="#{SettingsControllerSecurity.revokeAllSessions}"
+                                                 action="#{SettingsController.revokeAllSessions}"
                                                  styleClass="ui-button-danger"
                                                  update="@form"/>
                             </div>

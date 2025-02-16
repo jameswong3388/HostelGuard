@@ -4,7 +4,6 @@ import jakarta.ejb.EJB;
 import org.example.hvvs.model.Notifications;
 import org.example.hvvs.model.NotificationsFacade;
 import org.example.hvvs.model.Users;
-import org.example.hvvs.modules.common.service.NotificationService;
 
 import java.util.List;
 

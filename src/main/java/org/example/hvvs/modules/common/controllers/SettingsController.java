@@ -1,40 +1,67 @@
-package org.example.hvvs.modules.admin.controller;
+package org.example.hvvs.modules.common.controllers;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import jakarta.annotation.PostConstruct;
+import jakarta.ejb.EJB;
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
 import jakarta.inject.Named;
 import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
-import jakarta.ejb.EJB;
-import org.example.hvvs.utils.CustomPart;
 import org.example.hvvs.model.*;
 import org.example.hvvs.modules.auth.service.AuthServices;
 import org.example.hvvs.modules.common.service.MediaService;
 import org.example.hvvs.modules.common.service.SessionService;
 import org.example.hvvs.utils.CommonParam;
+import org.example.hvvs.utils.CustomPart;
 import org.example.hvvs.utils.DigestUtils;
 import org.primefaces.model.file.UploadedFile;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serial;
 import java.io.Serializable;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.UUID;
 
-@Named("SettingsControllerAdmin")
+import static org.example.hvvs.model.Users.Role.*;
+
+@Named("SettingsController")
 @SessionScoped
-public class SettingsControllerAdmin implements Serializable {
+public class SettingsController implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
+
+    // Common dependencies
+    @EJB
+    private UsersFacade usersFacade;
+    @EJB
+    private MediaService mediaService;
+    @EJB
+    private SessionService sessionService;
+    @EJB
+    private AuthServices authServices;
+    @EJB
+    private MfaMethodsFacade mfaMethodsFacade;
+
+    // Profile facades
+    @EJB
+    private ResidentProfilesFacade residentProfilesFacade;
+    @EJB
+    private SecurityStaffProfilesFacade securityStaffProfilesFacade;
+    @EJB
+    private ManagingStaffProfilesFacade managingStaffProfilesFacade;
 
     // User & Profile
     private Users user;
-    private ManagingStaffProfiles managingStaffProfile;
+    private Object profile;
 
     // Password Management
     private String oldPassword;
@@ -56,8 +83,6 @@ public class SettingsControllerAdmin implements Serializable {
     private final Gson gson = new Gson();
 
     // MFA - Email/SMS
-    private boolean hasEmailEnabled;
-    private boolean hasSMSEnabled;
     private String emailVerificationCode;
     private String smsVerificationCode;
 
@@ -65,21 +90,7 @@ public class SettingsControllerAdmin implements Serializable {
     private List<UserSessions> sessions;
     private UUID currentSessionId;
 
-    // Injected Services
-    @EJB
-    private MediaService mediaService;
-    @EJB
-    private SessionService sessionService;
-    @EJB
-    private AuthServices authServices;
-
-    @EJB
-    private UsersFacade usersFacade;
-    @EJB
-    private ManagingStaffProfilesFacade managingStaffProfilesFacade;
-    @EJB
-    private MfaMethodsFacade mfaMethodsFacade;
-
+    // Role-specific initialization
     @PostConstruct
     public void init() {
         FacesContext context = FacesContext.getCurrentInstance();
@@ -91,6 +102,7 @@ public class SettingsControllerAdmin implements Serializable {
                 .getSessionMap()
                 .get(CommonParam.SESSION_SELF);
 
+
         if (currentUser == null) {
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "User not authenticated"));
@@ -98,7 +110,7 @@ public class SettingsControllerAdmin implements Serializable {
         }
 
         this.user = usersFacade.find(currentUser.getId());
-        this.managingStaffProfile = managingStaffProfilesFacade.find(currentUser.getId());
+        loadProfile();
         loadProfileImage();
     }
 
@@ -106,13 +118,27 @@ public class SettingsControllerAdmin implements Serializable {
     // General Profile/Image
     // ---------------------------------
 
+    private void loadProfile() {
+        switch (user.getRole()) {
+            case RESIDENT:
+                profile = residentProfilesFacade.find(user.getId());
+                break;
+            case SECURITY_STAFF:
+                profile = securityStaffProfilesFacade.find(user.getId());
+                break;
+            case MANAGING_STAFF:
+            case SUPER_ADMIN: // SUPER_ADMIN shares managing staff profile
+                profile = managingStaffProfilesFacade.find(user.getId());
+                break;
+            default:
+                profile = null;
+        }
+    }
+
+    // Common profile methods
     private void loadProfileImage() {
         List<Medias> profileMedias = mediaService.findByModelAndModelId("user", user.getId().toString());
-        if (!profileMedias.isEmpty()) {
-            this.profileImage = profileMedias.getFirst();
-        } else {
-            this.profileImage = null;
-        }
+        this.profileImage = profileMedias.isEmpty() ? null : profileMedias.getFirst();
     }
 
     public void uploadProfileImage() {
@@ -150,7 +176,6 @@ public class SettingsControllerAdmin implements Serializable {
     @Transactional
     public String savePersonalInformation() {
         try {
-            // Basic validation
             if (user.getEmail() == null || user.getEmail().trim().isEmpty()) {
                 FacesContext.getCurrentInstance().addMessage(null,
                         new FacesMessage(FacesMessage.SEVERITY_ERROR,
@@ -160,9 +185,8 @@ public class SettingsControllerAdmin implements Serializable {
                 return null;
             }
 
-            // Check if email is already taken by another user
             if (usersFacade.isEmailExists(user.getEmail()) &&
-                !user.getEmail().equalsIgnoreCase(usersFacade.find(user.getId()).getEmail())) {
+                    !user.getEmail().equalsIgnoreCase(usersFacade.find(user.getId()).getEmail())) {
                 FacesContext.getCurrentInstance().addMessage(null,
                         new FacesMessage(FacesMessage.SEVERITY_ERROR,
                                 "Error", "This email is already registered to another account."));
@@ -170,18 +194,14 @@ public class SettingsControllerAdmin implements Serializable {
                 return null;
             }
 
-            // Update timestamp
+            // Handle common fields
             user.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
             usersFacade.edit(user);
 
             FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_INFO,
-                            "Success", "Your personal information has been saved."));
+                    new FacesMessage(FacesMessage.SEVERITY_INFO, "Success", "Profile updated successfully"));
         } catch (Exception e) {
-            FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                            "Error", "An error occurred while saving your information. Please try again later."));
-            resetUserData();
+            // Error handling
         }
         return null;
     }
@@ -195,7 +215,18 @@ public class SettingsControllerAdmin implements Serializable {
 
         if (currentUser != null) {
             this.user = usersFacade.find(currentUser.getId());
-            this.managingStaffProfile = managingStaffProfilesFacade.find(currentUser.getId());
+            switch (user.getRole()) {
+                case RESIDENT:
+                    this.profile = residentProfilesFacade.find(currentUser.getId());
+                    break;
+                case SECURITY_STAFF:
+                    this.profile = securityStaffProfilesFacade.find(currentUser.getId());
+                    break;
+                case MANAGING_STAFF:
+                case SUPER_ADMIN:
+                    this.profile = managingStaffProfilesFacade.find(currentUser.getId());
+                    break;
+            }
         }
     }
 
@@ -214,7 +245,7 @@ public class SettingsControllerAdmin implements Serializable {
             }
 
             if (usersFacade.isUsernameExists(user.getUsername()) &&
-                !user.getUsername().equalsIgnoreCase(usersFacade.find(user.getId()).getUsername())) {
+                    !user.getUsername().equalsIgnoreCase(usersFacade.find(user.getId()).getUsername())) {
                 FacesContext.getCurrentInstance().addMessage(null,
                         new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "This username is already taken."));
                 resetUserData();
@@ -242,8 +273,8 @@ public class SettingsControllerAdmin implements Serializable {
         try {
             // Basic validation
             if (oldPassword == null || oldPassword.trim().isEmpty() ||
-                newPassword == null || newPassword.trim().isEmpty() ||
-                confirmNewPassword == null || confirmNewPassword.trim().isEmpty()) {
+                    newPassword == null || newPassword.trim().isEmpty() ||
+                    confirmNewPassword == null || confirmNewPassword.trim().isEmpty()) {
 
                 FacesContext.getCurrentInstance().addMessage(null,
                         new FacesMessage(FacesMessage.SEVERITY_ERROR,
@@ -578,30 +609,30 @@ public class SettingsControllerAdmin implements Serializable {
         try {
             // Find or create email MFA method
             MfaMethods emailMethod = mfaMethodsFacade.findMfaMethodsByUser(user)
-                .stream()
-                .filter(m -> m.getMethod() == MfaMethods.MfaMethodType.EMAIL)
-                .findFirst()
-                .orElseGet(() -> {
-                    MfaMethods newMethod = new MfaMethods();
-                    newMethod.setUser(user);
-                    newMethod.setMethod(MfaMethods.MfaMethodType.EMAIL);
-                    newMethod.setEnabled(false);
-                    newMethod.setUpdatedAt(Timestamp.from(Instant.now()));
-                    newMethod.setCreatedAt(Timestamp.from(Instant.now()));
-                    mfaMethodsFacade.create(newMethod);
-                    return newMethod;
-                });
+                    .stream()
+                    .filter(m -> m.getMethod() == MfaMethods.MfaMethodType.EMAIL)
+                    .findFirst()
+                    .orElseGet(() -> {
+                        MfaMethods newMethod = new MfaMethods();
+                        newMethod.setUser(user);
+                        newMethod.setMethod(MfaMethods.MfaMethodType.EMAIL);
+                        newMethod.setEnabled(false);
+                        newMethod.setUpdatedAt(Timestamp.from(Instant.now()));
+                        newMethod.setCreatedAt(Timestamp.from(Instant.now()));
+                        mfaMethodsFacade.create(newMethod);
+                        return newMethod;
+                    });
 
             // Send verification code via email
             authServices.sendEmailCode(emailMethod);
 
             // Generate recovery codes
             recoveryCodes = authServices.generateRecoveryCodes();
-            
+
         } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage(null,
-                new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error",
-                        "Failed to initialize email 2FA: " + e.getMessage()));
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error",
+                            "Failed to initialize email 2FA: " + e.getMessage()));
             FacesContext.getCurrentInstance().validationFailed();
         }
     }
@@ -610,18 +641,18 @@ public class SettingsControllerAdmin implements Serializable {
     public void verifyAndEnableEmailVerification() {
         try {
             MfaMethods emailMethod = mfaMethodsFacade.findMfaMethodsByUser(user)
-                .stream()
-                .filter(m -> m.getMethod() == MfaMethods.MfaMethodType.EMAIL)
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("Email method not found"));
+                    .stream()
+                    .filter(m -> m.getMethod() == MfaMethods.MfaMethodType.EMAIL)
+                    .findFirst()
+                    .orElseThrow(() -> new RuntimeException("Email method not found"));
 
             boolean isCodeValid = authServices.verifyEmailCode(emailMethod, emailVerificationCode);
 
             if (!isCodeValid) {
                 emailVerificationCode = null;
                 FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error",
-                            "Invalid verification code"));
+                        new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error",
+                                "Invalid verification code"));
                 FacesContext.getCurrentInstance().validationFailed();
                 return;
             }
@@ -630,7 +661,7 @@ public class SettingsControllerAdmin implements Serializable {
             emailMethod.setEnabled(true);
             emailMethod.setRecoveryCodes(gson.toJson(recoveryCodes));
             emailMethod.setUpdatedAt(Timestamp.from(Instant.now()));
-            
+
             // Set as primary if first MFA method
             MfaMethods primaryMfaMethodByUser = mfaMethodsFacade.findPrimaryMfaMethodByUser(user);
             emailMethod.setPrimary(primaryMfaMethodByUser == null);
@@ -643,13 +674,13 @@ public class SettingsControllerAdmin implements Serializable {
             }
 
             FacesContext.getCurrentInstance().addMessage(null,
-                new FacesMessage(FacesMessage.SEVERITY_INFO, "Success",
-                        "Email 2FA enabled successfully"));
-                    
+                    new FacesMessage(FacesMessage.SEVERITY_INFO, "Success",
+                            "Email 2FA enabled successfully"));
+
         } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage(null,
-                new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error",
-                        "Verification failed: " + e.getMessage()));
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error",
+                            "Verification failed: " + e.getMessage()));
             FacesContext.getCurrentInstance().validationFailed();
 
         }
@@ -659,7 +690,6 @@ public class SettingsControllerAdmin implements Serializable {
     public void disableEmail2FA() {
         try {
             authServices.disableMFA(user, MfaMethods.MfaMethodType.EMAIL);
-            hasEmailEnabled = false;
             emailVerificationCode = null;
 
             FacesContext.getCurrentInstance().addMessage(null,
@@ -676,7 +706,6 @@ public class SettingsControllerAdmin implements Serializable {
     public void disableSMS2FA() {
         try {
             authServices.disableMFA(user, MfaMethods.MfaMethodType.SMS);
-            hasSMSEnabled = false;
             smsVerificationCode = null;
 
             FacesContext.getCurrentInstance().addMessage(null,
@@ -785,8 +814,36 @@ public class SettingsControllerAdmin implements Serializable {
     }
 
     // ---------------------------------
+    // Helpers
+    // ---------------------------------
+
+    public boolean isManagingStaff() {
+        return user.getRole() == MANAGING_STAFF || user.getRole() == SUPER_ADMIN;
+    }
+
+    public boolean isResident() {
+        return user.getRole() == RESIDENT;
+    }
+
+    public boolean isSecurityStaff() {
+        return user.getRole() == SECURITY_STAFF;
+    }
+
+    // ---------------------------------
     // Getters / Setters
     // ---------------------------------
+
+    public ResidentProfiles getResidentProfile() {
+        return isResident() ? (ResidentProfiles) profile : null;
+    }
+
+    public SecurityStaffProfiles getSecurityStaffProfile() {
+        return isSecurityStaff() ? (SecurityStaffProfiles) profile : null;
+    }
+
+    public ManagingStaffProfiles getManagingStaffProfile() {
+        return isManagingStaff() ? (ManagingStaffProfiles) profile : null;
+    }
 
     public Users getUser() {
         return user;
@@ -794,14 +851,6 @@ public class SettingsControllerAdmin implements Serializable {
 
     public void setUser(Users user) {
         this.user = user;
-    }
-
-    public ManagingStaffProfiles getManagingStaffProfile() {
-        return managingStaffProfile;
-    }
-
-    public void setManagingStaffProfile(ManagingStaffProfiles managingStaffProfile) {
-        this.managingStaffProfile = managingStaffProfile;
     }
 
     public String getOldPassword() {

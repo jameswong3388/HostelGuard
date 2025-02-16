@@ -60,7 +60,7 @@
                                 <div class="col-span-full sm:col-span-3">
                                     <h:outputLabel for="username" value="Username" styleClass="font-medium"/>
                                     <p:inputText id="username"
-                                                 value="#{SettingsControllerAdmin.user.username}"
+                                                 value="#{SettingsController.user.username}"
                                                  placeholder="Enter new username"
                                                  styleClass="mt-2 w-full"/>
                                 </div>
@@ -68,7 +68,7 @@
                                 <!-- Update Username Button -->
                                 <div class="col-span-full mt-6 flex justify-end">
                                     <p:commandButton value="Change username"
-                                                     action="#{SettingsControllerAdmin.updateUsername}"
+                                                     action="#{SettingsController.updateUsername}"
                                                      update="@form messages"
                                                      styleClass="p-button-raised p-button-primary"/>
                                 </div>
@@ -145,7 +145,7 @@
                                         </div>
                                     </div>
                                     <p:commandButton value="Delete Account"
-                                                     action="#{SettingsControllerAdmin.deleteAccount}"
+                                                     action="#{SettingsController.deleteAccount}"
                                                      update="@form messages"
                                                      styleClass="ui-button-danger"
                                                      onclick="return confirm('Are you absolutely sure you want to delete your account? This action cannot be undone.')"/>

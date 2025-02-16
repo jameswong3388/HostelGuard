@@ -30,28 +30,28 @@
                                 <div class="col-span-full">
                                     <label class="font-medium">Profile Picture</label>
                                     <div class="mt-2 flex items-center gap-x-3">
-                                        <h:graphicImage value="#{SettingsControllerSecurity.profileImage.disk}"
-                                                        rendered="#{SettingsControllerSecurity.profileImage.disk != null}"
+                                        <h:graphicImage value="#{SettingsController.profileImage.disk}"
+                                                        rendered="#{SettingsController.profileImage.disk != null}"
                                                         styleClass="h-[8rem] w-[8rem] rounded-md object-cover"
                                                         alt="Profile picture"/>
 
-                                        <p:avatar label="#{SettingsControllerSecurity.user.firstName.charAt(0)}"
+                                        <p:avatar label="#{SettingsController.user.firstName.charAt(0)}"
                                                   size="xlarge" style="height: 8rem; width: 8rem"
-                                                  rendered="#{SettingsControllerSecurity.profileImage == null}"/>
+                                                  rendered="#{SettingsController.profileImage == null}"/>
                                     </div>
                                     <p class="mt-2 text-xs text-gray-500">JPG, GIF or PNG. Max size of 2MB.</p>
                                 </div>
 
                                 <!-- Save button -->
                                 <div class="col-span-full mt-6 flex justify-end gap-2">
-                                    <p:fileUpload value="#{SettingsControllerSecurity.tempUploadedFile}"
+                                    <p:fileUpload value="#{SettingsController.tempUploadedFile}"
                                                   mode="simple"
                                                   skinSimple="true"
                                                   styleClass="p-button-secondary"
                                                   accept="image/*"
                                                   update="@form messages"/>
                                     <p:commandButton value="Upload"
-                                                     action="#{SettingsControllerSecurity.uploadProfileImage}"
+                                                     action="#{SettingsController.uploadProfileImage}"
                                                      styleClass="p-button-secondary"
                                                      update="@form messages"/>
                                 </div>
@@ -83,7 +83,7 @@
                                 <div class="col-span-full sm:col-span-3">
                                     <h:outputLabel for="firstName" value="First name" styleClass="font-medium"/>
                                     <p:inputText id="firstName"
-                                                 value="#{SettingsControllerSecurity.user.firstName}"
+                                                 value="#{SettingsController.user.firstName}"
                                                  placeholder="Emma"
                                                  styleClass="mt-2 w-full"
                                                  autocomplete="given-name"/>
@@ -93,7 +93,7 @@
                                 <div class="col-span-full sm:col-span-3">
                                     <h:outputLabel for="lastName" value="Last name" styleClass="font-medium"/>
                                     <p:inputText id="lastName"
-                                                 value="#{SettingsControllerSecurity.user.lastName}"
+                                                 value="#{SettingsController.user.lastName}"
                                                  placeholder="Stone"
                                                  styleClass="mt-2 w-full"
                                                  autocomplete="family-name"/>
@@ -103,7 +103,7 @@
                                 <div class="col-span-full">
                                     <h:outputLabel for="email" value="Email" styleClass="font-medium"/>
                                     <p:inputText id="email"
-                                                 value="#{SettingsControllerSecurity.user.email}"
+                                                 value="#{SettingsController.user.email}"
                                                  type="email"
                                                  placeholder="emma@acme.com"
                                                  styleClass="mt-2 w-full"
@@ -114,7 +114,7 @@
                                 <div class="col-span-full">
                                     <h:outputLabel for="phoneNumber" value="Phone Number" styleClass="font-medium"/>
                                     <p:inputText id="phoneNumber"
-                                                 value="#{SettingsControllerSecurity.user.phoneNumber}"
+                                                 value="#{SettingsController.user.phoneNumber}"
                                                  placeholder="+1 555 5555"
                                                  styleClass="mt-2 w-full"
                                                  autocomplete="tel"/>
@@ -124,7 +124,7 @@
                                 <div class="col-span-full">
                                     <h:outputLabel for="identity_number" value="Identity Number" styleClass="font-medium"/>
                                     <p:inputText id="identity_number"
-                                                 value="#{SettingsControllerSecurity.user.identity_number}"
+                                                 value="#{SettingsController.user.identity_number}"
                                                  placeholder="+1 555 5555"
                                                  styleClass="mt-2 w-full"
                                                  autocomplete="tel"/>
@@ -134,7 +134,7 @@
                                 <div class="col-span-full">
                                     <h:outputLabel for="gender" value="Gender" styleClass="font-medium"/>
                                     <p:inputText id="gender"
-                                                 value="#{SettingsControllerSecurity.user.gender}"
+                                                 value="#{SettingsController.user.gender}"
                                                  placeholder="MALE"
                                                  styleClass="mt-2 w-full"
                                                  autocomplete="tel"/>
@@ -144,7 +144,7 @@
                                 <div class="col-span-full">
                                     <h:outputLabel for="address" value="Address" styleClass="font-medium"/>
                                     <p:inputText id="address"
-                                                 value="#{SettingsControllerSecurity.user.address}"
+                                                 value="#{SettingsController.user.address}"
                                                  placeholder="+1 555 5555"
                                                  styleClass="mt-2 w-full"
                                                  autocomplete="tel"/>
@@ -154,7 +154,7 @@
                                 <div class="col-span-2">
                                     <h:outputLabel for="role" value="Role" styleClass="font-medium"/>
                                     <p:inputText id="role" disabled="true"
-                                                 value="#{SettingsControllerSecurity.user.role}"
+                                                 value="#{SettingsController.user.role}"
                                                  styleClass="mt-2 w-full"/>
                                     <p class="mt-2 text-xs text-gray-500">
                                         Roles can only be changed by a system admin.
@@ -164,7 +164,7 @@
                                 <!-- Save button -->
                                 <div class="col-span-full mt-6 flex justify-end">
                                     <p:commandButton value="Save settings"
-                                                     action="#{SettingsControllerSecurity.savePersonalInformation}"
+                                                     action="#{SettingsController.savePersonalInformation}"
                                                      update="@form messages"
                                                      styleClass="p-button-raised p-button-primary"/>
                                 </div>
@@ -197,7 +197,7 @@
                                 <div class="col-span-full sm:col-span-3">
                                     <h:outputLabel for="badgeNumber" value="Badge Number" styleClass="font-medium"/>
                                     <p:inputText id="badgeNumber"
-                                                 value="#{SettingsControllerSecurity.securityStaffProfile.badgeNumber}"
+                                                 value="#{SettingsController.securityStaffProfile.badgeNumber}"
                                                  placeholder="Block A"
                                                  disabled="true"
                                                  styleClass="mt-2 w-full"/>
@@ -210,7 +210,7 @@
                                 <div class="col-span-full sm:col-span-3">
                                     <h:outputLabel for="shift" value="Shift" styleClass="font-medium"/>
                                     <p:inputText id="shift"
-                                                 value="#{SettingsControllerSecurity.securityStaffProfile.shift}"
+                                                 value="#{SettingsController.securityStaffProfile.shift}"
                                                  placeholder="101"
                                                  disabled="true"
                                                  styleClass="mt-2 w-full"/>
