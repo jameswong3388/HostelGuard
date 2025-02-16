@@ -1,16 +1,21 @@
 package org.example.hvvs.modules.common.service;
 
 import jakarta.ejb.EJB;
+import jakarta.ejb.Stateless;
 import org.example.hvvs.model.Notifications;
 import org.example.hvvs.model.NotificationsFacade;
 import org.example.hvvs.model.Users;
 
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.List;
 
+@Stateless
 public class NotificationServiceImpl implements NotificationService {
     @EJB
     private NotificationsFacade notificationsFacade;
 
+    @Override
     public void createNotification(Users user, Notifications.NotificationType type, String title, String message,
                                    String relatedEntityType, String relatedEntityId) {
 
@@ -21,35 +26,39 @@ public class NotificationServiceImpl implements NotificationService {
         notification.setMessage(message);
         notification.setRelatedEntityType(relatedEntityType);
         notification.setRelatedEntityId(relatedEntityId);
+        notification.setStatus(Notifications.NotificationStatus.UNREAD);
+        notification.setCreatedAt(Timestamp.from(Instant.now()));
+        notification.setUpdatedAt(Timestamp.from(Instant.now()));
         notificationsFacade.create(notification);
     }
 
+    @Override
     public List<Notifications> getUnreadNotifications(Users user) {
         return notificationsFacade.findUnreadByUser(user);
     }
 
+    @Override
     public void markAllAsRead(Users user) {
         notificationsFacade.markAllAsRead(user);
     }
 
+    @Override
     public void markAsRead(Notifications notification) {
         notification.setStatus(Notifications.NotificationStatus.READ);
         notificationsFacade.edit(notification);
     }
 
+    @Override
     public void deleteNotification(Notifications notification) {
         notificationsFacade.remove(notification);
     }
 
+    @Override
     public void deleteAllNotifications(Users user) {
-        List<Notifications> notifications = notificationsFacade.findAll();
-        for (Notifications notification : notifications) {
-            if (notification.getUser().equals(user)) {
-                notificationsFacade.remove(notification);
-            }
-        }
+        notificationsFacade.findUnreadByUser(user).forEach(notificationsFacade::remove);
     }
 
+    @Override
     public void updateNotification(Notifications notification) {
         notificationsFacade.edit(notification);
     }

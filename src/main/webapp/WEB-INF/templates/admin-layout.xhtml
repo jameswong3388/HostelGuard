@@ -35,7 +35,7 @@
         <!-- Right: Icons or Profile -->
         <h:form>
             <div class="flex items-center space-x-4">
-                <p:button icon="pi pi-bell" styleClass="p-button-text text-gray-700"/>
+                <p:button icon="pi pi-bell" styleClass="p-button-text text-gray-700" outcome="/admin/notifications"/>
 
                 <div class="relative">
                     <p:commandButton id="profileBtn"
@@ -51,7 +51,8 @@
                         <p:menuitem value="Settings" outcome="/admin/settings/general" icon="pi pi-cog"/>
                         <p:menuitem value="Media Mangement" outcome="/admin/media" icon="pi pi-file"/>
                         <p:separator/>
-                        <p:menuitem value="Sign Out" icon="pi pi-sign-out" action="#{signOutController.signOut()}" ajax="false"/>
+                        <p:menuitem value="Sign Out" icon="pi pi-sign-out" action="#{signOutController.signOut()}"
+                                    ajax="false"/>
                     </p:menu>
                 </div>
             </div>
@@ -59,7 +60,7 @@
     </header>
 
     <!-- Messages -->
-    <p:growl id="messages" showDetail="true" />
+    <p:growl id="messages" showDetail="true"/>
 
     <!-- Idle Monitor Form -->
     <h:form id="globalForm">
@@ -154,11 +155,21 @@
     <nav class="flex items-center space-x-8 px-12 py-2 bg-white border-b">
         <ui:insert name="navigation">
             <h:link outcome="/admin/dashboard.xhtml"
-                    styleClass="py-2 text-gray-500 hover:text-gray-700 focus:outline-none">Dashboard</h:link>
+                    styleClass="py-2 text-gray-500 hover:text-gray-700 focus:outline-none">
+                Dashboard
+            </h:link>
             <h:link outcome="/admin/users.xhtml"
-                    styleClass="py-2 text-gray-500 hover:text-gray-700 focus:outline-none">Users</h:link>
+                    styleClass="py-2 text-gray-500 hover:text-gray-700 focus:outline-none">
+                Users
+            </h:link>
             <h:link outcome="/admin/requests.xhtml"
-                    styleClass="py-2 text-gray-500 hover:text-gray-700 focus:outline-none">Requests</h:link>
+                    styleClass="py-2 text-gray-500 hover:text-gray-700 focus:outline-none">
+                Visit Requests
+            </h:link>
+            <h:link outcome="/admin/visitor-records.xhtml"
+                    styleClass="py-2 text-gray-500 hover:text-gray-700 focus:outline-none">
+                Visitor Records
+            </h:link>
         </ui:insert>
     </nav>
 

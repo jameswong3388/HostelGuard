@@ -35,7 +35,7 @@
         <!-- Right: Icons or Profile -->
         <h:form>
             <div class="flex items-center space-x-4">
-                <p:button icon="pi pi-bell" styleClass="p-button-text text-gray-700"/>
+                <p:button icon="pi pi-bell" styleClass="p-button-text text-gray-700" outcome="/resident/notifications"/>
 
                 <div class="relative">
                     <p:commandButton id="profileBtn"
@@ -50,7 +50,8 @@
                             at="left bottom">
                         <p:menuitem value="Settings" outcome="/resident/settings/general" icon="pi pi-cog"/>
                         <p:separator/>
-                        <p:menuitem value="Sign Out" icon="pi pi-sign-out" action="#{signOutController.signOut}" ajax="false"/>
+                        <p:menuitem value="Sign Out" icon="pi pi-sign-out" action="#{signOutController.signOut}"
+                                    ajax="false"/>
                     </p:menu>
                 </div>
             </div>
@@ -58,7 +59,7 @@
     </header>
 
     <!-- Messages -->
-    <p:growl id="messages" showDetail="true" />
+    <p:growl id="messages" showDetail="true"/>
 
     <!-- Idle Monitor Form -->
     <h:form id="globalForm">

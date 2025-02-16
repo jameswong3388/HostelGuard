@@ -151,7 +151,7 @@ CREATE TABLE user_sessions
 
 CREATE TABLE notifications
 (
-    id                  CHAR(36) PRIMARY KEY,
+    id                  INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     user_id             INT UNSIGNED NOT NULL,
     type                VARCHAR(50)  NOT NULL,
     title               VARCHAR(255) NOT NULL,
@@ -159,8 +159,9 @@ CREATE TABLE notifications
     status              ENUM ('UNREAD', 'READ') DEFAULT 'UNREAD',
     related_entity_type VARCHAR(50),
     related_entity_id   CHAR(36),
-    created_at          TIMESTAMP               DEFAULT CURRENT_TIMESTAMP,
     read_at             TIMESTAMP    NULL,
+    created_at          TIMESTAMP               DEFAULT CURRENT_TIMESTAMP,
+    updated_at          TIMESTAMP    NULL       DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
     CHECK (type IN ('VISIT_APPROVAL', 'SECURITY_ALERT', 'SYSTEM_UPDATE', 'VISIT_REMINDER', 'ENTRY_EXIT'))
 );

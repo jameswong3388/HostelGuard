@@ -35,7 +35,7 @@
         <!-- Right: Icons or Profile -->
         <h:form>
             <div class="flex items-center space-x-4">
-                <p:button icon="pi pi-bell" styleClass="p-button-text text-gray-700"/>
+                <p:button icon="pi pi-bell" styleClass="p-button-text text-gray-700" outcome="/security/notifications"/>
 
                 <div class="relative">
                     <p:commandButton id="profileBtn"
@@ -59,7 +59,7 @@
     </header>
 
     <!-- Messages -->
-    <p:growl id="messages" showDetail="true" />
+    <p:growl id="messages" showDetail="true"/>
 
     <!-- Idle Monitor Form -->
     <h:form id="globalForm">
