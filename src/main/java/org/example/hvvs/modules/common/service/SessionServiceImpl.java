@@ -143,9 +143,9 @@ public class SessionServiceImpl implements SessionService {
     @Override
     public String parseLocationFromIp(String ipAddress) {
         // Check for localhost IP addresses
-        if (ipAddress.equals("127.0.0.1") || ipAddress.equals("0:0:0:0:0:0:0:1") || ipAddress.equals("localhost")) {
-            return "Kuala Lumpur, Kuala Lumpur, Malaysia";
-        }
+         if (ipAddress.equals("127.0.0.1") || ipAddress.equals("0:0:0:0:0:0:0:1") || ipAddress.equals("localhost")) {
+             return "Kuala Lumpur, Kuala Lumpur, Malaysia";
+         }
 
         // For other IPs, use GeoIP service
         try {

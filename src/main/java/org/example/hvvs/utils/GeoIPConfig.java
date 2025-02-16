@@ -5,10 +5,10 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Produces;
 import jakarta.inject.Inject;
 import jakarta.servlet.ServletContext;
-import org.example.hvvs.modules.common.service.GeoLocationServiceImpl;
 
 import java.io.File;
 import java.io.IOException;
+import jakarta.annotation.PostConstruct;
 
 @ApplicationScoped
 public class GeoIPConfig {
@@ -16,12 +16,21 @@ public class GeoIPConfig {
     @Inject
     private ServletContext servletContext;
     
+    private DatabaseReader databaseReader;
+
+    @PostConstruct
+    public void init() {
+        try {
+            String path = servletContext.getRealPath("/WEB-INF/GeoLite2-City.mmdb");
+            File database = new File(path);
+            this.databaseReader = new DatabaseReader.Builder(database).build();
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to initialize GeoIP database", e);
+        }
+    }
+
     @Produces
-    @ApplicationScoped
-    public GeoLocationServiceImpl createGeoLocationService() throws IOException {
-        String path = servletContext.getRealPath("/WEB-INF/GeoLite2-City.mmdb");
-        File database = new File(path);
-        DatabaseReader reader = new DatabaseReader.Builder(database).build();
-        return new GeoLocationServiceImpl(reader);
+    public DatabaseReader createDatabaseReader() {
+        return databaseReader;
     }
 }

@@ -4,21 +4,16 @@ import com.maxmind.geoip2.DatabaseReader;
 import com.maxmind.geoip2.exception.GeoIp2Exception;
 import com.maxmind.geoip2.model.CityResponse;
 import jakarta.ejb.Stateless;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 
 import java.io.IOException;
 import java.net.InetAddress;
 
 @Stateless
 public class GeoLocationServiceImpl implements GeoLocationService {
+    @Inject
     private DatabaseReader dbReader;
-
-    // No-args constructor for CDI proxying
-    GeoLocationServiceImpl() {
-    }
-
-    public GeoLocationServiceImpl(DatabaseReader dbReader) {
-        this.dbReader = dbReader;
-    }
 
     public String getLocation(String ipAddress) throws IOException, GeoIp2Exception {
         InetAddress ip = InetAddress.getByName(ipAddress);
