@@ -3,14 +3,12 @@ package org.example.hvvs.modules.common.service;
 import com.maxmind.geoip2.exception.GeoIp2Exception;
 import eu.bitwalker.useragentutils.UserAgent;
 import jakarta.annotation.Resource;
-import jakarta.ejb.Asynchronous;
-import jakarta.ejb.EJB;
+import jakarta.ejb.*;
 import jakarta.enterprise.concurrent.ManagedExecutorService;
 import org.example.hvvs.model.UserSessions;
 import org.example.hvvs.model.UserSessionsFacade;
 import org.example.hvvs.model.Users;
 import org.example.hvvs.model.UsersFacade;
-import jakarta.ejb.Stateless;
 import jakarta.transaction.Transactional;
 import org.example.hvvs.utils.SessionCacheManager;
 
@@ -65,23 +63,7 @@ public class SessionServiceImpl implements SessionService {
             usersFacade.edit(user);
 
             // Async updates for geolocation only
-            executorService.submit(() -> {
-                UserSessions freshSession = userSessionsFacade.find(session.getSession_id());
-                if (freshSession != null) {
-                    try {
-                        String location = parseLocationFromIp(ipAddress);
-                        String[] locParts = location.split(", ");
-                        freshSession.setCity(locParts[0]);
-                        freshSession.setRegion(locParts[1]);
-                        freshSession.setCountry(locParts[2]);
-                    } catch (Exception e) {
-                        freshSession.setCity("Unknown");
-                        freshSession.setRegion("Unknown");
-                        freshSession.setCountry("Unknown");
-                    }
-                    userSessionsFacade.edit(freshSession);
-                }
-            });
+            updateGeoLocationAsync(session.getSession_id(), ipAddress);
 
             return session;
         } catch (Exception e) {
@@ -170,6 +152,24 @@ public class SessionServiceImpl implements SessionService {
             return geoLocationService.getLocation(ipAddress); // Returns "City, Region, Country"
         } catch (IOException | GeoIp2Exception e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    @Asynchronous
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+    public void updateGeoLocationAsync(UUID sessionId, String ipAddress) {
+        try {
+            UserSessions freshSession = userSessionsFacade.find(sessionId);
+            if (freshSession != null) {
+                String location = parseLocationFromIp(ipAddress);
+                String[] locParts = location.split(", ");
+                freshSession.setCity(locParts[0]);
+                freshSession.setRegion(locParts[1]);
+                freshSession.setCountry(locParts[2]);
+                userSessionsFacade.edit(freshSession);
+            }
+        } catch (Exception e) {
+            // Handle exception
         }
     }
 }
