@@ -110,8 +110,9 @@ mail.smtp.starttls.enable=false
 
 Access via: `https://your-domain:8443/HVVS-1.0-SNAPSHOT/`
 
-| Role              | Default Landing Page       |
-|-------------------|-----------------------------|
-| Resident          | /resident/requests.xhtml    |
-| Security Staff    | /security/onboard-visitors.xhtml |
-| Admin             | /admin/dashboard.xhtml      |
+| Role           | Default Landing Page             |
+|----------------|----------------------------------|
+| Resident       | /resident/requests.xhtml         |
+| Security Staff | /security/onboard-visitors.xhtml |
+| Admin          | /admin/dashboard.xhtml           |
+| Super Admin    | /god/users.xhtml                 |
