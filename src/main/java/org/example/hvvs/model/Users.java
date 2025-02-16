@@ -5,7 +5,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.NamedQueries;
 import jakarta.persistence.Table;
 import jakarta.persistence.NamedQuery;
-import org.example.hvvs.commonClasses.BaseEntity;
 
 import java.sql.Timestamp;
 

@@ -1,7 +1,7 @@
 package org.example.hvvs.model;
 
 import jakarta.persistence.*;
-import org.example.hvvs.commonClasses.BaseEntity;
+
 import java.sql.Timestamp;
 
 @Entity

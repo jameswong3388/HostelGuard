@@ -2,11 +2,10 @@ package org.example.hvvs.modules.security.service;
 
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
-import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
-import org.example.hvvs.commonClasses.CustomPart;
+import org.example.hvvs.utils.CustomPart;
 import org.example.hvvs.model.Medias;
 import org.example.hvvs.model.VisitRequests;
 import org.example.hvvs.model.VisitorRecords;

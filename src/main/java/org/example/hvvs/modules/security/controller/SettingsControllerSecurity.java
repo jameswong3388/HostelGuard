@@ -10,7 +10,7 @@ import jakarta.inject.Named;
 import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
 import jakarta.ejb.EJB;
-import org.example.hvvs.commonClasses.CustomPart;
+import org.example.hvvs.utils.CustomPart;
 import org.example.hvvs.model.*;
 import org.example.hvvs.modules.auth.service.AuthServices;
 import org.example.hvvs.modules.common.service.MediaService;
