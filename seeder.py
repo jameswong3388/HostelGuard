@@ -375,7 +375,7 @@ def main():
         super_admin_data = (
             username, salt, password, email, first_name, last_name,
             phone_number, identity_number, address, gender, 'SUPER_ADMIN',
-            is_mfa_enable, True  # is_active set to True
+            is_mfa_enable, False 
         )
         cursor.execute(add_user, super_admin_data)
         super_admin_id = cursor.lastrowid
