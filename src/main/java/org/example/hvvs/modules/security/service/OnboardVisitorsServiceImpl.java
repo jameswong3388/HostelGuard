@@ -45,7 +45,7 @@ public class OnboardVisitorsServiceImpl implements OnboardVisitorsService {
 
         try {
             VisitRequests request = query.getSingleResult();
-            request.setStatus("PROGRESS");
+            request.setStatus(VisitRequests.VisitStatus.PROGRESS);
             entityManager.merge(request);
             return request;
         } catch (Exception e) {
@@ -77,7 +77,7 @@ public class OnboardVisitorsServiceImpl implements OnboardVisitorsService {
 
             // Update visit request status
             VisitRequests request = visitorRecord.getRequestId();
-            request.setStatus("PROGRESS");
+            request.setStatus(VisitRequests.VisitStatus.PROGRESS);
             entityManager.merge(request);
 
             // send notification to the resident 
@@ -126,7 +126,7 @@ public class OnboardVisitorsServiceImpl implements OnboardVisitorsService {
                 .getSingleResult();
 
         if (remainingVisitors == 0) {
-            request.setStatus("COMPLETED");
+            request.setStatus(VisitRequests.VisitStatus.COMPLETED);
             entityManager.merge(request);
 
             // send notification to the resident 

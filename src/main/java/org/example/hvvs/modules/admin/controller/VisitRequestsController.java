@@ -4,6 +4,7 @@ import jakarta.annotation.PostConstruct;
 import jakarta.ejb.EJB;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
+import jakarta.faces.model.SelectItem;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Named;
 import jakarta.transaction.Transactional;
@@ -18,8 +19,10 @@ import org.primefaces.model.FilterMeta;
 import java.io.Serializable;
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Named("VisitRequestsControllerAdmin")
 @ViewScoped
@@ -123,7 +126,7 @@ public class VisitRequestsController implements Serializable {
         return request.getVerificationCode().toLowerCase().contains(filterText)
                 || request.getUnitNumber().toLowerCase().contains(filterText)
                 || request.getPurpose().toLowerCase().contains(filterText)
-                || request.getStatus().toLowerCase().contains(filterText)
+                || request.getStatus().toString().contains(filterText)
                 || request.getRemarks().toLowerCase().contains(filterText);
     }
 
@@ -147,11 +150,12 @@ public class VisitRequestsController implements Serializable {
         try {
             // Get original state before changes
             VisitRequests original = visitRequestsFacade.find(editingRequest.getId());
+            VisitRequests.VisitStatus originalStatus = original.getStatus(); // Capture status before changes
 
             editingRequest.setUpdatedAt(Timestamp.from(Instant.now()));
             visitRequestsFacade.edit(editingRequest);
 
-            if (original.getStatus().equals(editingRequest.getStatus())) {
+            if (!originalStatus.equals(editingRequest.getStatus())) {
                 notificationService.createNotification(
                         editingRequest.getUserId(),
                         Notifications.NotificationType.SYSTEM_UPDATE,

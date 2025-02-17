@@ -286,12 +286,13 @@
                     <div class="field mb-4">
                         <p:outputLabel for="editStatus" value="Status" styleClass="block mb-1"/>
                         <p:selectBooleanButton id="editStatus"
-                                               styleClass="w-full"
-                                               value="#{usersController.editingUser.isActive}"
-                                               onLabel="Active"
-                                               offLabel="Inactive"
-                                               onIcon="pi pi-check"
-                                               offIcon="pi pi-times"/>
+                                         styleClass="w-full"
+                                         value="#{usersController.editingUser.isActive}">
+                            <f:attribute name="onLabel" value="Active"/>
+                            <f:attribute name="offLabel" value="Inactive"/>
+                            <f:attribute name="onIcon" value="pi pi-check"/>
+                            <f:attribute name="offIcon" value="pi pi-times"/>
+                        </p:selectBooleanButton>
                     </div>
 
                     <!-- Action Buttons -->
@@ -388,106 +389,44 @@
                 <p:column selectionMode="multiple" selectionBox="true" style="width: 12px;"/>
 
                 <!-- UserId -->
-                <p:column headerText="User ID" sortBy="#{users.id}" style="width: 100px;">
-                    <p:cellEditor>
-                        <f:facet name="output">
-                            <h:outputText value="#{users.id}"/>
-                        </f:facet>
-                        <f:facet name="input">
-                            <p:inputText value="#{users.id}"/>
-                        </f:facet>
-                    </p:cellEditor>
+                <p:column headerText="ID" sortBy="#{users.id}" style="width: 50px;">
+                    <h:outputText value="#{users.id}"/>
                 </p:column>
                  
                 <!-- Username -->
                 <p:column headerText="Username" sortBy="#{users.username}" style="width: 150px;">
-                    <p:cellEditor>
-                        <f:facet name="output">
-                            <h:outputText value="#{users.username}"/>
-                        </f:facet>
-                        <f:facet name="input">
-                            <p:inputText value="#{users.username}"/>
-                        </f:facet>
-                    </p:cellEditor>
+                    <h:outputText value="#{users.username}"/>
                 </p:column>
 
                 <!-- Email -->
                 <p:column headerText="Email" sortBy="#{users.email}" style="width: 200px;">
-                    <p:cellEditor>
-                        <f:facet name="output">
-                            <h:outputText value="#{users.email}"/>
-                        </f:facet>
-                        <f:facet name="input">
-                            <p:inputText value="#{users.email}"/>
-                        </f:facet>
-                    </p:cellEditor>
+                    <h:outputText value="#{users.email}"/>
                 </p:column>
 
                 <!-- First Name -->
                 <p:column headerText="First Name" sortBy="#{users.firstName}" style="width: 150px;">
-                    <p:cellEditor>
-                        <f:facet name="output">
-                            <h:outputText value="#{users.firstName}"/>
-                        </f:facet>
-                        <f:facet name="input">
-                            <p:inputText value="#{users.firstName}"/>
-                        </f:facet>
-                    </p:cellEditor>
+                    <h:outputText value="#{users.firstName}"/>
                 </p:column>
 
                 <!-- Last Name -->
                 <p:column headerText="Last Name" sortBy="#{users.lastName}" style="width: 150px;">
-                    <p:cellEditor>
-                        <f:facet name="output">
-                            <h:outputText value="#{users.lastName}"/>
-                        </f:facet>
-                        <f:facet name="input">
-                            <p:inputText value="#{users.lastName}"/>
-                        </f:facet>
-                    </p:cellEditor>
+                    <h:outputText value="#{users.lastName}"/>
                 </p:column>
 
                 <!-- Phone Number -->
                 <p:column headerText="Phone Number" sortBy="#{users.phoneNumber}" style="width: 150px;">
-                    <p:cellEditor>
-                        <f:facet name="output">
-                            <h:outputText value="#{users.phoneNumber}"/>
-                        </f:facet>
-                        <f:facet name="input">
-                            <p:inputText value="#{users.phoneNumber}"/>
-                        </f:facet>
-                    </p:cellEditor>
+                    <h:outputText value="#{users.phoneNumber}"/>
                 </p:column>
 
                 <!-- Role -->
                 <p:column headerText="Role" sortBy="#{users.role}" style="width: 150px;">
-                    <p:cellEditor>
-                        <f:facet name="output">
-                            <h:outputText value="#{users.role}"/>
-                        </f:facet>
-                        <f:facet name="input">
-                            <p:selectOneMenu value="#{users.role}">
-                                <f:selectItem itemLabel="Resident" itemValue="RESIDENT"/>
-                            </p:selectOneMenu>
-                        </f:facet>
-                    </p:cellEditor>
+                    <h:outputText value="#{users.role}"/>
                 </p:column>
 
                 <!-- Active Status -->
                 <p:column headerText="Status" sortBy="#{users.isActive}" style="width: 120px;">
-                    <p:cellEditor>
-                        <f:facet name="output">
-                            <p:tag severity="#{users.isActive ? 'success' : 'warning'}"
-                                   value="#{users.isActive ? 'Active' : 'Inactive'}"/>
-                        </f:facet>
-                        <f:facet name="input">
-                            <p:selectBooleanButton value="#{users.isActive}"
-                                                   onLabel="Active"
-                                                   offLabel="Inactive"
-                                                   onIcon="pi pi-check"
-                                                   offIcon="pi pi-times"/>
-                        </f:facet>
-                    </p:cellEditor>
+                    <p:tag severity="#{users.isActive ? 'success' : 'warning'}"
+                           value="#{users.isActive ? 'Active' : 'Inactive'}"/>
                 </p:column>
 
                 <!-- Updated At -->

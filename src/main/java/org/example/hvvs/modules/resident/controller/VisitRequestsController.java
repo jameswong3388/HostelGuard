@@ -47,7 +47,7 @@ public class VisitRequestsController implements Serializable {
         VisitRequests request = (VisitRequests) value;
         return request.getVerificationCode().toLowerCase().contains(filterText)
                 || request.getPurpose().toLowerCase().contains(filterText)
-                || request.getStatus().toLowerCase().contains(filterText)
+                || request.getStatus().toString().contains(filterText)
                 || request.getRemarks().toLowerCase().contains(filterText);
     }
 
@@ -57,7 +57,7 @@ public class VisitRequestsController implements Serializable {
         // Prepare the 'newRequest' object for the dialog
         this.newRequest = new VisitRequests();
         String verificationCode = UUID.randomUUID().toString();
-        newRequest.setStatus("PENDING");
+        newRequest.setStatus(VisitRequests.VisitStatus.PENDING);
         newRequest.setRemarks("Awaiting approval");
         newRequest.setVerificationCode(verificationCode);
 
@@ -163,7 +163,7 @@ public class VisitRequestsController implements Serializable {
             newRequest = new VisitRequests();
             String verificationCode = UUID.randomUUID().toString();
             newRequest.setVerificationCode(verificationCode);
-            newRequest.setStatus("PENDING");
+            newRequest.setStatus(VisitRequests.VisitStatus.PENDING);
             newRequest.setRemarks("Awaiting approval");
 
             // Refresh the table
@@ -183,7 +183,7 @@ public class VisitRequestsController implements Serializable {
     public String revokeRequest() {
         try {
             // Use the editingRequest field instead of a passed parameter
-            editingRequest.setStatus("CANCELLED");
+            editingRequest.setStatus(VisitRequests.VisitStatus.CANCELLED);
             editingRequest.setRemarks("CANCELLED");
             editingRequest.setUpdatedAt(Timestamp.from(Instant.now()));
 

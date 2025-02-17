@@ -168,6 +168,11 @@
                 <!-- Multi-select checkbox column -->
                 <p:column selectionMode="multiple" selectionBox="true" style="width: 12px;"/>
 
+                <!--  Request ID  -->
+                <p:column headerText="ID" sortBy="#{req.id}" style="width: 50px;">
+                    <h:outputText value="#{req.id}"/>
+                </p:column>
+
                 <!-- Verification Code column -->
                 <p:column headerText="Verification Code" sortBy="#{req.verificationCode}" style="width: 325px;">
                     <h:outputText value="#{req.verificationCode}"/>
@@ -181,7 +186,7 @@
                 </p:column>
 
                 <!-- Number of Entries column -->
-                <p:column headerText="Number of Entries" sortBy="#{req.numberOfEntries}" style="width: 120px;">
+                <p:column headerText="Entries" sortBy="#{req.numberOfEntries}" style="width: 120px;">
                     <h:outputText value="#{req.numberOfEntries}"/>
                 </p:column>
 

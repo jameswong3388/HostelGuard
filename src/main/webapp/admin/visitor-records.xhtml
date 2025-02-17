@@ -85,92 +85,47 @@
                 </p:column>
 
                 <!-- Request ID -->
+                <p:column headerText="Request ID" sortBy="#{record.requestId.id}" style="width: 120px;">
+                    <h:outputText value="#{record.requestId.id}"/>
+                </p:column>
+
+                <!-- Request Unit Number -->
                 <p:column headerText="Unit Number" sortBy="#{record.requestId.unitNumber}" style="width: 120px;">
                     <h:outputText value="#{record.requestId.unitNumber}"/>
                 </p:column>
                 
                 <!-- Visitor Name -->
                 <p:column headerText="Visitor Name" sortBy="#{record.visitorName}" style="width: 150px;">
-                    <p:cellEditor>
-                        <f:facet name="output">
-                            <h:outputText value="#{record.visitorName}"/>
-                        </f:facet>
-                        <f:facet name="input">
-                            <p:inputText value="#{record.visitorName}"/>
-                        </f:facet>
-                    </p:cellEditor>
+                    <h:outputText value="#{record.visitorName}"/>
                 </p:column>
 
                 <!-- Visitor IC -->
                 <p:column headerText="Visitor IC" sortBy="#{record.visitorIc}" style="width: 150px;">
-                    <p:cellEditor>
-                        <f:facet name="output">
-                            <h:outputText value="#{record.visitorIc}"/>
-                        </f:facet>
-                        <f:facet name="input">
-                            <p:inputText value="#{record.visitorIc}"/>
-                        </f:facet>
-                    </p:cellEditor>
+                    <h:outputText value="#{record.visitorIc}"/>
                 </p:column>
 
                 <!-- Visitor Phone -->
                 <p:column headerText="Visitor Phone" sortBy="#{record.visitorPhone}" style="width: 150px;">
-                    <p:cellEditor>
-                        <f:facet name="output">
-                            <h:outputText value="#{record.visitorPhone}"/>
-                        </f:facet>
-                        <f:facet name="input">
-                            <p:inputText value="#{record.visitorPhone}"/>
-                        </f:facet>
-                    </p:cellEditor>
+                    <h:outputText value="#{record.visitorPhone}"/>
                 </p:column>
 
                 <!-- Check In Time -->
                 <p:column headerText="Check In Time" sortBy="#{record.checkInTime}" style="width: 150px;">
-                    <p:cellEditor>
-                        <f:facet name="output">
-                            <h:outputText value="#{record.checkInTime}">
-                                <f:convertDateTime pattern="MM/dd/yy HH:mm"/>
-                            </h:outputText>
-                        </f:facet>
-                        <f:facet name="input">
-                            <p:datePicker value="#{record.checkInTime}"
-                                         pattern="MM/dd/yy HH:mm"
-                                         showTime="true"
-                                         showIcon="true"
-                                         converter="timestampConverter"/>
-                        </f:facet>
-                    </p:cellEditor>
+                    <h:outputText value="#{record.checkInTime}">
+                        <f:convertDateTime pattern="MM/dd/yy HH:mm"/>
+                    </h:outputText>
                 </p:column>
 
                 <!-- Check Out Time -->
                 <p:column headerText="Check Out Time" sortBy="#{record.checkOutTime}" style="width: 150px;">
-                    <p:cellEditor>
-                        <f:facet name="output">
-                            <h:outputText value="#{record.checkOutTime}">
-                                <f:convertDateTime pattern="MM/dd/yy HH:mm"/>
-                            </h:outputText>
-                        </f:facet>
-                        <f:facet name="input">
-                            <p:datePicker value="#{record.checkOutTime}"
-                                         pattern="MM/dd/yy HH:mm"
-                                         showTime="true"
-                                         showIcon="true"
-                                         converter="timestampConverter"/>
-                        </f:facet>
-                    </p:cellEditor>
+                    <h:outputText value="#{record.checkOutTime}">
+                        <f:convertDateTime pattern="MM/dd/yy HH:mm"/>
+                    </h:outputText>
                 </p:column>
 
                 <!-- Remarks -->
                 <p:column headerText="Remarks" sortBy="#{record.remarks}" style="width: 200px;">
-                    <p:cellEditor>
-                        <f:facet name="output">
-                            <h:outputText value="#{record.remarks}"/>
-                        </f:facet>
-                        <f:facet name="input">
-                            <p:inputTextarea value="#{record.remarks}" rows="2"/>
-                        </f:facet>
-                    </p:cellEditor>
+                    <h:outputText value="#{record.remarks}"/>
                 </p:column>
 
                 <!-- Updated At -->

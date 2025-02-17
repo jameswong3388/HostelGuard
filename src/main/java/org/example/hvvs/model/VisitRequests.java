@@ -9,7 +9,8 @@ import java.sql.Timestamp;
 @NamedQueries({
         @NamedQuery(name = "VisitRequest.findAll", query = "SELECT v FROM VisitRequests v"),
         @NamedQuery(name = "VisitRequest.findByUserId", query = "SELECT v FROM VisitRequests v WHERE v.user_id = :user_id"),
-        @NamedQuery(name = "VisitRequest.findByVisitDate", query = "SELECT v FROM VisitRequests v WHERE v.visit_datetime = :visit_date")
+        @NamedQuery(name = "VisitRequest.findByVisitDate", query = "SELECT v FROM VisitRequests v WHERE v.visit_datetime = :visit_date"),
+        @NamedQuery(name = "VisitRequest.findByStatus", query = "SELECT v FROM VisitRequests v WHERE v.status = :status")
 })
 public class VisitRequests extends BaseEntity {
     @OneToOne
@@ -25,8 +26,9 @@ public class VisitRequests extends BaseEntity {
     @Column(name = "purpose", nullable = false)
     private String purpose;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
-    private String status;
+    private VisitStatus status;
 
     @Column(name = "remarks")
     private String remarks;
@@ -47,7 +49,7 @@ public class VisitRequests extends BaseEntity {
         super();
     }
 
-    public VisitRequests(Users user_id, String verification_code, Timestamp visit_datetime, String purpose, String status,
+    public VisitRequests(Users user_id, String verification_code, Timestamp visit_datetime, String purpose, VisitStatus status,
                          String remarks, String unit_number, int number_of_entries, Timestamp created_at, Timestamp updated_at) {
         this.user_id = user_id;
         this.verification_code = verification_code;
@@ -59,6 +61,10 @@ public class VisitRequests extends BaseEntity {
         this.number_of_entries = number_of_entries;
         this.created_at = created_at;
         this.updated_at = updated_at;
+    }
+
+    public enum VisitStatus {
+        PENDING, APPROVED, REJECTED, COMPLETED, PROGRESS, CANCELLED
     }
 
     public Users getUserId() {
@@ -77,7 +83,7 @@ public class VisitRequests extends BaseEntity {
         return purpose;
     }
 
-    public String getStatus() {
+    public VisitStatus getStatus() {
         return status;
     }
 
@@ -125,7 +131,7 @@ public class VisitRequests extends BaseEntity {
         this.updated_at = updated_at;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(VisitStatus status) {
         this.status = status;
     }
 
