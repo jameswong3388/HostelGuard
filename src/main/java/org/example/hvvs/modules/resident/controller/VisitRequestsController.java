@@ -22,7 +22,7 @@ import java.util.Map;
 
 @Named("visitRequestsControllerResident")
 @SessionScoped
-public class VisitRequestController implements Serializable {
+public class VisitRequestsController implements Serializable {
     @EJB
     private ResidentProfilesFacade residentProfilesFacade;
 
