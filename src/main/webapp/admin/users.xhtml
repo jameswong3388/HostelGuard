@@ -286,8 +286,8 @@
                     <div class="field mb-4">
                         <p:outputLabel for="editStatus" value="Status" styleClass="block mb-1"/>
                         <p:selectBooleanButton id="editStatus"
-                                         styleClass="w-full"
-                                         value="#{usersController.editingUser.isActive}">
+                                               styleClass="w-full"
+                                               value="#{usersController.editingUser.isActive}">
                             <f:attribute name="onLabel" value="Active"/>
                             <f:attribute name="offLabel" value="Inactive"/>
                             <f:attribute name="onIcon" value="pi pi-check"/>
@@ -371,6 +371,8 @@
                          filteredValue="#{usersController.filteredUsers}"
                          globalFilterFunction="#{usersController.globalFilterFunction}"
                          filter="#{usersController.globalFilter}"
+                         currentPageReportTemplate="Showing {first} to {last} of {totalRecords} notifications"
+                         rowsPerPageTemplate="10,20,50"
             >
 
                 <!-- Global search bar in the header facet -->
@@ -392,7 +394,7 @@
                 <p:column headerText="ID" sortBy="#{users.id}" style="width: 50px;">
                     <h:outputText value="#{users.id}"/>
                 </p:column>
-                 
+
                 <!-- Username -->
                 <p:column headerText="Username" sortBy="#{users.username}" style="width: 150px;">
                     <h:outputText value="#{users.username}"/>

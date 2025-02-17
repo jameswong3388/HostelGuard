@@ -10,10 +10,14 @@
     <ui:define name="title">Visitor Records - HostelGuard™</ui:define>
 
     <ui:define name="navigation">
-        <h:link outcome="/admin/dashboard.xhtml" styleClass="py-2 text-gray-500 hover:text-gray-700 focus:outline-none">Dashboard</h:link>
-        <h:link outcome="/admin/users.xhtml" styleClass="py-2 text-gray-500 hover:text-gray-700 focus:outline-none">Users</h:link>
-        <h:link outcome="/admin/requests.xhtml" styleClass="py-2 text-gray-500 hover:text-gray-700 focus:outline-none">Visit Requests</h:link>
-        <h:link outcome="/admin/visitor-records.xhtml" styleClass="py-2 text-blue-600 font-medium focus:outline-none">Visitor Records</h:link>
+        <h:link outcome="/admin/dashboard.xhtml"
+                styleClass="py-2 text-gray-500 hover:text-gray-700 focus:outline-none">Dashboard</h:link>
+        <h:link outcome="/admin/users.xhtml"
+                styleClass="py-2 text-gray-500 hover:text-gray-700 focus:outline-none">Users</h:link>
+        <h:link outcome="/admin/requests.xhtml"
+                styleClass="py-2 text-gray-500 hover:text-gray-700 focus:outline-none">Visit Requests</h:link>
+        <h:link outcome="/admin/visitor-records.xhtml"
+                styleClass="py-2 text-blue-600 font-medium focus:outline-none">Visitor Records</h:link>
     </ui:define>
 
     <ui:define name="content">
@@ -22,46 +26,49 @@
             <p:toolbar>
                 <p:toolbarGroup>
                     <p:commandButton id="delete-records-button"
-                                   value="#{visitorRecordController.deleteSelectedButtonLabel}"
-                                   icon="pi pi-trash"
-                                   actionListener="#{visitorRecordController.deleteSelectedRecords}"
-                                   styleClass="ui-button-danger"
-                                   disabled="#{empty visitorRecordController.selectedRecords}"
-                                   update="@this :recordsTableForm:recordsTable :messages"
-                                   style="margin-right: .5rem">
+                                     value="#{visitorRecordController.deleteSelectedButtonLabel}"
+                                     icon="pi pi-trash"
+                                     actionListener="#{visitorRecordController.deleteSelectedRecords}"
+                                     styleClass="ui-button-danger"
+                                     disabled="#{empty visitorRecordController.selectedRecords}"
+                                     update="@this :recordsTableForm:recordsTable :messages"
+                                     style="margin-right: .5rem">
                         <p:confirm header="Confirmation"
-                                 message="Delete the selected records?"
-                                 icon="pi pi-exclamation-triangle"/>
+                                   message="Delete the selected records?"
+                                   icon="pi pi-exclamation-triangle"/>
                     </p:commandButton>
 
                     <p:commandButton id="clearSelectionButton"
-                                   value="Clear Selection"
-                                   icon="pi pi-times"
-                                   styleClass="ui-button-secondary"
-                                   actionListener="#{visitorRecordController.clearSelection}"
-                                   process="@form"
-                                   update="@form :messages"
-                                   disabled="#{empty visitorRecordController.selectedRecords}"
-                                   style="margin-right: .5rem"/>
+                                     value="Clear Selection"
+                                     icon="pi pi-times"
+                                     styleClass="ui-button-secondary"
+                                     actionListener="#{visitorRecordController.clearSelection}"
+                                     process="@form"
+                                     update="@form :messages"
+                                     disabled="#{empty visitorRecordController.selectedRecords}"
+                                     style="margin-right: .5rem"/>
                 </p:toolbarGroup>
             </p:toolbar>
 
             <p:dataTable id="recordsTable"
-                        value="#{visitorRecordController.lazyRecordsModel}"
-                        lazy="true"
-                        var="record"
-                        widgetVar="recordsTable"
-                        rowKey="#{record.id}"
-                        paginator="true"
-                        rows="10"
-                        paginatorPosition="bottom"
-                        styleClass="w-full border rounded-md mt-2"
-                        selection="#{visitorRecordController.selectedRecords}"
-                        selectionRowMode="add"
-                        tableStyle="min-width: 1200px; table-layout: fixed;"
-                        filteredValue="#{visitorRecordController.filteredRecords}"
-                        globalFilterFunction="#{visitorRecordController.globalFilterFunction}"
-                        filter="#{visitorRecordController.globalFilter}">
+                         value="#{visitorRecordController.lazyRecordsModel}"
+                         lazy="true"
+                         var="record"
+                         widgetVar="recordsTable"
+                         rowKey="#{record.id}"
+                         paginator="true"
+                         rows="10"
+                         paginatorPosition="bottom"
+                         styleClass="w-full border rounded-md mt-2"
+                         selection="#{visitorRecordController.selectedRecords}"
+                         selectionRowMode="add"
+                         tableStyle="min-width: 1200px; table-layout: fixed;"
+                         filteredValue="#{visitorRecordController.filteredRecords}"
+                         globalFilterFunction="#{visitorRecordController.globalFilterFunction}"
+                         filter="#{visitorRecordController.globalFilter}"
+                         currentPageReportTemplate="Showing {first} to {last} of {totalRecords} notifications"
+                         rowsPerPageTemplate="10,20,50"
+            >
 
                 <!-- Selection column -->
                 <p:column selectionMode="multiple" selectionBox="true" style="width: 12px;"/>
@@ -72,15 +79,16 @@
                         <span class="filter-container ui-input-icon-left">
                             <i class="pi pi-search"></i>
                             <p:inputText id="globalFilter"
-                                       value="#{visitorRecordController.globalFilter}"
-                                       onkeyup="PF('recordsTable').filter()"
-                                       placeholder="Search all fields"/>
+                                         value="#{visitorRecordController.globalFilter}"
+                                         onkeyup="PF('recordsTable').filter()"
+                                         placeholder="Search all fields"/>
                         </span>
                     </div>
                 </f:facet>
 
                 <!-- Security Staff -->
-                <p:column headerText="Security Staff Username" sortBy="#{record.securityStaffId.username}" style="width: 150px;">
+                <p:column headerText="Security Staff Username" sortBy="#{record.securityStaffId.username}"
+                          style="width: 150px;">
                     <h:outputText value="#{record.securityStaffId.username}"/>
                 </p:column>
 
@@ -93,7 +101,7 @@
                 <p:column headerText="Unit Number" sortBy="#{record.requestId.unitNumber}" style="width: 120px;">
                     <h:outputText value="#{record.requestId.unitNumber}"/>
                 </p:column>
-                
+
                 <!-- Visitor Name -->
                 <p:column headerText="Visitor Name" sortBy="#{record.visitorName}" style="width: 150px;">
                     <h:outputText value="#{record.visitorName}"/>
@@ -131,30 +139,35 @@
                 <!-- Updated At -->
                 <p:column headerText="Updated At" sortBy="#{record.updatedAt}" style="width: 150px;">
                     <pe:timeAgo value="#{record.updatedAt}"
-                               titlePattern="MM/dd/yy HH:mm"/>
+                                titlePattern="MM/dd/yy HH:mm"/>
                 </p:column>
 
                 <!-- Created At -->
                 <p:column headerText="Created At" sortBy="#{record.createdAt}" style="width: 150px;">
                     <pe:timeAgo value="#{record.createdAt}"
-                               titlePattern="MM/dd/yy HH:mm"/>
+                                titlePattern="MM/dd/yy HH:mm"/>
                 </p:column>
 
                 <!-- Actions -->
                 <p:column headerText="Actions" style="width: 100px;">
                     <p:commandButton value="Edit"
-                                   icon="pi pi-pencil"
-                                   action="#{visitorRecordController.prepareEdit(record)}"
-                                   update=":editRecordForm"
-                                   oncomplete="PF('editRecordSidebar').show();"/>
+                                     icon="pi pi-pencil"
+                                     action="#{visitorRecordController.prepareEdit(record)}"
+                                     update=":editRecordForm"
+                                     oncomplete="PF('editRecordSidebar').show();"/>
                 </p:column>
 
                 <!-- Selection Events -->
-                <p:ajax event="rowSelect" update=":recordsTableForm:delete-records-button :recordsTableForm:clearSelectionButton"/>
-                <p:ajax event="rowUnselect" update=":recordsTableForm:delete-records-button :recordsTableForm:clearSelectionButton"/>
-                <p:ajax event="rowSelectCheckbox" update=":recordsTableForm:delete-records-button :recordsTableForm:clearSelectionButton"/>
-                <p:ajax event="rowUnselectCheckbox" update=":recordsTableForm:delete-records-button :recordsTableForm:clearSelectionButton"/>
-                <p:ajax event="toggleSelect" update=":recordsTableForm:delete-records-button :recordsTableForm:clearSelectionButton"/>
+                <p:ajax event="rowSelect"
+                        update=":recordsTableForm:delete-records-button :recordsTableForm:clearSelectionButton"/>
+                <p:ajax event="rowUnselect"
+                        update=":recordsTableForm:delete-records-button :recordsTableForm:clearSelectionButton"/>
+                <p:ajax event="rowSelectCheckbox"
+                        update=":recordsTableForm:delete-records-button :recordsTableForm:clearSelectionButton"/>
+                <p:ajax event="rowUnselectCheckbox"
+                        update=":recordsTableForm:delete-records-button :recordsTableForm:clearSelectionButton"/>
+                <p:ajax event="toggleSelect"
+                        update=":recordsTableForm:delete-records-button :recordsTableForm:clearSelectionButton"/>
 
             </p:dataTable>
 
@@ -167,9 +180,9 @@
 
         <!-- Sidebar for Editing a Visitor Record -->
         <p:sidebar id="editRecordSidebar"
-                  widgetVar="editRecordSidebar"
-                  position="right"
-                  style="width:600px;">
+                   widgetVar="editRecordSidebar"
+                   position="right"
+                   style="width:600px;">
             <h:form id="editRecordForm">
                 <div class="space-y-4 overflow-y-auto max-h-[95vh]">
                     <!-- Sidebar Title -->
@@ -179,76 +192,76 @@
                     <div class="field mb-4">
                         <p:outputLabel for="editVisitorName" value="Visitor Name" styleClass="block mb-1"/>
                         <p:inputText id="editVisitorName"
-                                   value="#{visitorRecordController.editingRecord.visitorName}"
-                                   required="true"
-                                   styleClass="w-full"/>
+                                     value="#{visitorRecordController.editingRecord.visitorName}"
+                                     required="true"
+                                     styleClass="w-full"/>
                     </div>
 
                     <!-- Visitor IC -->
                     <div class="field mb-4">
                         <p:outputLabel for="editVisitorIc" value="Visitor IC" styleClass="block mb-1"/>
                         <p:inputText id="editVisitorIc"
-                                   value="#{visitorRecordController.editingRecord.visitorIc}"
-                                   required="true"
-                                   styleClass="w-full"/>
+                                     value="#{visitorRecordController.editingRecord.visitorIc}"
+                                     required="true"
+                                     styleClass="w-full"/>
                     </div>
 
                     <!-- Visitor Phone -->
                     <div class="field mb-4">
                         <p:outputLabel for="editVisitorPhone" value="Visitor Phone" styleClass="block mb-1"/>
                         <p:inputText id="editVisitorPhone"
-                                   value="#{visitorRecordController.editingRecord.visitorPhone}"
-                                   required="true"
-                                   styleClass="w-full"/>
+                                     value="#{visitorRecordController.editingRecord.visitorPhone}"
+                                     required="true"
+                                     styleClass="w-full"/>
                     </div>
 
                     <!-- Check In Time -->
                     <div class="field mb-4">
                         <p:outputLabel for="editCheckInTime" value="Check In Time" styleClass="block mb-1"/>
                         <p:datePicker id="editCheckInTime"
-                                    value="#{visitorRecordController.editingRecord.checkInTime}"
-                                    pattern="MM/dd/yy HH:mm"
-                                    showTime="true"
-                                    showIcon="true"
-                                    converter="timestampConverter"
-                                    required="true"
-                                    styleClass="w-full"/>
+                                      value="#{visitorRecordController.editingRecord.checkInTime}"
+                                      pattern="MM/dd/yy HH:mm"
+                                      showTime="true"
+                                      showIcon="true"
+                                      converter="timestampConverter"
+                                      required="true"
+                                      styleClass="w-full"/>
                     </div>
 
                     <!-- Check Out Time -->
                     <div class="field mb-4">
                         <p:outputLabel for="editCheckOutTime" value="Check Out Time" styleClass="block mb-1"/>
                         <p:datePicker id="editCheckOutTime"
-                                    value="#{visitorRecordController.editingRecord.checkOutTime}"
-                                    pattern="MM/dd/yy HH:mm"
-                                    showTime="true"
-                                    showIcon="true"
-                                    converter="timestampConverter"
-                                    styleClass="w-full"/>
+                                      value="#{visitorRecordController.editingRecord.checkOutTime}"
+                                      pattern="MM/dd/yy HH:mm"
+                                      showTime="true"
+                                      showIcon="true"
+                                      converter="timestampConverter"
+                                      styleClass="w-full"/>
                     </div>
 
                     <!-- Remarks -->
                     <div class="field mb-4">
                         <p:outputLabel for="editRemarks" value="Remarks" styleClass="block mb-1"/>
                         <p:inputTextarea id="editRemarks"
-                                      value="#{visitorRecordController.editingRecord.remarks}"
-                                      rows="3"
-                                      styleClass="w-full"/>
+                                         value="#{visitorRecordController.editingRecord.remarks}"
+                                         rows="3"
+                                         styleClass="w-full"/>
                     </div>
 
                     <!-- Action Buttons -->
                     <div class="flex justify-content-end gap-4">
                         <p:commandButton value="Cancel"
-                                      icon="pi pi-times"
-                                      onclick="PF('editRecordSidebar').hide(); return false;"
-                                      styleClass="p-button-text mr-2 ui-button-warning"
-                                      immediate="true"/>
+                                         icon="pi pi-times"
+                                         onclick="PF('editRecordSidebar').hide(); return false;"
+                                         styleClass="p-button-text mr-2 ui-button-warning"
+                                         immediate="true"/>
                         <p:commandButton value="Save"
-                                      icon="pi pi-check"
-                                      action="#{visitorRecordController.updateRecord}"
-                                      update=":recordsTableForm:recordsTable :messages"
-                                      styleClass="p-button-primary"
-                                      oncomplete="if (!args.validationFailed) { PF('editRecordSidebar').hide(); }"/>
+                                         icon="pi pi-check"
+                                         action="#{visitorRecordController.updateRecord}"
+                                         update=":recordsTableForm:recordsTable :messages"
+                                         styleClass="p-button-primary"
+                                         oncomplete="if (!args.validationFailed) { PF('editRecordSidebar').hide(); }"/>
                     </div>
                 </div>
             </h:form>
