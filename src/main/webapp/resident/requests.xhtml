@@ -28,7 +28,7 @@
                     <div class="field mb-4">
                         <p:outputLabel for="unitNumber" value="Unit Number" styleClass="block mb-1"/>
                         <p:inputText id="unitNumber"
-                                     value="#{visitRequestControllerResident.residentProfile.unitNumber}"
+                                     value="#{visitRequestsControllerResident.residentProfile.unitNumber}"
                                      readonly="true"
                                      styleClass="w-full"/>
                     </div>
@@ -37,7 +37,7 @@
                     <div class="field mb-4">
                         <p:outputLabel for="verificationCode" value="Verification Code" styleClass="block mb-1"/>
                         <p:inputText id="verificationCode"
-                                     value="#{visitRequestControllerResident.newRequest.verificationCode}"
+                                     value="#{visitRequestsControllerResident.newRequest.verificationCode}"
                                      styleClass="w-full"/>
                     </div>
 
@@ -45,7 +45,7 @@
                     <div class="field mb-4">
                         <p:outputLabel for="visitDateTime" value="Visit Date/Time" styleClass="block mb-1"/>
                         <p:datePicker id="visitDateTime"
-                                      value="#{visitRequestControllerResident.newRequest.visitDateTime}"
+                                      value="#{visitRequestsControllerResident.newRequest.visitDateTime}"
                                       pattern="MM/dd/yy HH:mm"
                                       showTime="true"
                                       converter="timestampConverter"
@@ -57,7 +57,7 @@
                     <div class="field mb-4">
                         <p:outputLabel for="numberOfEntries" value="Number of Entries" styleClass="block mb-1"/>
                         <p:inputText id="numberOfEntries"
-                                     value="#{visitRequestControllerResident.newRequest.numberOfEntries}"
+                                     value="#{visitRequestsControllerResident.newRequest.numberOfEntries}"
                                      required="true"
                                      styleClass="w-full"/>
                     </div>
@@ -66,7 +66,7 @@
                     <div class="field mb-4">
                         <p:outputLabel for="purpose" value="Purpose" styleClass="block mb-1"/>
                         <p:inputTextarea id="purpose"
-                                         value="#{visitRequestControllerResident.newRequest.purpose}"
+                                         value="#{visitRequestsControllerResident.newRequest.purpose}"
                                          required="true"
                                          rows="3"
                                          styleClass="w-full"/>
@@ -81,7 +81,7 @@
                                          immediate="true"/>
                         <p:commandButton value="Submit"
                                          icon="pi pi-check"
-                                         action="#{visitRequestControllerResident.createRequest}"
+                                         action="#{visitRequestsControllerResident.createRequest}"
                                          update=":messages @form :requestsTableForm:requestsTable :qrCodeForm"
                                          styleClass="p-button-primary"
                                          oncomplete="if (!args.validationFailed) { PF('newRequestSidebar').hide(); PF('qrCodeDialog').show(); }"/>
@@ -100,7 +100,7 @@
                 <div class="flex flex-col items-center space-y-4">
                     <pe:qrCode
                             label="HostelGuard™"
-                            text="#{visitRequestControllerResident.currentQrCode}"
+                            text="#{visitRequestsControllerResident.currentQrCode}"
                             fillColor="#000000"
                             fontColor="#2b5cf2"
                             renderMethod="canvas"
@@ -109,7 +109,7 @@
                             radius="0.5"
                             ecLevel="H"
                     />
-                    <p:outputLabel value="Verification Code: #{visitRequestControllerResident.currentQrCode}"
+                    <p:outputLabel value="Verification Code: #{visitRequestsControllerResident.currentQrCode}"
                                    styleClass="font-mono text-lg font-bold"/>
                     <p class="mt-4 text-sm text-gray-600">
                         Scan this QR code at the security gate for verification
@@ -134,7 +134,7 @@
             <!-- DataTable with multi-select, global filter, paging, row editing -->
             <!-- DataTable with editing via sidebar -->
             <p:dataTable id="requestsTable"
-                         value="#{visitRequestControllerResident.lazyRequestsModel}"
+                         value="#{visitRequestsControllerResident.lazyRequestsModel}"
                          lazy="true"
                          var="req"
                          reflow="true"
@@ -144,12 +144,12 @@
                          paginatorPosition="bottom"
                          styleClass="w-full border rounded-md mt-2"
                          rowKey="#{req.id}"
-                         selection="#{visitRequestControllerResident.selectedRequests}"
+                         selection="#{visitRequestsControllerResident.selectedRequests}"
                          selectionRowMode="add"
                          tableStyle="min-width: 1200px; table-layout: fixed;"
-                         filteredValue="#{visitRequestControllerResident.filteredRequests}"
-                         globalFilterFunction="#{visitRequestControllerResident.globalFilterFunction}"
-                         filter="#{visitRequestControllerResident.globalFilter}"
+                         filteredValue="#{visitRequestsControllerResident.filteredRequests}"
+                         globalFilterFunction="#{visitRequestsControllerResident.globalFilterFunction}"
+                         filter="#{visitRequestsControllerResident.globalFilter}"
             >
 
                 <!-- Global search bar -->
@@ -158,7 +158,7 @@
                         <span class="filter-container ui-input-icon-left">
                             <i class="pi pi-search"></i>
                             <p:inputText id="globalFilter"
-                                         value="#{visitRequestControllerResident.globalFilter}"
+                                         value="#{visitRequestsControllerResident.globalFilter}"
                                          onkeyup="PF('requestsTable').filter()"
                                          placeholder="Search all fields"/>
                         </span>
@@ -225,7 +225,7 @@
                 <p:column headerText="Actions" style="width: 100px;">
                     <p:commandButton value="Edit"
                                      icon="pi pi-pencil"
-                                     action="#{visitRequestControllerResident.prepareEdit(req)}"
+                                     action="#{visitRequestsControllerResident.prepareEdit(req)}"
                                      update=":editRequestForm"
                                      oncomplete="PF('editRequestSidebar').show();"/>
                 </p:column>
@@ -248,7 +248,7 @@
                     <div class="field mb-4">
                         <p:outputLabel for="editVerificationCode" value="Verification Code" styleClass="block mb-1"/>
                         <p:inputText id="editVerificationCode"
-                                     value="#{visitRequestControllerResident.editingRequest.verificationCode}"
+                                     value="#{visitRequestsControllerResident.editingRequest.verificationCode}"
                                      readonly="true"
                                      styleClass="w-full"/>
                     </div>
@@ -257,7 +257,7 @@
                     <div class="field mb-4">
                         <p:outputLabel for="editVisitDateTime" value="Visit Date/Time" styleClass="block mb-1"/>
                         <p:datePicker id="editVisitDateTime"
-                                      value="#{visitRequestControllerResident.editingRequest.visitDateTime}"
+                                      value="#{visitRequestsControllerResident.editingRequest.visitDateTime}"
                                       pattern="MM/dd/yy HH:mm"
                                       showTime="true"
                                       converter="timestampConverter"
@@ -269,7 +269,7 @@
                     <div class="field mb-4">
                         <p:outputLabel for="editNumberOfEntries" value="Number of Entries" styleClass="block mb-1"/>
                         <p:inputText id="editNumberOfEntries"
-                                     value="#{visitRequestControllerResident.editingRequest.numberOfEntries}"
+                                     value="#{visitRequestsControllerResident.editingRequest.numberOfEntries}"
                                      required="true"
                                      styleClass="w-full"/>
                     </div>
@@ -278,7 +278,7 @@
                     <div class="field mb-4">
                         <p:outputLabel for="editPurpose" value="Purpose" styleClass="block mb-1"/>
                         <p:inputTextarea id="editPurpose"
-                                         value="#{visitRequestControllerResident.editingRequest.purpose}"
+                                         value="#{visitRequestsControllerResident.editingRequest.purpose}"
                                          required="true"
                                          rows="3"
                                          styleClass="w-full"/>
@@ -288,11 +288,11 @@
                     <div class="flex justify-content-end gap-4">
                         <p:commandButton value="Revoke"
                                          icon="pi pi-ban"
-                                         action="#{visitRequestControllerResident.revokeRequest}"
+                                         action="#{visitRequestsControllerResident.revokeRequest}"
                                          update=":requestsTableForm:requestsTable :messages"
                                          styleClass="ui-button-danger"
                                          oncomplete="PF('editRequestSidebar').hide();"
-                                         rendered="#{visitRequestControllerResident.editingRequest.status eq 'PENDING'}"/>
+                                         rendered="#{visitRequestsControllerResident.editingRequest.status eq 'PENDING'}"/>
                         <p:commandButton value="Cancel"
                                          icon="pi pi-times"
                                          onclick="PF('editRequestSidebar').hide(); return false;"
@@ -300,7 +300,7 @@
                                          immediate="true"/>
                         <p:commandButton value="Save"
                                          icon="pi pi-check"
-                                         action="#{visitRequestControllerResident.updateRequest}"
+                                         action="#{visitRequestsControllerResident.updateRequest}"
                                          update=":requestsTableForm:requestsTable :messages"
                                          styleClass="p-button-primary"
                                          oncomplete="if (!args.validationFailed) { PF('editRequestSidebar').hide(); }"/>

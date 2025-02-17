@@ -529,16 +529,6 @@
                         update=":usersTableForm:delete-users-button :usersTableForm:clearSelectionButton"/>
                 <p:ajax event="toggleSelect"
                         update=":usersTableForm:delete-users-button :usersTableForm:clearSelectionButton"/>
-
-
-                <!-- Row edit events -->
-                <p:ajax event="rowEdit"
-                        listener="#{usersController.onRowEdit}"
-                        update=":usersTableForm:usersTable :messages"/>
-                <p:ajax event="rowEditCancel"
-                        listener="#{usersController.onRowCancel}"
-                        update=":usersTableForm:usersTable :messages"/>
-
             </p:dataTable>
         </h:form>
     </ui:define>

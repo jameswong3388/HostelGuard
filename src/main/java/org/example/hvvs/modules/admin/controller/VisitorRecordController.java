@@ -24,7 +24,6 @@ public class VisitorRecordController implements Serializable {
     @EJB
     private VisitorRecordsFacade visitorRecordsFacade;
 
-    private List<VisitorRecords> records;
     private List<VisitorRecords> filteredRecords;
     private List<VisitorRecords> selectedRecords;
     
@@ -151,17 +150,6 @@ public class VisitorRecordController implements Serializable {
     }
 
     // Getters and Setters
-    public List<VisitorRecords> getRecords() {
-        if (records == null) {
-            init();
-        }
-        return records;
-    }
-
-    public void setRecords(List<VisitorRecords> records) {
-        this.records = records;
-    }
-
     public List<VisitorRecords> getFilteredRecords() {
         return filteredRecords;
     }

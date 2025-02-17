@@ -168,21 +168,6 @@ public class UsersController implements Serializable {
         }
     }
 
-    public void onRowEdit(RowEditEvent<Users> event) {
-        try {
-            Users editedUser = event.getObject();
-            editedUser.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
-            usersFacade.edit(editedUser);
-            addMessage("Success", "User updated successfully");
-        } catch (Exception e) {
-            addErrorMessage("Error updating user: " + e.getMessage());
-        }
-    }
-
-    public void onRowCancel(RowEditEvent<Users> event) {
-        addMessage("Cancelled", "Edit cancelled");
-    }
-
     public void deleteSelectedUsers() {
         try {
             if (selectedUsers != null && !selectedUsers.isEmpty()) {

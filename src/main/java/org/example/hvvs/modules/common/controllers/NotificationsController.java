@@ -81,17 +81,6 @@ public class NotificationsController implements Serializable {
         };
     }
 
-    public void createTestNotification() {
-        notificationService.createNotification(
-            currentUser, 
-            SECURITY_ALERT, 
-            "TESTING NOTIFICATION", 
-            "This is a test notification",
-            "TEST",
-            "0"
-        );
-    }
-
     public boolean globalFilterFunction(Object value, Object filter, String filterLocale) {
         String filterText = (filter == null) ? null : filter.toString().trim().toLowerCase();
         if (filterText == null || filterText.isEmpty()) {

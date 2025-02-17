@@ -5,6 +5,7 @@ import jakarta.ejb.Stateless;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
+import org.example.hvvs.modules.common.service.NotificationService;
 import org.example.hvvs.utils.CustomPart;
 import org.example.hvvs.model.Medias;
 import org.example.hvvs.model.VisitRequests;
@@ -17,6 +18,9 @@ import java.io.InputStream;
 import java.sql.Timestamp;
 import java.util.List;
 
+import static org.example.hvvs.model.Notifications.NotificationType.ENTRY_EXIT;
+import static org.example.hvvs.model.Notifications.NotificationType.VISIT_REMINDER;
+
 @Stateless
 public class OnboardVisitorsServiceImpl implements OnboardVisitorsService {
 
@@ -26,12 +30,15 @@ public class OnboardVisitorsServiceImpl implements OnboardVisitorsService {
     @EJB
     private MediaService mediaService;
 
+    @EJB
+    private NotificationService notificationService;
+
     @Override
     public VisitRequests verifyVisitRequest(String verificationCode) {
         TypedQuery<VisitRequests> query = entityManager.createQuery(
                 "SELECT v FROM VisitRequests v WHERE v.verification_code = :code " +
-                "AND v.number_of_entries >= 1 " +
-                "AND (v.status = 'APPROVED' OR v.status = 'PROGRESS')",
+                        "AND v.number_of_entries >= 1 " +
+                        "AND (v.status = 'APPROVED' OR v.status = 'PROGRESS')",
                 VisitRequests.class
         );
         query.setParameter("code", verificationCode);
@@ -73,6 +80,16 @@ public class OnboardVisitorsServiceImpl implements OnboardVisitorsService {
             request.setStatus("PROGRESS");
             entityManager.merge(request);
 
+            // send notification to the resident 
+            notificationService.createNotification(
+                    request.getUserId(),
+                    VISIT_REMINDER,
+                    "New visitor Check-in",
+                    "A new visitor " + visitorRecord.getVisitorName() + " has checked in, please verify the visitor",
+                    "visit-requests",
+                    request.getId().toString()
+            );
+
         } catch (IOException e) {
             throw new RuntimeException("Failed to save visitor photo", e);
         }
@@ -81,14 +98,14 @@ public class OnboardVisitorsServiceImpl implements OnboardVisitorsService {
     @Override
     public List<VisitorRecords> findVisitorsForCheckout(String code) {
         return entityManager.createQuery(
-            "SELECT vr FROM VisitorRecords vr " +
-            "JOIN vr.request_id r " +
-            "WHERE r.verification_code = :code " +
-            "AND r.status = 'PROGRESS' " +
-            "AND vr.check_out_time IS NULL",
-            VisitorRecords.class)
-        .setParameter("code", code)
-        .getResultList();
+                        "SELECT vr FROM VisitorRecords vr " +
+                                "JOIN vr.request_id r " +
+                                "WHERE r.verification_code = :code " +
+                                "AND r.status = 'PROGRESS' " +
+                                "AND vr.check_out_time IS NULL",
+                        VisitorRecords.class)
+                .setParameter("code", code)
+                .getResultList();
     }
 
     @Override
@@ -96,22 +113,41 @@ public class OnboardVisitorsServiceImpl implements OnboardVisitorsService {
         // Set checkout time
         visitorRecord.setCheckOutTime(new Timestamp(System.currentTimeMillis()));
         visitorRecord.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
-        
+
         // Update visitor record
         entityManager.merge(visitorRecord);
 
         // Check remaining visitors without checkout
         VisitRequests request = visitorRecord.getRequestId();
         Long remainingVisitors = entityManager.createQuery(
-            "SELECT COUNT(v) FROM VisitorRecords v WHERE v.request_id = :request AND v.check_out_time IS NULL",
-            Long.class)
-            .setParameter("request", request)
-            .getSingleResult();
+                        "SELECT COUNT(v) FROM VisitorRecords v WHERE v.request_id = :request AND v.check_out_time IS NULL",
+                        Long.class)
+                .setParameter("request", request)
+                .getSingleResult();
 
-        // Update visit reqrequuest status only if all visitors have checked out
         if (remainingVisitors == 0) {
             request.setStatus("COMPLETED");
             entityManager.merge(request);
+
+            // send notification to the resident 
+            notificationService.createNotification(
+                    request.getUserId(),
+                    ENTRY_EXIT,
+                    "Visitor Check-out",
+                    "All visitors have checked out, please verify the visitor",
+                    "visit-requests",
+                    request.getId().toString()
+            );
+        } else {
+            // send notification to the resident 
+            notificationService.createNotification(
+                    request.getUserId(),
+                    ENTRY_EXIT,
+                    "Visitor Check-out",
+                    "Visitor " + visitorRecord.getVisitorName() + " has checked out, please verify the visitor",
+                    "visit-requests",
+                    request.getId().toString()
+            );
         }
     }
 } 

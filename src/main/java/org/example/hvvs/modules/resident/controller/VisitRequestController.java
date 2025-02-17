@@ -9,20 +9,18 @@ import jakarta.inject.Named;
 import jakarta.transaction.Transactional;
 import org.example.hvvs.model.*;
 import org.example.hvvs.utils.CommonParam;
-import org.primefaces.event.RowEditEvent;
 import org.primefaces.model.LazyDataModel;
 import org.primefaces.model.SortMeta;
 import org.primefaces.model.FilterMeta;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
-import java.util.ArrayList;
+import java.time.Instant;
 import java.util.List;
-import java.util.Locale;
 import java.util.UUID;
 import java.util.Map;
 
-@Named("visitRequestControllerResident")
+@Named("visitRequestsControllerResident")
 @SessionScoped
 public class VisitRequestController implements Serializable {
     @EJB
@@ -32,7 +30,6 @@ public class VisitRequestController implements Serializable {
     private VisitRequestsFacade visitRequestsFacade;
 
     private VisitRequests newRequest;
-    private List<VisitRequests> userRequests;
     private ResidentProfiles residentProfile;
     private List<VisitRequests> selectedRequests;
     private List<VisitRequests> filteredRequests;
@@ -77,23 +74,6 @@ public class VisitRequestController implements Serializable {
         }
     }
 
-    /**
-     * Called in @PostConstruct or whenever you need to refresh the table data
-     */
-    private void loadUserRequests() {
-        Users currentUser = (Users) FacesContext
-                .getCurrentInstance()
-                .getExternalContext()
-                .getSessionMap()
-                .get(CommonParam.SESSION_SELF);
-
-        if (currentUser != null) {
-            userRequests = visitRequestsFacade.findAllRequestsByUser(currentUser);
-        } else {
-            userRequests = new ArrayList<>();
-        }
-    }
-
     private void initializeLazyModel() {
         lazyRequestsModel = new LazyDataModel<VisitRequests>() {
             @Override
@@ -105,16 +85,16 @@ public class VisitRequestController implements Serializable {
             public List<VisitRequests> load(int first, int pageSize,
                                             Map<String, SortMeta> sortBy, Map<String, FilterMeta> filterBy) {
                 Users currentUser = (Users) FacesContext.getCurrentInstance()
-                    .getExternalContext()
-                    .getSessionMap()
-                    .get(CommonParam.SESSION_SELF);
-                
+                        .getExternalContext()
+                        .getSessionMap()
+                        .get(CommonParam.SESSION_SELF);
+
                 List<VisitRequests> results = visitRequestsFacade.findRange(
-                    first,
-                    pageSize,
-                    globalFilter,
-                    sortBy,
-                    currentUser
+                        first,
+                        pageSize,
+                        globalFilter,
+                        sortBy,
+                        currentUser
                 );
                 lazyRequestsModel.setRowCount(visitRequestsFacade.count(globalFilter));
                 return results;
@@ -186,12 +166,11 @@ public class VisitRequestController implements Serializable {
             newRequest.setStatus("PENDING");
             newRequest.setRemarks("Awaiting approval");
 
-            // Reload table
-            loadUserRequests();
+            // Refresh the table
+            lazyRequestsModel.setRowCount(visitRequestsFacade.count(globalFilter));
 
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_INFO, "Success", "Visit request created successfully"));
-
         } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR,
@@ -206,10 +185,11 @@ public class VisitRequestController implements Serializable {
             // Use the editingRequest field instead of a passed parameter
             editingRequest.setStatus("CANCELLED");
             editingRequest.setRemarks("CANCELLED");
-            editingRequest.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
+            editingRequest.setUpdatedAt(Timestamp.from(Instant.now()));
 
             // Persist the changes
             visitRequestsFacade.edit(editingRequest);
+            lazyRequestsModel.setRowCount(visitRequestsFacade.count(globalFilter));
 
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_INFO,
@@ -232,10 +212,10 @@ public class VisitRequestController implements Serializable {
             editingRequest.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
             visitRequestsFacade.edit(editingRequest);
 
+            lazyRequestsModel.setRowCount(visitRequestsFacade.count(globalFilter));
+
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_INFO, "Success", "Visit request updated successfully"));
-            // Refresh the requests table
-            loadUserRequests();
         } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Failed to update visit request: " + e.getMessage()));
@@ -262,10 +242,6 @@ public class VisitRequestController implements Serializable {
 
     public void setNewRequest(VisitRequests newRequest) {
         this.newRequest = newRequest;
-    }
-
-    public List<VisitRequests> getUserRequests() {
-        return userRequests;
     }
 
     public List<VisitRequests> getSelectedRequests() {

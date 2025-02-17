@@ -7,25 +7,30 @@ import jakarta.faces.context.FacesContext;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Named;
 import jakarta.transaction.Transactional;
+import org.example.hvvs.model.Notifications;
 import org.example.hvvs.model.VisitRequests;
 import org.example.hvvs.model.VisitRequestsFacade;
+import org.example.hvvs.modules.common.service.NotificationService;
 import org.primefaces.model.LazyDataModel;
 import org.primefaces.model.SortMeta;
 import org.primefaces.model.FilterMeta;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
-@Named
+@Named("VisitRequestsControllerAdmin")
 @ViewScoped
 public class VisitRequestsController implements Serializable {
 
     @EJB
     private VisitRequestsFacade visitRequestsFacade;
 
-    private List<VisitRequests> requests;
+    @EJB
+    private NotificationService notificationService;
+
     private List<VisitRequests> filteredRequests;
     private List<VisitRequests> selectedRequests;
 
@@ -91,7 +96,8 @@ public class VisitRequestsController implements Serializable {
                     }
                 }
                 selectedRequests.clear();
-                init(); // Refresh the list
+                lazyRequestsModel.setRowCount(visitRequestsFacade.count(globalFilter));
+                
                 FacesContext.getCurrentInstance().addMessage(null,
                         new FacesMessage(FacesMessage.SEVERITY_INFO, "Success", "Selected requests deleted successfully"));
             } catch (Exception e) {
@@ -139,31 +145,37 @@ public class VisitRequestsController implements Serializable {
     @Transactional
     public void updateRequest() {
         try {
-            editingRequest.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
+            // Get original state before changes
+            VisitRequests original = visitRequestsFacade.find(editingRequest.getId());
+
+            editingRequest.setUpdatedAt(Timestamp.from(Instant.now()));
             visitRequestsFacade.edit(editingRequest);
+
+            if (original.getStatus().equals(editingRequest.getStatus())) {
+                notificationService.createNotification(
+                        editingRequest.getUserId(),
+                        Notifications.NotificationType.SYSTEM_UPDATE,
+                        "Visit Request Status Updated",
+                        "Your visit request #" + editingRequest.getId() + " status has changed to " + editingRequest.getStatus(),
+                        "visit-requests",
+                        String.valueOf(editingRequest.getId())
+                );
+            }
+
+            // Refresh the table
+            lazyRequestsModel.setRowCount(visitRequestsFacade.count(globalFilter));
+
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_INFO, "Success", "Visit request updated successfully"));
-            init(); // Refresh the list after update
         } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Failed to update visit request: " + e.getMessage()));
             FacesContext.getCurrentInstance().validationFailed();
         }
+
     }
 
     // --- Getters and Setters ---
-
-    public List<VisitRequests> getRequests() {
-        if (requests == null) {
-            init();
-        }
-        return requests;
-    }
-
-    public void setRequests(List<VisitRequests> requests) {
-        this.requests = requests;
-    }
-
     public List<VisitRequests> getFilteredRequests() {
         return filteredRequests;
     }

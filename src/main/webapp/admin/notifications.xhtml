@@ -8,7 +8,7 @@
 
     <!-- Page Title -->
     <ui:define name="title">Notifications™</ui:define>
-    
+
     <!-- Main Page Content -->
     <ui:define name="content">
         <h:form id="notificationsForm">
@@ -41,12 +41,6 @@
                                          update="@form :messages"
                                          disabled="#{empty notificationsController.selectedNotifications}"
                                          style="margin-right: .5rem"/>
-                        <p:commandButton value="Create Test Notification"
-                                         icon="pi pi-plus"
-                                         styleClass="p-button-text"
-                                         style="margin-right: .5rem"
-                                         actionListener="#{notificationsController.createTestNotification}"
-                                         update="@form"/>
                     </p:toolbarGroup>
                 </p:toolbar>
 

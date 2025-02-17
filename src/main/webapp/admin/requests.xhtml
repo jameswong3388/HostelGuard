@@ -25,11 +25,11 @@
             <p:toolbar>
                 <p:toolbarGroup>
                     <p:commandButton id="delete-requests-button"
-                                     value="#{visitRequestsController.deleteSelectedButtonLabel}"
+                                     value="#{VisitRequestsControllerAdmin.deleteSelectedButtonLabel}"
                                      icon="pi pi-trash"
-                                     actionListener="#{visitRequestsController.deleteSelectedRequests}"
+                                     actionListener="#{VisitRequestsControllerAdmin.deleteSelectedRequests}"
                                      styleClass="ui-button-danger"
-                                     disabled="#{empty visitRequestsController.selectedRequests}"
+                                     disabled="#{empty VisitRequestsControllerAdmin.selectedRequests}"
                                      update="@this :requestsTableForm:requestsTable :messages"
                                      style="margin-right: .5rem">
                         <p:confirm header="Confirmation"
@@ -41,16 +41,16 @@
                                      value="Clear Selection"
                                      icon="pi pi-times"
                                      styleClass="ui-button-secondary"
-                                     actionListener="#{visitRequestsController.clearSelection}"
+                                     actionListener="#{VisitRequestsControllerAdmin.clearSelection}"
                                      process="@form"
                                      update="@form :messages"
-                                     disabled="#{empty visitRequestsController.selectedRequests}"
+                                     disabled="#{empty VisitRequestsControllerAdmin.selectedRequests}"
                                      style="margin-right: .5rem"/>
                 </p:toolbarGroup>
             </p:toolbar>
 
             <p:dataTable id="requestsTable"
-                         value="#{visitRequestsController.lazyRequestsModel}"
+                         value="#{VisitRequestsControllerAdmin.lazyRequestsModel}"
                          lazy="true"
                          var="req"
                          reflow="true"
@@ -60,12 +60,12 @@
                          paginatorPosition="bottom"
                          styleClass="w-full border rounded-md mt-2"
                          rowKey="#{req.id}"
-                         selection="#{visitRequestsController.selectedRequests}"
+                         selection="#{VisitRequestsControllerAdmin.selectedRequests}"
                          selectionRowMode="add"
                          tableStyle="min-width: 1200px; table-layout: fixed;"
-                         filteredValue="#{visitRequestsController.filteredRequests}"
-                         globalFilterFunction="#{visitRequestsController.globalFilterFunction}"
-                         filter="#{visitRequestsController.globalFilter}"
+                         filteredValue="#{VisitRequestsControllerAdmin.filteredRequests}"
+                         globalFilterFunction="#{VisitRequestsControllerAdmin.globalFilterFunction}"
+                         filter="#{VisitRequestsControllerAdmin.globalFilter}"
             >
 
                 <!-- Global search bar -->
@@ -74,7 +74,7 @@
                         <span class="filter-container ui-input-icon-left">
                             <i class="pi pi-search"></i>
                             <p:inputText id="globalFilter"
-                                         value="#{visitRequestsController.globalFilter}"
+                                         value="#{VisitRequestsControllerAdmin.globalFilter}"
                                          onkeyup="PF('requestsTable').filter()"
                                          placeholder="Search all fields"/>
                         </span>
@@ -144,7 +144,7 @@
                 <p:column headerText="Actions" style="width: 100px;">
                     <p:commandButton value="Edit"
                                      icon="pi pi-pencil"
-                                     action="#{visitRequestsController.prepareEdit(req)}"
+                                     action="#{VisitRequestsControllerAdmin.prepareEdit(req)}"
                                      update=":editRequestForm"
                                      oncomplete="PF('editRequestSidebar').show();"/>
                 </p:column>
@@ -183,7 +183,7 @@
                     <div class="field mb-4">
                         <p:outputLabel for="editVerificationCode" value="Verification Code" styleClass="block mb-1"/>
                         <p:inputText id="editVerificationCode"
-                                     value="#{visitRequestsController.editingRequest.verificationCode}"
+                                     value="#{VisitRequestsControllerAdmin.editingRequest.verificationCode}"
                                      required="true"
                                      styleClass="w-full"/>
                     </div>
@@ -192,7 +192,7 @@
                     <div class="field mb-4">
                         <p:outputLabel for="editVisitDateTime" value="Visit Date/Time" styleClass="block mb-1"/>
                         <p:datePicker id="editVisitDateTime"
-                                      value="#{visitRequestsController.editingRequest.visitDateTime}"
+                                      value="#{VisitRequestsControllerAdmin.editingRequest.visitDateTime}"
                                       pattern="MM/dd/yy HH:mm"
                                       showTime="true"
                                       showIcon="true"
@@ -205,7 +205,7 @@
                     <div class="field mb-4">
                         <p:outputLabel for="editNumberOfEntries" value="Number of Entries" styleClass="block mb-1"/>
                         <p:inputText id="editNumberOfEntries"
-                                     value="#{visitRequestsController.editingRequest.numberOfEntries}"
+                                     value="#{VisitRequestsControllerAdmin.editingRequest.numberOfEntries}"
                                      required="true"
                                      styleClass="w-full"/>
                     </div>
@@ -214,7 +214,7 @@
                     <div class="field mb-4">
                         <p:outputLabel for="editPurpose" value="Purpose" styleClass="block mb-1"/>
                         <p:inputTextarea id="editPurpose"
-                                         value="#{visitRequestsController.editingRequest.purpose}"
+                                         value="#{VisitRequestsControllerAdmin.editingRequest.purpose}"
                                          required="true"
                                          rows="3"
                                          styleClass="w-full"/>
@@ -223,7 +223,7 @@
                     <!-- Status -->
                     <div class="field mb-4">
                         <p:outputLabel for="editStatus" value="Status" styleClass="block mb-1"/>
-                        <p:selectOneMenu id="editStatus" value="#{visitRequestsController.editingRequest.status}"
+                        <p:selectOneMenu id="editStatus" value="#{VisitRequestsControllerAdmin.editingRequest.status}"
                                          styleClass="w-full">
                             <f:selectItem itemLabel="Pending" itemValue="PENDING"/>
                             <f:selectItem itemLabel="Approved" itemValue="APPROVED"/>
@@ -237,7 +237,7 @@
                     <div class="field mb-4">
                         <p:outputLabel for="editRemarks" value="Remarks" styleClass="block mb-1"/>
                         <p:inputTextarea id="editRemarks"
-                                         value="#{visitRequestsController.editingRequest.remarks}"
+                                         value="#{VisitRequestsControllerAdmin.editingRequest.remarks}"
                                          rows="3"
                                          styleClass="w-full"/>
                     </div>
@@ -251,7 +251,7 @@
                                          immediate="true"/>
                         <p:commandButton value="Save"
                                          icon="pi pi-check"
-                                         action="#{visitRequestsController.updateRequest}"
+                                         action="#{VisitRequestsControllerAdmin.updateRequest}"
                                          update=":requestsTableForm:requestsTable :messages"
                                          styleClass="p-button-primary"
                                          oncomplete="if (!args.validationFailed) { PF('editRequestSidebar').hide(); }"/>
