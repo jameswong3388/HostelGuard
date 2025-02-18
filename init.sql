@@ -166,6 +166,33 @@ CREATE TABLE notifications
     CHECK (type IN ('VISIT_APPROVAL', 'SECURITY_ALERT', 'SYSTEM_UPDATE', 'VISIT_REMINDER', 'ENTRY_EXIT'))
 );
 
+-- Create calendar_events table
+CREATE TABLE calendar_events 
+(
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    user_id INT UNSIGNED NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    start_date DATETIME NOT NULL,
+    end_date DATETIME NOT NULL,
+    all_day BOOLEAN DEFAULT FALSE,
+    url VARCHAR(512),
+    border_color VARCHAR(20),
+    background_color VARCHAR(20),
+    display_mode ENUM('BACKGROUND', 'INVERSE', 'NORMAL') DEFAULT 'NORMAL',
+    status ENUM('ACTIVE', 'CANCELLED', 'COMPLETED') DEFAULT 'ACTIVE',
+    recurrence_pattern ENUM('NONE', 'DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY') DEFAULT 'NONE',
+    parent_event_id INT UNSIGNED,
+    time_zone VARCHAR(50) NOT NULL DEFAULT 'UTC',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (parent_event_id) REFERENCES calendar_events(id) ON DELETE SET NULL,
+    
+    CHECK (end_date >= start_date)
+);
+
 -- Create indexes for better query performance
 CREATE INDEX idx_user_sessions_user_active ON user_sessions (user_id);
 CREATE INDEX idx_user_sessions_expires_active ON user_sessions (expires_at);
