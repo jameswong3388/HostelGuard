@@ -153,12 +153,8 @@
     <!-- Secondary Tab Nav -->
     <ui:insert name="navigation">
         <nav class="flex items-center space-x-8 px-12 py-2 bg-white border-b">
-            <h:link outcome="/security/settings/general.xhtml"
-                    styleClass="py-2 text-blue-600 font-medium focus:outline-none">General</h:link>
-            <h:link outcome="/security/settings/account.xhtml"
-                    styleClass="py-2 text-gray-500 hover:text-gray-700 focus:outline-none">Accounts</h:link>
-            <h:link outcome="/security/settings/authentication-security.xhtml"
-                    styleClass="py-2 text-gray-500 hover:text-gray-700 focus:outline-none">Authentication &amp; Security</h:link>
+            <h:link outcome="/security/onboard-visitors.xhtml"
+                    styleClass="py-2 focus:outline-none #{view.viewId eq '/security/onboard-visitors.xhtml' ? 'text-blue-600' : 'text-gray-500 hover:text-gray-700'}">Onboard Visitors</h:link>
         </nav>
     </ui:insert>
 

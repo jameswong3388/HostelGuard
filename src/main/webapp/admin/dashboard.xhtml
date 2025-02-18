@@ -12,19 +12,23 @@
             .legacy .ui-panel, .legacy.div.ui-state-hover {
                 margin: 10px;
             }
+
             .legacy .ui-dashboard-column {
                 width: 220px;
             }
+
             .ui-dashboard-active {
-                border-color: var(- -primary-color);
+                border-color: var(--primary-color);
                 border-width: 3px !important;
                 border-style: dashed;
             }
+
             .ui-dashboard-hover {
                 border-color: #C2E085;
                 border-width: 3px !important;
                 border-style: solid;
             }
+
             body .ui-panel.chart-dashlet .ui-panel-content .ui-chart {
                 height: 250px;
                 max-height: 250px;
@@ -32,121 +36,145 @@
         </style>
     </ui:define>
 
-    <ui:define name="navigation">
-        <h:link outcome="/admin/dashboard.xhtml" styleClass="py-2 text-blue-600 font-medium focus:outline-none">Dashboard</h:link>
-        <h:link outcome="/admin/users.xhtml" styleClass="py-2 text-gray-500 hover:text-gray-700 focus:outline-none">Users</h:link>
-        <h:link outcome="/admin/requests.xhtml" styleClass="py-2 text-gray-500 hover:text-gray-700 focus:outline-none">Visit Requests</h:link>
-        <h:link outcome="/admin/visitor-records.xhtml" styleClass="py-2 text-gray-500 hover:text-gray-700 focus:outline-none">Visitor Records</h:link>
-    </ui:define>
-
     <ui:define name="content">
-
         <h:form id="form">
             <p:growl id="msgs" showDetail="true" skipDetailIfEqualsSummary="true">
-                <p:autoUpdate />
+                <p:autoUpdate/>
             </p:growl>
 
             <div class="card">
                 <p:dashboard id="responsive" model="#{dashboardView.responsiveModel}" responsive="true">
-                    <p:ajax event="reorder" listener="#{dashboardView.handleReorder}" />
+                    <p:ajax event="reorder" listener="#{dashboardView.handleReorder}"/>
 
-                    <p:panel id="bar" header="Bar" closable="true" styleClass="chart-dashlet" >
-                        <p:ajax event="close" listener="#{dashboardView.handleClose}" />
+                    <p:panel id="bar" header="Bar" closable="true" styleClass="chart-dashlet">
+                        <p:ajax event="close" listener="#{dashboardView.handleClose}"/>
                         <f:facet name="options">
                             <p:menu>
                                 <p:submenu label="Panel Size">
-                                    <p:menuitem action="#{dashboardView.onDashboardResize('bar', 'xl:col-4')}" immediate="true" update="@form">
-                                        1/3 <p:graphicImage name="demo/images/dashboard/onethird.png" styleClass="ml-2" alt="one third" />
+                                    <p:menuitem action="#{dashboardView.onDashboardResize('bar', 'xl:col-4')}"
+                                                immediate="true" update="@form">
+                                        1/3 <p:graphicImage name="demo/images/dashboard/onethird.png" styleClass="ml-2"
+                                                            alt="one third"/>
                                     </p:menuitem>
-                                    <p:menuitem action="#{dashboardView.onDashboardResize('bar', 'xl:col-6')}" immediate="true" update="@form">
-                                        1/2 <p:graphicImage name="demo/images/dashboard/onehalf.png" styleClass="ml-2" alt="one half" />
+                                    <p:menuitem action="#{dashboardView.onDashboardResize('bar', 'xl:col-6')}"
+                                                immediate="true" update="@form">
+                                        1/2 <p:graphicImage name="demo/images/dashboard/onehalf.png" styleClass="ml-2"
+                                                            alt="one half"/>
                                     </p:menuitem>
-                                    <p:menuitem action="#{dashboardView.onDashboardResize('bar', 'xl:col-8')}" immediate="true" update="@form">
-                                        2/3 <p:graphicImage name="demo/images/dashboard/twothirds.png" styleClass="ml-2" alt="two thirds" />
+                                    <p:menuitem action="#{dashboardView.onDashboardResize('bar', 'xl:col-8')}"
+                                                immediate="true" update="@form">
+                                        2/3 <p:graphicImage name="demo/images/dashboard/twothirds.png" styleClass="ml-2"
+                                                            alt="two thirds"/>
                                     </p:menuitem>
-                                    <p:menuitem action="#{dashboardView.onDashboardResize('bar', 'xl:col-12')}" immediate="true" update="@form">
-                                        Full <p:graphicImage name="demo/images/dashboard/full.png" styleClass="ml-2" alt="full" />
+                                    <p:menuitem action="#{dashboardView.onDashboardResize('bar', 'xl:col-12')}"
+                                                immediate="true" update="@form">
+                                        Full <p:graphicImage name="demo/images/dashboard/full.png" styleClass="ml-2"
+                                                             alt="full"/>
                                     </p:menuitem>
                                 </p:submenu>
                             </p:menu>
                         </f:facet>
 
-                        <p:chart value="#{chartView.barModel}" style="width: 100%; height: 100%;" />
+                        <p:chart value="#{chartView.barModel}" style="width: 100%; height: 100%;"/>
                     </p:panel>
 
-                    <p:panel id="stacked" header="Stacked" closable="true" styleClass="chart-dashlet" >
-                        <p:ajax event="close" listener="#{dashboardView.handleClose}" />
+                    <p:panel id="stacked" header="Stacked" closable="true" styleClass="chart-dashlet">
+                        <p:ajax event="close" listener="#{dashboardView.handleClose}"/>
                         <f:facet name="options">
                             <p:menu>
                                 <p:submenu label="Panel Size">
-                                    <p:menuitem action="#{dashboardView.onDashboardResize('stacked', 'xl:col-4')}" immediate="true" update="@form">
-                                        1/3 <p:graphicImage name="demo/images/dashboard/onethird.png" styleClass="ml-2" alt="one third" />
+                                    <p:menuitem action="#{dashboardView.onDashboardResize('stacked', 'xl:col-4')}"
+                                                immediate="true" update="@form">
+                                        1/3 <p:graphicImage name="demo/images/dashboard/onethird.png" styleClass="ml-2"
+                                                            alt="one third"/>
                                     </p:menuitem>
-                                    <p:menuitem action="#{dashboardView.onDashboardResize('stacked', 'xl:col-6')}" immediate="true" update="@form">
-                                        1/2 <p:graphicImage name="demo/images/dashboard/onehalf.png" styleClass="ml-2" alt="one half" />
+                                    <p:menuitem action="#{dashboardView.onDashboardResize('stacked', 'xl:col-6')}"
+                                                immediate="true" update="@form">
+                                        1/2 <p:graphicImage name="demo/images/dashboard/onehalf.png" styleClass="ml-2"
+                                                            alt="one half"/>
                                     </p:menuitem>
-                                    <p:menuitem action="#{dashboardView.onDashboardResize('stacked', 'xl:col-8')}" immediate="true" update="@form">
-                                        2/3 <p:graphicImage name="demo/images/dashboard/twothirds.png" styleClass="ml-2" alt="two thirds" />
+                                    <p:menuitem action="#{dashboardView.onDashboardResize('stacked', 'xl:col-8')}"
+                                                immediate="true" update="@form">
+                                        2/3 <p:graphicImage name="demo/images/dashboard/twothirds.png" styleClass="ml-2"
+                                                            alt="two thirds"/>
                                     </p:menuitem>
-                                    <p:menuitem action="#{dashboardView.onDashboardResize('stacked', 'xl:col-12')}" immediate="true" update="@form">
-                                        Full <p:graphicImage name="demo/images/dashboard/full.png" styleClass="ml-2" alt="full" />
+                                    <p:menuitem action="#{dashboardView.onDashboardResize('stacked', 'xl:col-12')}"
+                                                immediate="true" update="@form">
+                                        Full <p:graphicImage name="demo/images/dashboard/full.png" styleClass="ml-2"
+                                                             alt="full"/>
                                     </p:menuitem>
                                 </p:submenu>
                             </p:menu>
                         </f:facet>
-                        <p:chart value="#{chartView.stackedBarModel}" style="width: 100%; height: 100%;" />
+                        <p:chart value="#{chartView.stackedBarModel}" style="width: 100%; height: 100%;"/>
                     </p:panel>
 
-                    <p:panel id="donut" header="Doughnut" closable="true" styleClass="chart-dashlet" >
-                        <p:ajax event="close" listener="#{dashboardView.handleClose}" />
+                    <p:panel id="donut" header="Doughnut" closable="true" styleClass="chart-dashlet">
+                        <p:ajax event="close" listener="#{dashboardView.handleClose}"/>
                         <f:facet name="options">
                             <p:menu>
                                 <p:submenu label="Panel Size">
-                                    <p:menuitem action="#{dashboardView.onDashboardResize('donut', 'xl:col-4')}" immediate="true" update="@form">
-                                        1/3 <p:graphicImage name="demo/images/dashboard/onethird.png" styleClass="ml-2" alt="one third" />
+                                    <p:menuitem action="#{dashboardView.onDashboardResize('donut', 'xl:col-4')}"
+                                                immediate="true" update="@form">
+                                        1/3 <p:graphicImage name="demo/images/dashboard/onethird.png" styleClass="ml-2"
+                                                            alt="one third"/>
                                     </p:menuitem>
-                                    <p:menuitem action="#{dashboardView.onDashboardResize('donut', 'xl:col-6')}" immediate="true" update="@form">
-                                        1/2 <p:graphicImage name="demo/images/dashboard/onehalf.png" styleClass="ml-2" alt="one half" />
+                                    <p:menuitem action="#{dashboardView.onDashboardResize('donut', 'xl:col-6')}"
+                                                immediate="true" update="@form">
+                                        1/2 <p:graphicImage name="demo/images/dashboard/onehalf.png" styleClass="ml-2"
+                                                            alt="one half"/>
                                     </p:menuitem>
-                                    <p:menuitem action="#{dashboardView.onDashboardResize('donut', 'xl:col-8')}" immediate="true" update="@form">
-                                        2/3 <p:graphicImage name="demo/images/dashboard/twothirds.png" styleClass="ml-2" alt="two thirds" />
+                                    <p:menuitem action="#{dashboardView.onDashboardResize('donut', 'xl:col-8')}"
+                                                immediate="true" update="@form">
+                                        2/3 <p:graphicImage name="demo/images/dashboard/twothirds.png" styleClass="ml-2"
+                                                            alt="two thirds"/>
                                     </p:menuitem>
-                                    <p:menuitem action="#{dashboardView.onDashboardResize('donut', 'xl:col-12')}" immediate="true" update="@form">
-                                        Full <p:graphicImage name="demo/images/dashboard/full.png" styleClass="ml-2" alt="full" />
+                                    <p:menuitem action="#{dashboardView.onDashboardResize('donut', 'xl:col-12')}"
+                                                immediate="true" update="@form">
+                                        Full <p:graphicImage name="demo/images/dashboard/full.png" styleClass="ml-2"
+                                                             alt="full"/>
                                     </p:menuitem>
                                 </p:submenu>
                             </p:menu>
                         </f:facet>
 
-                        <p:chart value="#{chartView.donutModel}" style="width: 100%; height: 100%;" />
+                        <p:chart value="#{chartView.donutModel}" style="width: 100%; height: 100%;"/>
                     </p:panel>
 
-                    <p:panel id="cartesian" header="Cartesian" closable="true" styleClass="chart-dashlet" >
-                        <p:ajax event="close" listener="#{dashboardView.handleClose}" />
+                    <p:panel id="cartesian" header="Cartesian" closable="true" styleClass="chart-dashlet">
+                        <p:ajax event="close" listener="#{dashboardView.handleClose}"/>
                         <f:facet name="options">
                             <p:menu>
                                 <p:submenu label="Panel Size">
-                                    <p:menuitem action="#{dashboardView.onDashboardResize('cartesian', 'xl:col-4')}" immediate="true" update="@form">
-                                        1/3 <p:graphicImage name="demo/images/dashboard/onethird.png" styleClass="ml-2" alt="one third" />
+                                    <p:menuitem action="#{dashboardView.onDashboardResize('cartesian', 'xl:col-4')}"
+                                                immediate="true" update="@form">
+                                        1/3 <p:graphicImage name="demo/images/dashboard/onethird.png" styleClass="ml-2"
+                                                            alt="one third"/>
                                     </p:menuitem>
-                                    <p:menuitem action="#{dashboardView.onDashboardResize('cartesian', 'xl:col-6')}" immediate="true" update="@form">
-                                        1/2 <p:graphicImage name="demo/images/dashboard/onehalf.png" styleClass="ml-2" alt="one half" />
+                                    <p:menuitem action="#{dashboardView.onDashboardResize('cartesian', 'xl:col-6')}"
+                                                immediate="true" update="@form">
+                                        1/2 <p:graphicImage name="demo/images/dashboard/onehalf.png" styleClass="ml-2"
+                                                            alt="one half"/>
                                     </p:menuitem>
-                                    <p:menuitem action="#{dashboardView.onDashboardResize('cartesian', 'xl:col-8')}" immediate="true" update="@form">
-                                        2/3 <p:graphicImage name="demo/images/dashboard/twothirds.png" styleClass="ml-2" alt="two thirds" />
+                                    <p:menuitem action="#{dashboardView.onDashboardResize('cartesian', 'xl:col-8')}"
+                                                immediate="true" update="@form">
+                                        2/3 <p:graphicImage name="demo/images/dashboard/twothirds.png" styleClass="ml-2"
+                                                            alt="two thirds"/>
                                     </p:menuitem>
-                                    <p:menuitem action="#{dashboardView.onDashboardResize('cartesian', 'xl:col-12')}" immediate="true" update="@form">
-                                        Full <p:graphicImage name="demo/images/dashboard/full.png" styleClass="ml-2" alt="full" />
+                                    <p:menuitem action="#{dashboardView.onDashboardResize('cartesian', 'xl:col-12')}"
+                                                immediate="true" update="@form">
+                                        Full <p:graphicImage name="demo/images/dashboard/full.png" styleClass="ml-2"
+                                                             alt="full"/>
                                     </p:menuitem>
                                 </p:submenu>
                             </p:menu>
                         </f:facet>
 
-                        <p:chart id="chartline" value="#{chartView.cartesianLinerModel}" style="width: 100%; height: 100%;" />
+                        <p:chart id="chartline" value="#{chartView.cartesianLinerModel}"
+                                 style="width: 100%; height: 100%;"/>
                     </p:panel>
                 </p:dashboard>
             </div>
         </h:form>
     </ui:define>
-
 </ui:composition>

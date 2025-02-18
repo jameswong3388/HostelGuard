@@ -154,7 +154,7 @@
     <nav class="flex items-center space-x-8 px-12 py-2 bg-white border-b">
         <ui:insert name="navigation">
             <h:link outcome="/god/users.xhtml"
-                    styleClass="py-2 text-gray-500 hover:text-gray-700 focus:outline-none">
+                    styleClass="py-2 focus:outline-none #{view.viewId eq '/god/users.xhtml' ? 'text-blue-600' : 'text-gray-500 hover:text-gray-700'}">
                 Users
             </h:link>
         </ui:insert>

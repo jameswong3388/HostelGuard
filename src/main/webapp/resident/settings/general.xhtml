@@ -8,12 +8,14 @@
     <!-- Keep your other <ui:define> blocks for title, navigation, etc. -->
     <ui:define name="title">General Settings - HostelGuard™</ui:define>
 
-    <!--    <ui:define name="navigation">-->
-    <!--        <h:link outcome="/resident/settings/general.xhtml"-->
-    <!--                styleClass="py-2 text-blue-600 font-medium focus:outline-none">General</h:link>-->
-    <!--        <h:link outcome="/resident/requests.xhtml"-->
-    <!--                styleClass="py-2 text-gray-500 hover:text-gray-700 focus:outline-none">Coming Soon</h:link>-->
-    <!--    </ui:define>-->
+    <ui:define name="navigation">
+        <h:link outcome="/resident/settings/general.xhtml"
+                styleClass="py-2 text-blue-600 font-medium focus:outline-none">General</h:link>
+        <h:link outcome="/resident/settings/account.xhtml"
+                styleClass="py-2 text-gray-500 hover:text-gray-700 focus:outline-none">Account</h:link>
+        <h:link outcome="/resident/settings/authentication-security.xhtml"
+                styleClass="py-2 text-gray-500 hover:text-gray-700 focus:outline-none">Authentication &amp; Security</h:link>
+    </ui:define>
 
     <!-- Replace only the content block with the new design -->
     <ui:define name="content">
@@ -129,7 +131,8 @@
 
                                 <!-- Identity Number -->
                                 <div class="col-span-full">
-                                    <h:outputLabel for="identity_number" value="Identity Number" styleClass="font-medium"/>
+                                    <h:outputLabel for="identity_number" value="Identity Number"
+                                                   styleClass="font-medium"/>
                                     <p:inputText id="identity_number"
                                                  value="#{SettingsController.user.identity_number}"
                                                  placeholder="+1 555 5555"

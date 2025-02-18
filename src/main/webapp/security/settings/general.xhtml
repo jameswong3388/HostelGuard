@@ -8,6 +8,24 @@
     <!-- Page Title -->
     <ui:define name="title">General Settings - HostelGuard™</ui:define>
 
+    <!-- Navigation links -->
+    <ui:define name="navigation">
+        <nav class="flex items-center space-x-8 px-12 py-2 bg-white border-b">
+            <h:link outcome="/security/settings/general.xhtml"
+                    styleClass="py-2 text-blue-600 font-medium focus:outline-none">
+                General
+            </h:link>
+            <h:link outcome="/security/settings/account.xhtml"
+                    styleClass="py-2 text-gray-500 hover:text-gray-700 focus:outline-none">
+                Account
+            </h:link>
+            <h:link outcome="/security/settings/authentication-security.xhtml"
+                    styleClass="py-2 text-gray-500 hover:text-gray-700 focus:outline-none">
+                Authentication &amp; Security
+            </h:link>
+        </nav>
+    </ui:define>
+
     <!-- Replace only the content block with the new design -->
     <ui:define name="content">
         <div class="space-y-10">
