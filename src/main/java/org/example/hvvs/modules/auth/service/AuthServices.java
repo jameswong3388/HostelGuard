@@ -8,6 +8,8 @@ import java.util.List;
 
 public interface AuthServices {
     ServiceResult<Users> signIn(String identifier, String password);
+    
+    ServiceResult<Void> signOut();
 
     void registerSession(Users user);
 

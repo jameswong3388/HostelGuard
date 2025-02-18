@@ -2,37 +2,40 @@ package org.example.hvvs.modules.auth.controller;
 
 import jakarta.ejb.EJB;
 import jakarta.enterprise.context.SessionScoped;
+import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.ExternalContext;
 import jakarta.faces.context.FacesContext;
 import jakarta.inject.Named;
-import jakarta.servlet.http.HttpSession;
-import org.example.hvvs.modules.common.service.SessionService;
-import org.example.hvvs.utils.CommonParam;
+import org.example.hvvs.modules.auth.service.AuthServices;
+import org.example.hvvs.utils.ServiceResult;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.UUID;
-
 
 @Named("signOutController")
 @SessionScoped
 public class SignOutController implements Serializable {
 
-    @EJB private SessionService sessionService;
+    @EJB
+    private AuthServices authServices;
 
-    public String signOut() throws IOException {
-        ExternalContext ec = FacesContext.getCurrentInstance().getExternalContext();
-        HttpSession session = (HttpSession) ec.getSession(false);
-
-        if (session != null) {
-            UUID sessionId = (UUID) session.getAttribute(CommonParam.SESSION_ID);
-            if (sessionId != null) {
-                sessionService.revokeSession(sessionId);
+    public String signOut() {
+        try {
+            ServiceResult<Void> result = authServices.signOut();
+            
+            ExternalContext ec = FacesContext.getCurrentInstance().getExternalContext();
+            if (!result.isSuccess()) {
+                ec.getFlash().setKeepMessages(true);
+                FacesContext.getCurrentInstance().addMessage(null,
+                        new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", result.getMessage()));
             }
-            session.invalidate();
+            
+            ec.redirect(ec.getRequestContextPath() + "/auth/sign-in.xhtml");
+            return null;
+        } catch (IOException e) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Redirect failed: " + e.getMessage()));
+            return null;
         }
-
-        ec.redirect(ec.getRequestContextPath() + "/auth/sign-in.xhtml");
-        return null;
     }
 }

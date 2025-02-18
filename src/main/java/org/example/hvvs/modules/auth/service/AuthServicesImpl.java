@@ -100,6 +100,33 @@ public class AuthServicesImpl implements AuthServices {
         }
     }
 
+    @Override
+    public ServiceResult<Void> signOut() {
+        try {
+            FacesContext context = FacesContext.getCurrentInstance();
+            ExternalContext externalContext = context.getExternalContext();
+            HttpSession session = (HttpSession) externalContext.getSession(false);
+            
+            if (session != null) {
+                // Get session ID before invalidating
+                UUID sessionId = (UUID) session.getAttribute(CommonParam.SESSION_ID);
+                
+                // Invalidate client-side session
+                session.invalidate();
+                
+                if (sessionId != null) {
+                    // Remove from database
+                    sessionService.revokeSession(sessionId);
+                    // Remove from cache
+                    sessionCacheManager.invalidateSession(sessionId);
+                }
+            }
+            return ServiceResult.success(null, "Signed out successfully");
+        } catch (Exception e) {
+            return ServiceResult.failure("LOGOUT_ERROR", "Error during sign out: " + e.getMessage());
+        }
+    }
+
     public void registerSession(Users user) {
         FacesContext context = FacesContext.getCurrentInstance();
         ExternalContext externalContext = context.getExternalContext();
