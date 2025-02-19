@@ -153,10 +153,6 @@ public class ChartView implements Serializable {
                 .setOptions(new LineOptions()
                         .setResponsive(true)
                         .setMaintainAspectRatio(false)
-                        .setPlugins(new Plugins()
-                                .setTitle(new Title()
-                                        .setDisplay(true)
-                                        .setText("Line Chart Subtitle")))
                 ).toJson();
     }
 
@@ -181,10 +177,6 @@ public class ChartView implements Serializable {
                         .setShowLine(Boolean.FALSE)
                         .setScales(new Scales()
                                 .addScale(Scales.ScaleAxis.X, new LinearScaleOptions().setPosition(ScalesPosition.BOTTOM)))
-                        .setPlugins(new Plugins()
-                                .setTitle(new Title()
-                                        .setDisplay(true)
-                                        .setText("Scatter Chart")))
                 ).toJson();
     }
 
@@ -210,10 +202,6 @@ public class ChartView implements Serializable {
                         .setScales(new Scales()
                                 .addScale("left-y-axis", new LinearScaleOptions().setPosition(ScalesPosition.LEFT))
                                 .addScale("right-y-axis", new LinearScaleOptions().setPosition(ScalesPosition.RIGHT)))
-//                        .setPlugins(new Plugins()
-//                                .setTitle(new Title()
-//                                        .setDisplay(true)
-//                                        .setText("Cartesian Linear Chart")))
                 ).toJson();
     }
 
@@ -245,10 +233,6 @@ public class ChartView implements Serializable {
                                         .setAutoSkip(true)
                                         .setMirror(true)))
                         )
-//                        .setPlugins(new Plugins()
-//                                .setTitle(new Title()
-//                                        .setDisplay(true)
-//                                        .setText("Bar Chart using XDEV java model")))
                 ).toJson();
     }
 
@@ -279,11 +263,6 @@ public class ChartView implements Serializable {
                                         .setStacked(true)
                                         .setTicks(new CartesianTickOptions()))
                         )
-                        .setPlugins(new Plugins()
-                                .setTooltip(new Tooltip().setMode("index"))
-                                .setTitle(new Title()
-                                        .setDisplay(true)
-                                        .setText("Bar Chart - Stacked")))
                 ).toJson();
     }
 
@@ -339,10 +318,6 @@ public class ChartView implements Serializable {
                                         .setStepSize(BigDecimal.valueOf(0.2))
                                         .setMaxTickLimits(BigDecimal.valueOf(3))))
                         )
-                        .setPlugins(new Plugins()
-                                .setTitle(new Title()
-                                        .setDisplay(true)
-                                        .setText("Radar Chart")))
                 ).toJson();
 
     }
@@ -409,10 +384,6 @@ public class ChartView implements Serializable {
                         .setMaintainAspectRatio(false)
                         .setPlugins(new Plugins()
                                 .setTooltip(new Tooltip().setMode("index"))
-                                .setTitle(new Title()
-                                        .setDisplay(true)
-                                        .setText("Mixed Chart")
-                                )
                         )
                 ).toJson();
     }
