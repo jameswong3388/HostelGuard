@@ -1,12 +1,6 @@
 package org.example.hvvs.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.NamedQueries;
-import jakarta.persistence.Table;
-import jakarta.persistence.NamedQuery;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.EnumType;
+import jakarta.persistence.*;
 
 import java.sql.Timestamp;
 
@@ -53,8 +47,9 @@ public class Users extends BaseEntity {
     @Column(name = "address")
     private String address;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "gender")
-    private String gender;
+    private Gender gender;
 
     @Column(name = "is_active")
     private boolean is_active = true;
@@ -77,20 +72,29 @@ public class Users extends BaseEntity {
     }
 
     public Users(String username, String salt, String password, String email,
-                 String first_name, String last_name, String phone_number,
-                 boolean is_active, Role role, Boolean is_mfa_enable, Timestamp created_at, Timestamp updated_at) {
+                String firstName, String lastName, String phoneNumber,
+                String identityNumber, Role role) {
         this.username = username;
         this.salt = salt;
         this.password = password;
         this.email = email;
-        this.first_name = first_name;
-        this.last_name = last_name;
-        this.phone_number = phone_number;
-        this.is_active = is_active;
+        this.first_name = firstName;
+        this.last_name = lastName;
+        this.phone_number = phoneNumber;
+        this.identity_number = identityNumber;
         this.role = role;
-        this.is_mfa_enable = is_mfa_enable;
-        this.created_at = created_at;
-        this.updated_at = updated_at;
+    }
+
+    @PrePersist
+    protected void onCreate() {
+        Timestamp now = new Timestamp(System.currentTimeMillis());
+        this.created_at = now;
+        this.updated_at = now;
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        this.updated_at = new Timestamp(System.currentTimeMillis());
     }
 
     public enum Role {
@@ -98,6 +102,12 @@ public class Users extends BaseEntity {
         SECURITY_STAFF,
         MANAGING_STAFF,
         SUPER_ADMIN
+    }
+
+    public enum Gender {
+        MALE,
+        FEMALE,
+        OTHER
     }
 
     public String getUsername() {
@@ -188,11 +198,11 @@ public class Users extends BaseEntity {
         this.updated_at = updated_at;
     }
 
-    public String getGender() {
+    public Gender getGender() {
         return gender;
     }
 
-    public void setGender(String gender) {
+    public void setGender(Gender gender) {
         this.gender = gender;
     }
 

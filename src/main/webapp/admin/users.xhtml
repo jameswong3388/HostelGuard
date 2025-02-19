@@ -97,9 +97,9 @@
                                          value="#{usersController.newUser.gender}"
                                          required="true">
                             <f:selectItem itemLabel="Select Gender" itemValue=""/>
-                            <f:selectItem itemLabel="Male" itemValue="Male"/>
-                            <f:selectItem itemLabel="Female" itemValue="Female"/>
-                            <f:selectItem itemLabel="Others" itemValue="Others"/>
+                            <f:selectItem itemLabel="Male" itemValue="MALE"/>
+                            <f:selectItem itemLabel="Female" itemValue="FEMALE"/>
+                            <f:selectItem itemLabel="Others" itemValue="OTHERS"/>
                         </p:selectOneMenu>
                     </div>
 
@@ -249,6 +249,20 @@
                                      required="true"/>
                     </div>
 
+                    <!-- Gender -->
+                    <div class="field mb-4">
+                        <p:outputLabel for="editGender" value="Gender" styleClass="block mb-1"/>
+                        <p:selectOneMenu id="editGender"
+                                         styleClass="w-full"
+                                         value="#{usersController.editingUser.gender}"
+                                         required="true">
+                            <f:selectItem itemLabel="Select Gender" itemValue=""/>
+                            <f:selectItem itemLabel="Male" itemValue="MALE"/>
+                            <f:selectItem itemLabel="Female" itemValue="FEMALE"/>
+                            <f:selectItem itemLabel="Others" itemValue="OTHER"/>
+                        </p:selectOneMenu>
+                    </div>
+
                     <!-- Phone Number -->
                     <div class="field mb-4">
                         <p:outputLabel for="editPhoneNumber" value="Phone Number" styleClass="block mb-1"/>
@@ -256,18 +270,6 @@
                                      styleClass="w-full"
                                      value="#{usersController.editingUser.phoneNumber}"
                                      required="true"/>
-                    </div>
-
-                    <!-- Role -->
-                    <div class="field mb-4">
-                        <p:outputLabel for="editRole" value="Role" styleClass="block mb-1"/>
-                        <p:selectOneMenu id="editRole"
-                                         styleClass="w-full"
-                                         value="#{usersController.editingUser.role}"
-                                         required="true">
-                            <f:selectItem itemLabel="Resident" itemValue="RESIDENT"/>
-                            <f:selectItem itemLabel="Security Staff" itemValue="SECURITY_STAFF"/>
-                        </p:selectOneMenu>
                     </div>
 
                     <!-- Status -->
@@ -359,7 +361,6 @@
                          filteredValue="#{usersController.filteredUsers}"
                          globalFilterFunction="#{usersController.globalFilterFunction}"
                          filter="#{usersController.globalFilter}"
-                         currentPageReportTemplate="Showing {first} to {last} of {totalRecords} notifications"
                          rowsPerPageTemplate="10,20,50"
             >
 
@@ -401,6 +402,11 @@
                 <!-- Last Name -->
                 <p:column headerText="Last Name" sortBy="#{users.lastName}" style="width: 150px;">
                     <h:outputText value="#{users.lastName}"/>
+                </p:column>
+
+                <!-- Gender -->
+                <p:column headerText="Gender" sortBy="#{users.gender}" style="width: 150px;">
+                    <h:outputText value="#{users.gender}"/>
                 </p:column>
 
                 <!-- Phone Number -->

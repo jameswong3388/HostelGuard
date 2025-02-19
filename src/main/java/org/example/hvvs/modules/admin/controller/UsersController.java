@@ -244,22 +244,7 @@ public class UsersController implements Serializable {
     }
 
     public void prepareEdit(Users user) {
-        this.editingUser = new Users();
-        this.editingUser.setId(user.getId());
-        this.editingUser.setUsername(user.getUsername());
-        this.editingUser.setEmail(user.getEmail());
-        this.editingUser.setPassword(user.getPassword());
-        this.editingUser.setSalt(user.getSalt());
-        this.editingUser.setFirstName(user.getFirstName());
-        this.editingUser.setLastName(user.getLastName());
-        this.editingUser.setAddress(user.getAddress());
-        this.editingUser.setPhoneNumber(user.getPhoneNumber());
-        this.editingUser.setRole(user.getRole());
-        this.editingUser.setIsActive(user.getIsActive());
-        this.editingUser.setIdentity_number(user.getIdentity_number());
-        this.editingUser.setIs_mfa_enable(user.getIs_mfa_enable());
-        this.editingUser.setUpdatedAt(user.getUpdatedAt());
-        this.editingUser.setCreatedAt(user.getCreatedAt());
+        this.editingUser = user;
     }
 
     public void updateUser() {
@@ -276,7 +261,6 @@ public class UsersController implements Serializable {
                 return;
             }
 
-            editingUser.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
             usersFacade.edit(editingUser);
             
             lazyUsersModel.setRowCount(usersFacade.count(globalFilter)); // Refresh count

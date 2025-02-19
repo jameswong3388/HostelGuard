@@ -70,7 +70,8 @@ CREATE TABLE users
     is_mfa_enable   BOOLEAN               DEFAULT FALSE,
     created_at      TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at      TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    CHECK (role IN ('RESIDENT', 'SECURITY_STAFF', 'MANAGING_STAFF', 'SUPER_ADMIN'))
+    CHECK (role IN ('RESIDENT', 'SECURITY_STAFF', 'MANAGING_STAFF', 'SUPER_ADMIN')),
+    CHECK (gender IN ('MALE', 'FEMALE', 'OTHER'))
 );
 
 -- Create resident_profiles table
@@ -539,7 +540,7 @@ def main():
             phone_number=generate_malaysia_phone_number(),
             identity_number=generate_unique_identity(),
             address="123 Test Street, Test City, Test State",
-            gender="Other",
+            gender="OTHER",
             role='MANAGING_STAFF'
         )
         insert_managing_staff_profile(cursor, managing_staff_id, "Management", "Manager")
@@ -563,7 +564,7 @@ def main():
             phone_number=generate_malaysia_phone_number(),
             identity_number=generate_unique_identity(),
             address="789 Admin Tower, Admin City",
-            gender="Other",
+            gender="OTHER",
             role='SUPER_ADMIN'
         )
         insert_managing_staff_profile(cursor, super_admin_id, 'Administration', 'Super Admin')
@@ -590,7 +591,7 @@ def main():
             phone_number=generate_malaysia_phone_number(),
             identity_number=generate_unique_identity(),
             address="456 Security Avenue, Secure City, Secure State",
-            gender="Male",
+            gender="MALE",
             role='SECURITY_STAFF'
         )
         security_staff_ids.append(fixed_security_id)
@@ -620,7 +621,7 @@ def main():
                 phone_number=generate_malaysia_phone_number(),
                 identity_number=generate_unique_identity(),
                 address=fake.address().replace('\n', ', ')[:100],  # Truncate to 100 chars
-                gender=random.choice(['Male', 'Female', 'Other']),
+                gender=random.choice(['MALE', 'FEMALE', 'OTHER']),
                 role='SECURITY_STAFF'
             )
             security_staff_ids.append(new_security_id)
@@ -654,7 +655,7 @@ def main():
             phone_number=generate_malaysia_phone_number(),
             identity_number=generate_unique_identity(),
             address="789 Resident Lane, Resident City, Resident State",
-            gender="Female",
+            gender="FEMALE",
             role='RESIDENT'
         )
         resident_ids.append(fixed_resident_id)
@@ -681,7 +682,7 @@ def main():
                 phone_number=generate_malaysia_phone_number(),
                 identity_number=generate_unique_identity(),
                 address=fake.address().replace('\n', ', ')[:100],
-                gender=random.choice(['Male', 'Female', 'Other']),
+                gender=random.choice(['MALE', 'FEMALE', 'OTHER']),
                 role='RESIDENT'
             )
             resident_ids.append(new_resident_id)

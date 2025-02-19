@@ -245,10 +245,10 @@ public class ChartView implements Serializable {
                                         .setAutoSkip(true)
                                         .setMirror(true)))
                         )
-                        .setPlugins(new Plugins()
-                                .setTitle(new Title()
-                                        .setDisplay(true)
-                                        .setText("Bar Chart using XDEV java model")))
+//                        .setPlugins(new Plugins()
+//                                .setTitle(new Title()
+//                                        .setDisplay(true)
+//                                        .setText("Bar Chart using XDEV java model")))
                 ).toJson();
     }
 

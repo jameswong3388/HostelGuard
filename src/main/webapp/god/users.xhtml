@@ -97,9 +97,9 @@
                                          value="#{usersController.newUser.gender}"
                                          required="true">
                             <f:selectItem itemLabel="Select Gender" itemValue=""/>
-                            <f:selectItem itemLabel="Male" itemValue="Male"/>
-                            <f:selectItem itemLabel="Female" itemValue="Female"/>
-                            <f:selectItem itemLabel="Others" itemValue="Others"/>
+                            <f:selectItem itemLabel="Male" itemValue="MALE"/>
+                            <f:selectItem itemLabel="Female" itemValue="FEMALE"/>
+                            <f:selectItem itemLabel="Others" itemValue="OTHERS"/>
                         </p:selectOneMenu>
                     </div>
 
@@ -250,6 +250,20 @@
                                      required="true"/>
                     </div>
 
+                    <!-- Gender -->
+                    <div class="field mb-4">
+                        <p:outputLabel for="editGender" value="Gender" styleClass="block mb-1"/>
+                        <p:selectOneMenu id="editGender"
+                                         styleClass="w-full"
+                                         value="#{usersController.editingUser.gender}"
+                                         required="true">
+                            <f:selectItem itemLabel="Select Gender" itemValue=""/>
+                            <f:selectItem itemLabel="Male" itemValue="MALE"/>
+                            <f:selectItem itemLabel="Female" itemValue="FEMALE"/>
+                            <f:selectItem itemLabel="Others" itemValue="OTHER"/>
+                        </p:selectOneMenu>
+                    </div>
+
                     <!-- Phone Number -->
                     <div class="field mb-4">
                         <p:outputLabel for="editPhoneNumber" value="Phone Number" styleClass="block mb-1"/>
@@ -276,8 +290,8 @@
                     <div class="field mb-4">
                         <p:outputLabel for="editStatus" value="Status" styleClass="block mb-1"/>
                         <p:selectBooleanButton id="editStatus"
-                                         styleClass="w-full"
-                                         value="#{usersController.editingUser.isActive}">
+                                               styleClass="w-full"
+                                               value="#{usersController.editingUser.isActive}">
                             <f:attribute name="onLabel" value="Active"/>
                             <f:attribute name="offLabel" value="Inactive"/>
                             <f:attribute name="onIcon" value="pi pi-check"/>
@@ -361,6 +375,8 @@
                          filteredValue="#{usersController.filteredUsers}"
                          globalFilterFunction="#{usersController.globalFilterFunction}"
                          filter="#{usersController.globalFilter}"
+                         currentPageReportTemplate="Showing {first} to {last} of {totalRecords} notifications"
+                         rowsPerPageTemplate="10,20,50"
             >
 
                 <!-- Global search bar in the header facet -->
@@ -382,7 +398,7 @@
                 <p:column headerText="ID" sortBy="#{users.id}" style="width: 50px;">
                     <h:outputText value="#{users.id}"/>
                 </p:column>
-                 
+
                 <!-- Username -->
                 <p:column headerText="Username" sortBy="#{users.username}" style="width: 150px;">
                     <h:outputText value="#{users.username}"/>
@@ -401,6 +417,11 @@
                 <!-- Last Name -->
                 <p:column headerText="Last Name" sortBy="#{users.lastName}" style="width: 150px;">
                     <h:outputText value="#{users.lastName}"/>
+                </p:column>
+
+                <!-- Gender -->
+                <p:column headerText="Gender" sortBy="#{users.gender}" style="width: 150px;">
+                    <h:outputText value="#{users.gender}"/>
                 </p:column>
 
                 <!-- Phone Number -->
