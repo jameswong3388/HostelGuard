@@ -45,12 +45,24 @@ public class VisitRequests extends BaseEntity {
     @Column(name = "updated_at", nullable = false)
     private Timestamp updated_at;
 
+    @PrePersist
+    protected void onCreate() {
+        Timestamp now = new Timestamp(System.currentTimeMillis());
+        this.created_at = now;
+        this.updated_at = now;
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        this.updated_at = new Timestamp(System.currentTimeMillis());
+    }
+
     public VisitRequests() {
         super();
     }
 
     public VisitRequests(Users user_id, String verification_code, Timestamp visit_datetime, String purpose, VisitStatus status,
-                         String remarks, String unit_number, int number_of_entries, Timestamp created_at, Timestamp updated_at) {
+                         String remarks, String unit_number, int number_of_entries) {
         this.user_id = user_id;
         this.verification_code = verification_code;
         this.visit_datetime = visit_datetime;
@@ -59,8 +71,6 @@ public class VisitRequests extends BaseEntity {
         this.remarks = remarks;
         this.unit_number = unit_number;
         this.number_of_entries = number_of_entries;
-        this.created_at = created_at;
-        this.updated_at = updated_at;
     }
 
     public enum VisitStatus {

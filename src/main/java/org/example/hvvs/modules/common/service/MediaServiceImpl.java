@@ -39,8 +39,6 @@ public class MediaServiceImpl implements MediaService {
             media.setMimeType(file.getContentType());
             media.setDisk(storageResult.getRelativePath());
             media.setSize((double) file.getSize());
-            media.setCreatedAt(now);
-            media.setUpdatedAt(now);
             
             if (media.getId() == null) {
                 mediasFacade.create(media);

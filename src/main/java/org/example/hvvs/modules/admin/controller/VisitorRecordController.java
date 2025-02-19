@@ -114,7 +114,6 @@ public class VisitorRecordController implements Serializable {
     @Transactional
     public void updateRecord() {
         try {
-            editingRecord.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
             visitorRecordsFacade.edit(editingRecord);
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_INFO, "Success", "Visitor record updated successfully"));

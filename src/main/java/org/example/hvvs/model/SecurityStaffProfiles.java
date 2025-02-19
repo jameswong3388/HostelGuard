@@ -33,12 +33,22 @@ public class SecurityStaffProfiles extends BaseEntity {
         super();
     }
 
-    public SecurityStaffProfiles(Users user_id, String badge_number, String shift, Timestamp created_at, Timestamp updated_at) {
+    public SecurityStaffProfiles(Users user_id, String badge_number, String shift) {
         this.user_id = user_id;
         this.badge_number = badge_number;
         this.shift = shift;
-        this.created_at = created_at;
-        this.updated_at = updated_at;
+    }
+
+    @PrePersist
+    protected void onCreate() {
+        Timestamp now = new Timestamp(System.currentTimeMillis());
+        this.created_at = now;
+        this.updated_at = now;
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        this.updated_at = new Timestamp(System.currentTimeMillis());
     }
 
     public Users getUserId() {

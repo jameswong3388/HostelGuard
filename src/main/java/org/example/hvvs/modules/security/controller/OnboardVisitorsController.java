@@ -128,8 +128,6 @@ public class OnboardVisitorsController implements Serializable {
             visitorRecord.setRequestId(visitRequest);
             visitorRecord.setSecurityStaffId(currentUser);
             visitorRecord.setCheckInTime(new Timestamp(System.currentTimeMillis()));
-            visitorRecord.setCreatedAt(new Timestamp(System.currentTimeMillis()));
-            visitorRecord.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
 
             securityVisitorService.registerVisitor(visitorRecord, tempVisitorPhoto);
             

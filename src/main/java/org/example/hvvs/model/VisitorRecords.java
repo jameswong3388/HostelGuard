@@ -51,7 +51,7 @@ public class VisitorRecords extends BaseEntity {
 
     public VisitorRecords(VisitRequests request_id, Users security_staff_id, String visitor_name,
                           String visitor_ic, String visitor_phone, Timestamp check_in_time, Timestamp check_out_time,
-                          String remarks, Timestamp created_at, Timestamp updated_at) {
+                          String remarks) {
         this.request_id = request_id;
         this.security_staff_id = security_staff_id;
         this.visitor_name = visitor_name;
@@ -60,8 +60,18 @@ public class VisitorRecords extends BaseEntity {
         this.check_in_time = check_in_time;
         this.check_out_time = check_out_time;
         this.remarks = remarks;
-        this.created_at = created_at;
-        this.updated_at = updated_at;
+    }
+
+    @PrePersist
+    protected void onCreate() {
+        Timestamp now = new Timestamp(System.currentTimeMillis());
+        this.created_at = now;
+        this.updated_at = now;
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        this.updated_at = new Timestamp(System.currentTimeMillis());
     }
 
     public VisitRequests getRequestId() {

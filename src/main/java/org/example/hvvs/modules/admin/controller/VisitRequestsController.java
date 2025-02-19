@@ -152,7 +152,6 @@ public class VisitRequestsController implements Serializable {
             VisitRequests original = visitRequestsFacade.find(editingRequest.getId());
             VisitRequests.VisitStatus originalStatus = original.getStatus(); // Capture status before changes
 
-            editingRequest.setUpdatedAt(Timestamp.from(Instant.now()));
             visitRequestsFacade.edit(editingRequest);
 
             if (!originalStatus.equals(editingRequest.getStatus())) {

@@ -112,7 +112,6 @@ public class OnboardVisitorsServiceImpl implements OnboardVisitorsService {
     public void checkoutVisitor(VisitorRecords visitorRecord) {
         // Set checkout time
         visitorRecord.setCheckOutTime(new Timestamp(System.currentTimeMillis()));
-        visitorRecord.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
 
         // Update visitor record
         entityManager.merge(visitorRecord);

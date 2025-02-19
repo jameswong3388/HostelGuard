@@ -51,20 +51,30 @@ public class UserSessions {
     private String deviceInfo;
 
     public UserSessions() {
+        super();
     }
 
-    public UserSessions(Users user_id, String ipAddress, String city, String region, String country, String userAgent,
-                        Timestamp loginTime, Timestamp lastAccess, Timestamp expiresAt, String deviceInfo) {
+    public UserSessions(Users user_id, String ipAddress, String city, String region, String country, String userAgent, 
+                       String deviceInfo) {
         this.user_id = user_id;
         this.ipAddress = ipAddress;
         this.city = city;
         this.region = region;
         this.country = country;
         this.userAgent = userAgent;
-        this.loginTime = loginTime;
-        this.lastAccess = lastAccess;
-        this.expiresAt = expiresAt;
         this.deviceInfo = deviceInfo;
+    }
+
+    @PrePersist
+    protected void onCreate() {
+        Timestamp now = new Timestamp(System.currentTimeMillis());
+        this.loginTime = now;
+        this.lastAccess = now;
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        this.lastAccess = new Timestamp(System.currentTimeMillis());
     }
 
     // Getters and Setters

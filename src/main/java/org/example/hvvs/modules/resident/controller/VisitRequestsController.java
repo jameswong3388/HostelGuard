@@ -30,6 +30,7 @@ public class VisitRequestsController implements Serializable {
     private VisitRequestsFacade visitRequestsFacade;
 
     private VisitRequests newRequest;
+    private Users currentUser;
     private ResidentProfiles residentProfile;
     private List<VisitRequests> selectedRequests;
     private List<VisitRequests> filteredRequests;
@@ -53,6 +54,10 @@ public class VisitRequestsController implements Serializable {
 
     @PostConstruct
     public void init() {
+        currentUser = (Users) FacesContext.getCurrentInstance()
+                .getExternalContext()
+                .getSessionMap()
+                .get(CommonParam.SESSION_SELF);
         initializeLazyModel();
         // Prepare the 'newRequest' object for the dialog
         this.newRequest = new VisitRequests();
@@ -77,26 +82,25 @@ public class VisitRequestsController implements Serializable {
     private void initializeLazyModel() {
         lazyRequestsModel = new LazyDataModel<VisitRequests>() {
             @Override
-            public int count(Map<String, FilterMeta> map) {
-                return 0;
+            public int count(Map<String, FilterMeta> filterBy) {
+                return visitRequestsFacade.count(globalFilter);
             }
 
             @Override
             public List<VisitRequests> load(int first, int pageSize,
                                             Map<String, SortMeta> sortBy, Map<String, FilterMeta> filterBy) {
-                Users currentUser = (Users) FacesContext.getCurrentInstance()
-                        .getExternalContext()
-                        .getSessionMap()
-                        .get(CommonParam.SESSION_SELF);
 
                 List<VisitRequests> results = visitRequestsFacade.findRange(
-                        first,
-                        pageSize,
-                        globalFilter,
-                        sortBy,
-                        currentUser
+                    first,
+                    pageSize,
+                    globalFilter,
+                    sortBy,
+                    currentUser
                 );
-                lazyRequestsModel.setRowCount(visitRequestsFacade.count(globalFilter));
+                
+                // Set the total count for pagination
+                setRowCount(visitRequestsFacade.count(globalFilter));
+                
                 return results;
             }
 
@@ -150,8 +154,6 @@ public class VisitRequestsController implements Serializable {
             Timestamp now = new Timestamp(System.currentTimeMillis());
             newRequest.setUserId(currentUser);
             newRequest.setUnitNumber(residentProfile.getUnitNumber());
-            newRequest.setCreatedAt(now);
-            newRequest.setUpdatedAt(now);
 
             // Persist
             visitRequestsFacade.create(newRequest);
@@ -185,7 +187,6 @@ public class VisitRequestsController implements Serializable {
             // Use the editingRequest field instead of a passed parameter
             editingRequest.setStatus(VisitRequests.VisitStatus.CANCELLED);
             editingRequest.setRemarks("CANCELLED");
-            editingRequest.setUpdatedAt(Timestamp.from(Instant.now()));
 
             // Persist the changes
             visitRequestsFacade.edit(editingRequest);
@@ -209,7 +210,6 @@ public class VisitRequestsController implements Serializable {
     @Transactional
     public void updateRequest() {
         try {
-            editingRequest.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
             visitRequestsFacade.edit(editingRequest);
 
             lazyRequestsModel.setRowCount(visitRequestsFacade.count(globalFilter));

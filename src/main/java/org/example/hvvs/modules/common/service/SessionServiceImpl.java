@@ -59,7 +59,6 @@ public class SessionServiceImpl implements SessionService {
             userSessionsFacade.create(session);
 
             user.setIsActive(true);
-            user.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
             usersFacade.edit(user);
 
             // Async updates for geolocation only
@@ -69,7 +68,6 @@ public class SessionServiceImpl implements SessionService {
         } catch (Exception e) {
             // Rollback any changes if an error occurs
             user.setIsActive(false);
-            user.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
             usersFacade.edit(user);
             throw new RuntimeException("Failed to create session: " + e.getMessage(), e);
         }
@@ -90,7 +88,6 @@ public class SessionServiceImpl implements SessionService {
             List<UserSessions> activeSessions = getActiveSessions(user);
             if (activeSessions.isEmpty()) {
                 user.setIsActive(false);
-                user.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
                 usersFacade.edit(user);
             }
         }
@@ -103,7 +100,6 @@ public class SessionServiceImpl implements SessionService {
         Users user = usersFacade.find(userId);
         if (user != null) {
             user.setIsActive(false);
-            user.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
             usersFacade.edit(user);
         }
     }

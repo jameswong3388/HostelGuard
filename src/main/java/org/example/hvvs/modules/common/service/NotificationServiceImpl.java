@@ -27,8 +27,6 @@ public class NotificationServiceImpl implements NotificationService {
         notification.setRelatedEntityType(relatedEntityType);
         notification.setRelatedEntityId(relatedEntityId);
         notification.setStatus(Notifications.NotificationStatus.UNREAD);
-        notification.setCreatedAt(Timestamp.from(Instant.now()));
-        notification.setUpdatedAt(Timestamp.from(Instant.now()));
         notificationsFacade.create(notification);
     }
 

@@ -53,10 +53,9 @@ public class Medias {
         super();
     }
 
-    public Medias(UUID id, String model, String modelId, String collection, String fileName,
-                  String mimeType, String disk, Double size, Timestamp updatedAt, Timestamp createdAt) {
+    public Medias(String model, String modelId, String collection, String fileName,
+                  String mimeType, String disk, Double size) {
         super();
-        this.id = id;
         this.model = model;
         this.modelId = modelId;
         this.collection = collection;
@@ -64,8 +63,18 @@ public class Medias {
         this.mimeType = mimeType;
         this.disk = disk;
         this.size = size;
-        this.updatedAt = updatedAt;
-        this.createdAt = createdAt;
+    }
+
+    @PrePersist
+    protected void onCreate() {
+        Timestamp now = new Timestamp(System.currentTimeMillis());
+        this.createdAt = now;
+        this.updatedAt = now;
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        this.updatedAt = new Timestamp(System.currentTimeMillis());
     }
 
     // Getters and Setters

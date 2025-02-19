@@ -46,6 +46,32 @@ public class MfaMethods {
     @Column(name = "updated_at", nullable = false)
     private Timestamp updatedAt;
 
+    public MfaMethods() {
+        super();
+    }
+
+    public MfaMethods(Users user, MfaMethodType method, String secret, String recoveryCodes, 
+                     Boolean isPrimary, Boolean isEnabled) {
+        this.user = user;
+        this.method = method;
+        this.secret = secret;
+        this.recoveryCodes = recoveryCodes;
+        this.isPrimary = isPrimary != null ? isPrimary : false;
+        this.isEnabled = isEnabled != null ? isEnabled : true;
+    }
+
+    @PrePersist
+    protected void onCreate() {
+        Timestamp now = new Timestamp(System.currentTimeMillis());
+        this.createdAt = now;
+        this.updatedAt = now;
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        this.updatedAt = new Timestamp(System.currentTimeMillis());
+    }
+
     public Users getUser() {
         return user;
     }

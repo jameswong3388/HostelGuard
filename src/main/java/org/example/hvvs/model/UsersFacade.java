@@ -59,11 +59,6 @@ public class UsersFacade extends AbstractFacade<Users> {
         user.setPassword(hashedPassword);
         user.setSalt(salt);
 
-        // Set timestamps
-        Timestamp now = Timestamp.from(Instant.now());
-        user.setCreatedAt(now);
-        user.setUpdatedAt(now);
-
         // Set default active status if not set
         if (!user.getIsActive()) {
             user.setIsActive(true);

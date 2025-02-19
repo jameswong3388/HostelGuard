@@ -125,15 +125,10 @@ public class UsersController implements Serializable {
 
             Users createdUser = usersFacade.createUser(newUser);
 
-            // Create role-specific profile
-            Timestamp now = new Timestamp(System.currentTimeMillis());
-
             switch (newUser.getRole()) {
                 case RESIDENT:
                     if (residentProfile != null) {
                         residentProfile.setUserId(createdUser);
-                        residentProfile.setCreatedAt(now);
-                        residentProfile.setUpdatedAt(now);
                         residentProfilesFacade.create(residentProfile);
                     }
                     break;
@@ -141,8 +136,6 @@ public class UsersController implements Serializable {
                 case SECURITY_STAFF:
                     if (securityStaffProfile != null) {
                         securityStaffProfile.setUserId(createdUser);
-                        securityStaffProfile.setCreatedAt(now);
-                        securityStaffProfile.setUpdatedAt(now);
                         securityStaffProfilesFacade.create(securityStaffProfile);
                     }
                     break;
@@ -150,8 +143,6 @@ public class UsersController implements Serializable {
                 case MANAGING_STAFF:
                     if (managingStaffProfile != null) {
                         managingStaffProfile.setUserId(createdUser);
-                        managingStaffProfile.setCreatedAt(now);
-                        managingStaffProfile.setUpdatedAt(now);
                         managingStaffProfilesFacade.create(managingStaffProfile);
                     }
                     break;

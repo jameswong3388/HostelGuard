@@ -195,7 +195,6 @@ public class SettingsController implements Serializable {
             }
 
             // Handle common fields
-            user.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
             usersFacade.edit(user);
 
             FacesContext.getCurrentInstance().addMessage(null,
@@ -252,7 +251,6 @@ public class SettingsController implements Serializable {
                 return null;
             }
 
-            user.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
             usersFacade.edit(user);
 
             FacesContext.getCurrentInstance().addMessage(null,
@@ -314,7 +312,6 @@ public class SettingsController implements Serializable {
             // Update the password
             String newPassDigest = DigestUtils.sha256Digest(user.getSalt() + newPassword);
             user.setPassword(newPassDigest);
-            user.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
             usersFacade.edit(user);
 
             oldPassword = null;
@@ -536,8 +533,6 @@ public class SettingsController implements Serializable {
                         newMethod.setUser(user);
                         newMethod.setMethod(MfaMethods.MfaMethodType.SMS);
                         newMethod.setEnabled(false);
-                        newMethod.setUpdatedAt(Timestamp.from(Instant.now()));
-                        newMethod.setCreatedAt(Timestamp.from(Instant.now()));
                         mfaMethodsFacade.create(newMethod);
                         return newMethod;
                     });
@@ -579,7 +574,6 @@ public class SettingsController implements Serializable {
             // Enable the method and set recovery codes
             smsMethod.setEnabled(true);
             smsMethod.setRecoveryCodes(gson.toJson(recoveryCodes));
-            smsMethod.setUpdatedAt(Timestamp.from(Instant.now()));
 
             // Set as primary if first MFA method
             MfaMethods primaryMfaMethodByUser = mfaMethodsFacade.findPrimaryMfaMethodByUser(user);
@@ -617,8 +611,6 @@ public class SettingsController implements Serializable {
                         newMethod.setUser(user);
                         newMethod.setMethod(MfaMethods.MfaMethodType.EMAIL);
                         newMethod.setEnabled(false);
-                        newMethod.setUpdatedAt(Timestamp.from(Instant.now()));
-                        newMethod.setCreatedAt(Timestamp.from(Instant.now()));
                         mfaMethodsFacade.create(newMethod);
                         return newMethod;
                     });
@@ -660,7 +652,6 @@ public class SettingsController implements Serializable {
             // Enable the method and set recovery codes
             emailMethod.setEnabled(true);
             emailMethod.setRecoveryCodes(gson.toJson(recoveryCodes));
-            emailMethod.setUpdatedAt(Timestamp.from(Instant.now()));
 
             // Set as primary if first MFA method
             MfaMethods primaryMfaMethodByUser = mfaMethodsFacade.findPrimaryMfaMethodByUser(user);

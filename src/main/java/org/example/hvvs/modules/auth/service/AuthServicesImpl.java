@@ -180,7 +180,6 @@ public class AuthServicesImpl implements AuthServices {
         // If it's the first method, mark user as having MFA
         if (isFirstMethod) {
             user.setIs_mfa_enable(true);
-            user.setUpdatedAt(Timestamp.from(Instant.now()));
             usersFacade.edit(user);
         }
 
@@ -192,8 +191,6 @@ public class AuthServicesImpl implements AuthServices {
         method.setRecoveryCodes(gson.toJson(recoveryCodes));
         method.setPrimary(isFirstMethod);
         method.setEnabled(true);
-        method.setCreatedAt(Timestamp.from(Instant.now()));
-        method.setUpdatedAt(Timestamp.from(Instant.now()));
 
         // Persist
         mfaMethodsFacade.create(method);
@@ -217,7 +214,6 @@ public class AuthServicesImpl implements AuthServices {
         // Check how many remain after removal
         List<MfaMethods> remaining = mfaMethodsFacade.findEnabledMfaMethodsByUser(user);
         user.setIs_mfa_enable(!remaining.isEmpty());
-        user.setUpdatedAt(Timestamp.from(Instant.now()));
         usersFacade.edit(user);
     }
 
@@ -247,7 +243,6 @@ public class AuthServicesImpl implements AuthServices {
 
             String codePlusExpiry = code + "~" + expiresAt;
 
-            method.setUpdatedAt(Timestamp.from(Instant.ofEpochMilli(now)));
             method.setSecret(codePlusExpiry);
             mfaMethodsFacade.edit(method);
         } catch (Exception e) {
@@ -270,7 +265,6 @@ public class AuthServicesImpl implements AuthServices {
 
             String codePlusExpiry = code + "~" + expiresAt;
 
-            method.setUpdatedAt(Timestamp.from(Instant.ofEpochMilli(now)));
             method.setSecret(codePlusExpiry);
             mfaMethodsFacade.edit(method);
 
@@ -430,7 +424,6 @@ public class AuthServicesImpl implements AuthServices {
         }
         if (found) {
             method.setRecoveryCodes(gson.toJson(codes));
-            method.setUpdatedAt(Timestamp.from(Instant.now()));
             mfaMethodsFacade.edit(method);
         }
         return found;

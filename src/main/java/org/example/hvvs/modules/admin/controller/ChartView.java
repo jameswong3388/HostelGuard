@@ -210,10 +210,10 @@ public class ChartView implements Serializable {
                         .setScales(new Scales()
                                 .addScale("left-y-axis", new LinearScaleOptions().setPosition(ScalesPosition.LEFT))
                                 .addScale("right-y-axis", new LinearScaleOptions().setPosition(ScalesPosition.RIGHT)))
-                        .setPlugins(new Plugins()
-                                .setTitle(new Title()
-                                        .setDisplay(true)
-                                        .setText("Cartesian Linear Chart")))
+//                        .setPlugins(new Plugins()
+//                                .setTitle(new Title()
+//                                        .setDisplay(true)
+//                                        .setText("Cartesian Linear Chart")))
                 ).toJson();
     }
 

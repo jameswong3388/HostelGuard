@@ -54,6 +54,35 @@ public class Notifications extends BaseEntity {
         UNREAD, READ
     }
     
+    public Notifications() {
+        super();
+    }
+
+    public Notifications(Users user, NotificationType type, String title, String message, 
+                        String relatedEntityType, String relatedEntityId, 
+                        NotificationStatus status, Timestamp readAt) {
+        this.user = user;
+        this.type = type;
+        this.title = title;
+        this.message = message;
+        this.relatedEntityType = relatedEntityType;
+        this.relatedEntityId = relatedEntityId;
+        this.status = status != null ? status : NotificationStatus.UNREAD;
+        this.readAt = readAt;
+    }
+
+    @PrePersist
+    protected void onCreate() {
+        Timestamp now = new Timestamp(System.currentTimeMillis());
+        this.createdAt = now;
+        this.updatedAt = now;
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        this.updatedAt = new Timestamp(System.currentTimeMillis());
+    }
+
     // Getters and setters
     public Users getUser() {
         return user;

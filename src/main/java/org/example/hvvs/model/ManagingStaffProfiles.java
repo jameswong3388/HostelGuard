@@ -33,12 +33,22 @@ public class ManagingStaffProfiles extends BaseEntity {
         super();
     }
 
-    public ManagingStaffProfiles(Users user_id, String department, String position, Timestamp created_at, Timestamp updated_at) {
+    public ManagingStaffProfiles(Users user_id, String department, String position) {
         this.user_id = user_id;
         this.department = department;
         this.position = position;
-        this.created_at = created_at;
-        this.updated_at = updated_at;
+    }
+
+    @PrePersist
+    protected void onCreate() {
+        Timestamp now = new Timestamp(System.currentTimeMillis());
+        this.created_at = now;
+        this.updated_at = now;
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        this.updated_at = new Timestamp(System.currentTimeMillis());
     }
 
     public Users getUserId() {
