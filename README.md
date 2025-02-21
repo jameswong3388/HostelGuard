@@ -19,6 +19,10 @@ https://github.com/user-attachments/assets/94c52765-d23f-4e6f-8851-109621c8119c
 
 ### Admin Features
 - User management (CRUD)
+- Visit Request management (CRUD)
+- Visitor Records management (CRUD)
+- Dashboard (Coming soon)
+- Calendar (Coming soon)
 - Media management with collection-based organization (profile pics, docs, etc)
 - Data export capabilities (Excel, PDF) with dynamic filtering
 
