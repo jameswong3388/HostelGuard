@@ -10,7 +10,7 @@ https://github.com/user-attachments/assets/94c52765-d23f-4e6f-8851-109621c8119c
 - Multi-factor Authentication (TOTP/SMS/Email) with recovery codes
 - Secure password storage using SHA-256 hashing with individual salts
 - Multi-device session management with IP address tracking with GeoIP2 integration
-- Role-based access control (Resident/Security/Admin) with hierarchical permissions
+- Role-based access control (Resident/Security/Managing staff/Super admin) with hierarchical permissions
 - File upload handling with content validation and multiple storage collections
 - Rate limiting for authentication endpoints with bulk operation protection
 - Lazy loading data tables with server-side filtering, sorting and global search
@@ -102,5 +102,5 @@ Access via: `https://your-domain:8443/HVVS-1.0-SNAPSHOT/`
 |----------------|----------------------------------|
 | Resident       | /resident/requests.xhtml         |
 | Security Staff | /security/onboard-visitors.xhtml |
-| Admin          | /admin/dashboard.xhtml           |
+| Managing Staff | /admin/dashboard.xhtml           |
 | Super Admin    | /god/users.xhtml                 |
