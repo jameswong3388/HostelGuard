@@ -46,11 +46,16 @@ https://github.com/user-attachments/assets/94c52765-d23f-4e6f-8851-109621c8119c
 
 1. Database Setup:
 
-Boot up mysql server
+Boot mysql server up and down 
 ```bash
-docker compose up -d 
+docker compose up -d
+docker compose down 
 ```
-2. Add new module in Wildfly directory
+2. Seed data (Optional)
+```shell
+python seeder.py
+```
+3Add new module in Wildfly directory
 - Create `/mysql/main` in `/opt/homebrew/Cellar/wildfly-as/35.0.1/libexec/modules/system/layers/base/com`
 - Download `mysql-connector-j-8.0.33.jar` and place in `/opt/homebrew/Cellar/wildfly-as/35.0.1/libexec/modules/system/layers/base/com/mysql/main/mysql-connector-j-8.0.33.jar`
 - Create `module.xml` and place in `/opt/homebrew/Cellar/wildfly-as/35.0.1/libexec/modules/system/layers/base/com/mysql/main/`
@@ -66,12 +71,12 @@ docker compose up -d
     </dependencies>
 </module>
 ```
-3. JDBC Driver Setup (Wildfly -> Configuration -> Subsystems -> Datasources & Drivers)
+4. JDBC Driver Setup (Wildfly -> Configuration -> Subsystems -> Datasources & Drivers)
 - Name: mysql
 - Driver Module name: com.mysql
 - Driver Class Name com.mysql.cj.jdbc.Driver
-4. JDBC Datasource Setup
-5. Create env (Optional)
+5. JDBC Datasource Setup
+6. Create env (Optional)
 - Create `application.properties` and place in `META-INF/application.properties`
 - Copy below to apply
 ```text
@@ -84,15 +89,15 @@ mail.smtp.from=
 mail.smtp.auth=true
 mail.smtp.starttls.enable=false
 ```
-6. WildFly Settings (IntelliJ):
+7. WildFly Settings (IntelliJ):
 - Add new configuration
 - Select Wildfly
 - Add URL `https://localhost:8443/HVVS-1.0-SNAPSHOT/` to Server section
 - Add `HVVS:war exploded` to Deployment section
-7. Setup GeoLite
+8. Setup GeoLite
 - Download `GeoLite2-City.mmdb` from https://github.com/P3TERX/GeoLite.mmdb
 - Place `GeoLite2-City.mmdb` in `src/main/webapp/WEB-INF/GeoLite2-City.mmdb`
-8. Run
+9. Run
 
 ## Usage
 
