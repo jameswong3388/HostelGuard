@@ -292,19 +292,16 @@
                     <!-- Action Buttons -->
                     <div class="flex justify-content-end gap-4">
                         <p:commandButton value="Revoke"
-                                         icon="pi pi-ban"
                                          action="#{visitRequestsControllerResident.revokeRequest}"
                                          update=":requestsTableForm:requestsTable :messages"
                                          styleClass="ui-button-danger"
                                          oncomplete="PF('editRequestSidebar').hide();"
                                          rendered="#{visitRequestsControllerResident.editingRequest.status eq 'PENDING'}"/>
                         <p:commandButton value="Cancel"
-                                         icon="pi pi-times"
                                          onclick="PF('editRequestSidebar').hide(); return false;"
                                          styleClass="p-button-text mr-2 ui-button-warning"
                                          immediate="true"/>
                         <p:commandButton value="Save"
-                                         icon="pi pi-check"
                                          action="#{visitRequestsControllerResident.updateRequest}"
                                          update=":requestsTableForm:requestsTable :messages"
                                          styleClass="p-button-primary"
