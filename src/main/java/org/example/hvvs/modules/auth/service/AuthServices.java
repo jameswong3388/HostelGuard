@@ -1,5 +1,6 @@
 package org.example.hvvs.modules.auth.service;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.example.hvvs.model.MfaMethods;
 import org.example.hvvs.model.Users;
 import org.example.hvvs.utils.ServiceResult;
@@ -7,11 +8,11 @@ import org.example.hvvs.utils.ServiceResult;
 import java.util.List;
 
 public interface AuthServices {
-    ServiceResult<Users> signIn(String identifier, String password);
+    ServiceResult<Users> signIn(String identifier, String password, HttpServletRequest request);
     
-    ServiceResult<Void> signOut();
+    ServiceResult<Void> signOut(HttpServletRequest request);
 
-    void registerSession(Users user);
+    void registerSession(Users user, HttpServletRequest request);
 
     String redirectBasedOnRole(Users user);
 

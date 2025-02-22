@@ -6,8 +6,6 @@ import com.warrenstrange.googleauth.GoogleAuthenticator;
 import com.warrenstrange.googleauth.GoogleAuthenticatorKey;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
-import jakarta.faces.context.ExternalContext;
-import jakarta.faces.context.FacesContext;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.example.hvvs.model.*;
@@ -17,8 +15,6 @@ import org.example.hvvs.utils.DigestUtils;
 import org.example.hvvs.utils.ServiceResult;
 import org.example.hvvs.utils.SessionCacheManager;
 
-import java.sql.Timestamp;
-import java.time.Instant;
 import java.util.*;
 import java.io.InputStream;
 
@@ -50,17 +46,13 @@ public class AuthServicesImpl implements AuthServices {
     private final Gson gson = new Gson();
 
     @Override
-    public ServiceResult<Users> signIn(String identifier, String password) {
-        // Rate limiting check
-        HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance()
-                .getExternalContext().getRequest();
+    public ServiceResult<Users> signIn(String identifier, String password, HttpServletRequest request) {
         String ipAddress = request.getRemoteAddr();
         String rateLimitKey = "login_attempts:" + ipAddress;
 
-        // Check if blocked
         if (sessionCacheManager.isBlocked(rateLimitKey)) {
             return ServiceResult.failure("RATE_LIMITED",
-                    "Too many attempts. Please try again in 15 minutes.");
+                "Too many attempts. Please try again in 15 minutes.");
         }
 
         // Existing parameter check
@@ -77,20 +69,29 @@ public class AuthServicesImpl implements AuthServices {
         } catch (Exception e) {
             return ServiceResult.failure("DB_ERROR", "An error occurred when querying the user: " + e.getMessage());
         }
+
+        String errorMessage = "Email/username or password is incorrect";
         if (user == null) {
             incrementFailedAttempt(rateLimitKey);
-            return ServiceResult.failure("INVALID_CREDENTIALS", "Email/username or password is incorrect");
+            return buildRateLimitedResult(rateLimitKey, errorMessage);
         }
 
         String passDigest = DigestUtils.sha256Digest(user.getSalt() + password);
         if (!user.getPassword().equals(passDigest)) {
             incrementFailedAttempt(rateLimitKey);
-            return ServiceResult.failure("INVALID_CREDENTIALS", "Email/username or password is incorrect");
+            return buildRateLimitedResult(rateLimitKey, errorMessage);
         }
 
-        // Reset attempts on successful login
         sessionCacheManager.resetAttempts(rateLimitKey);
         return ServiceResult.success(user, "Sign-in successful");
+    }
+
+    private ServiceResult<Users> buildRateLimitedResult(String rateLimitKey, String baseMessage) {
+        int remaining = sessionCacheManager.getRemainingAttempts(rateLimitKey);
+
+        baseMessage += ", " + remaining + " attempts remaining before lockout";
+
+        return ServiceResult.failure("INVALID_CREDENTIALS", baseMessage);
     }
 
     private void incrementFailedAttempt(String rateLimitKey) {
@@ -101,11 +102,9 @@ public class AuthServicesImpl implements AuthServices {
     }
 
     @Override
-    public ServiceResult<Void> signOut() {
+    public ServiceResult<Void> signOut(HttpServletRequest request) {
         try {
-            FacesContext context = FacesContext.getCurrentInstance();
-            ExternalContext externalContext = context.getExternalContext();
-            HttpSession session = (HttpSession) externalContext.getSession(false);
+            HttpSession session = request.getSession(false);
             
             if (session != null) {
                 // Get session ID before invalidating
@@ -127,18 +126,15 @@ public class AuthServicesImpl implements AuthServices {
         }
     }
 
-    public void registerSession(Users user) {
-        FacesContext context = FacesContext.getCurrentInstance();
-        ExternalContext externalContext = context.getExternalContext();
+    public void registerSession(Users user, HttpServletRequest request) {
 
-        HttpSession existingSession = (HttpSession) externalContext.getSession(false);
+        HttpSession existingSession = request.getSession(false);
         if (existingSession != null) {
             existingSession.invalidate();
         }
 
-        HttpSession newSession = (HttpSession) externalContext.getSession(true);
+        HttpSession newSession = request.getSession(true);
 
-        HttpServletRequest request = (HttpServletRequest) externalContext.getRequest();
         UserSessions userSession = sessionService.createSession(
                 user,
                 request.getRemoteAddr(),

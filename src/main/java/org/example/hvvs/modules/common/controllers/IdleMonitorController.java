@@ -5,6 +5,7 @@ import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
 import jakarta.inject.Named;
+import jakarta.servlet.http.HttpServletRequest;
 import org.example.hvvs.modules.auth.service.AuthServices;
 import org.example.hvvs.utils.ServiceResult;
 
@@ -18,7 +19,10 @@ public class IdleMonitorController implements Serializable {
 
     public String handleIdle() {
         try {
-            ServiceResult<Void> result = authServices.signOut();
+            HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance()
+                    .getExternalContext().getRequest();
+
+            ServiceResult<Void> result = authServices.signOut(request);
             
             if (!result.isSuccess()) {
                 FacesContext.getCurrentInstance().addMessage(null,
@@ -31,13 +35,13 @@ public class IdleMonitorController implements Serializable {
                             "Session Expired",
                             "Your session has expired due to inactivity."));
 
-            return "/auth/sign-in.xhtml?faces-redirect=true";
+            return "/auth/sign-in.jsp?faces-redirect=true";
         } catch (Exception e) {
             FacesContext.getCurrentInstance().getExternalContext().getFlash().setKeepMessages(true);
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error",
                             "Error handling idle timeout: " + e.getMessage()));
-            return "/auth/sign-in.xhtml?faces-redirect=true";
+            return "/auth/sign-in.jsp?faces-redirect=true";
         }
     }
 

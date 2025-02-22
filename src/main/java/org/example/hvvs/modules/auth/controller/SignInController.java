@@ -1,11 +1,9 @@
 package org.example.hvvs.modules.auth.controller;
 
 import jakarta.ejb.EJB;
-import jakarta.enterprise.context.RequestScoped;
-import jakarta.faces.application.FacesMessage;
-import jakarta.faces.context.FacesContext;
-import jakarta.inject.Named;
-import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.*;
 import org.example.hvvs.model.MfaMethods;
 import org.example.hvvs.model.MfaMethodsFacade;
 import org.example.hvvs.model.Users;
@@ -14,11 +12,10 @@ import org.example.hvvs.utils.CommonParam;
 import org.example.hvvs.utils.ServiceResult;
 import org.example.hvvs.utils.SessionCacheManager;
 
-import java.io.Serializable;
+import java.io.IOException;
 
-@Named("signInController")
-@RequestScoped
-public class SignInController implements Serializable {
+@WebServlet("/auth/signIn")
+public class SignInController extends HttpServlet {
 
     @EJB
     private AuthServices authServices;
@@ -29,96 +26,111 @@ public class SignInController implements Serializable {
     @EJB
     private MfaMethodsFacade mfaMethodsFacade;
 
-    private String identifier; // Can be either email or username
-    private String password;
+    private static final String SIGN_IN_JSP = "/auth/sign-in.jsp";
 
-    public String signIn() {
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        // Typically just forward to the sign-in form
+        forwardToSignInForm(request, response);
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        String identifier = request.getParameter("identifier");
+        String password = request.getParameter("password");
+
+        // Identify user by IP for rate-limit checks
+        String ipAddress = request.getRemoteAddr();
+        String rateLimitKey = "login_attempts:" + ipAddress;
+
+        // Check if this IP is currently blocked
+        if (sessionCacheManager.isBlocked(rateLimitKey)) {
+            request.setAttribute("errorMessage", "Account is temporarily locked. Please try again in 15 minutes.");
+            forwardToSignInForm(request, response);
+            return;
+        }
+
+        // Attempt to sign in
+        ServiceResult<Users> serviceResult;
         try {
-            ServiceResult<Users> serviceResult = authServices.signIn(identifier, password);
+            serviceResult = authServices.signIn(identifier, password, request);
 
             if (!serviceResult.isSuccess()) {
-                FacesContext.getCurrentInstance().getExternalContext().getFlash().setKeepMessages(true);
-                FacesContext.getCurrentInstance().addMessage(null,
-                        new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", serviceResult.getMessage()));
-                return "/auth/sign-in.xhtml?faces-redirect=true";
+                request.setAttribute("errorMessage", serviceResult.getMessage());
+                forwardToSignInForm(request, response);
+                return;
             }
-
-            Users user = serviceResult.getData();
-
-            if (user.getIs_mfa_enable()) {
-                FacesContext.getCurrentInstance().getExternalContext().getSessionMap()
-                        .put(CommonParam.PRE_AUTH_USER, user);
-
-                password = null;
-
-                MfaMethods primaryMethod = mfaMethodsFacade.findPrimaryMfaMethodByUser(user);
-
-                if (primaryMethod == null) {
-                    FacesContext.getCurrentInstance().getExternalContext().getFlash().setKeepMessages(true);
-                    FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(
-                            FacesMessage.SEVERITY_ERROR, "Error", "There is no primary MFA method associated with the user."));
-                    return "/auth/sign-in.xhtml?faces-redirect=true";
-                }
-
-                switch (primaryMethod.getMethod()) {
-                    case EMAIL:
-                        authServices.sendEmailCode(primaryMethod);
-                        break;
-                    case SMS:
-                        authServices.sendSMSCode(primaryMethod);
-                        break;
-                    case TOTP:
-                        break;
-                }
-
-                return "/auth/mfa.xhtml?faces-redirect=true";
-            }
-
-            authServices.registerSession(user);
-
-            // Now redirect or navigate based on the user's role
-            return authServices.redirectBasedOnRole(user);
         } catch (Exception e) {
-            FacesContext.getCurrentInstance().getExternalContext().getFlash().setKeepMessages(true);
-            FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Login failed: " + e.getMessage()));
-            return "/auth/sign-in.xhtml?faces-redirect=true";
+            // Handle any unexpected exceptions from the service/EJB layer
+            request.setAttribute("errorMessage", "Login failed: " + e.getMessage());
+            incrementAttemptsAndForward(rateLimitKey, request, response);
+            return;
         } finally {
-            // Ensure password String is cleared from memory
+            // Clear sensitive data
             password = null;
         }
+        
+        // Sign-in succeeded
+        Users user = serviceResult.getData();
+
+        // Check if MFA is enabled
+        if (user.getIs_mfa_enable()) {
+            // Store the user in session so that we can verify in the MFA flow
+            request.getSession().setAttribute(CommonParam.PRE_AUTH_USER, user);
+
+            // Find the user's primary MFA method
+            MfaMethods primaryMethod = mfaMethodsFacade.findPrimaryMfaMethodByUser(user);
+            if (primaryMethod == null) {
+                request.setAttribute("errorMessage", "No primary MFA method associated with the user.");
+                forwardToSignInForm(request, response);
+                return;
+            }
+
+            // Trigger the MFA step (e.g., send code via email/sms, etc.)
+            switch (primaryMethod.getMethod()) {
+                case EMAIL:
+                    authServices.sendEmailCode(primaryMethod);
+                    break;
+                case SMS:
+                    authServices.sendSMSCode(primaryMethod);
+                    break;
+                case TOTP:
+                    // TOTP typically checked via authenticator app
+                    break;
+            }
+
+            // Redirect to an MFA verification page (JSP or another Servlet)
+            response.sendRedirect(request.getContextPath() + "/auth/mfa");
+            return;
+        }
+
+        // If MFA is not enabled, finalize login
+        authServices.registerSession(user, request);
+
+        // Redirect based on user role
+        String redirectUrl = authServices.redirectBasedOnRole(user);
+        response.sendRedirect(request.getContextPath() + redirectUrl);
     }
 
-    public int getRemainingAttempts() {
-        HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance()
-                .getExternalContext().getRequest();
-        String ipAddress = request.getRemoteAddr();
-        String rateLimitKey = "login_attempts:" + ipAddress;
-        return sessionCacheManager.getRemainingAttempts(rateLimitKey);
+    /**
+     * Increments the login attempt count and forwards the user back to the sign-in form.
+     */
+    private void incrementAttemptsAndForward(String rateLimitKey, HttpServletRequest request,
+                                             HttpServletResponse response) throws ServletException, IOException {
+        sessionCacheManager.incrementAttempt(rateLimitKey);
+        forwardToSignInForm(request, response);
     }
 
-    public boolean isBlocked() {
-        HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance()
-                .getExternalContext().getRequest();
-        String ipAddress = request.getRemoteAddr();
-        String rateLimitKey = "login_attempts:" + ipAddress;
-        return sessionCacheManager.isBlocked(rateLimitKey);
-    }
-
-    // Getters and Setters
-    public String getIdentifier() {
-        return identifier;
-    }
-
-    public void setIdentifier(String identifier) {
-        this.identifier = identifier;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
+    /**
+     * Forwards to the sign-in JSP, adding lockout/attempts info as request attributes.
+     */
+    private void forwardToSignInForm(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        // Forward to JSP
+        getServletContext()
+                .getRequestDispatcher(SIGN_IN_JSP)
+                .forward(request, response);
     }
 }

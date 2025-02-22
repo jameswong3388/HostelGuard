@@ -77,7 +77,7 @@ function animate() {
             morphCount++;
             
             if (morphCount >= texts.length) {
-                window.location.href = "https://localhost:8443/HVVS-1.0-SNAPSHOT/auth/sign-in.xhtml";
+                window.location.href = "https://localhost:8443/HVVS-1.0-SNAPSHOT/auth/sign-in.jsp";
                 return;
             }
         }
@@ -91,5 +91,5 @@ animate();
 
 // Listen for clicks anywhere on the document to skip the animation
 document.addEventListener("click", () => {
-    window.location.href = "https://localhost:8443/HVVS-1.0-SNAPSHOT/auth/sign-in.xhtml";
+    window.location.href = "https://localhost:8443/HVVS-1.0-SNAPSHOT/auth/sign-in.jsp";
 });

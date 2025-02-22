@@ -28,14 +28,14 @@ public class Middleware implements Filter {
 
     // Public paths that don't require authentication
     private static final String[] PUBLIC_PATHS = {
-            "/auth/sign-in.xhtml",
+            "/auth/sign-in.jsp",
             "/index.jsp",
             "/forget-password.xhtml",
             "/404.xhtml",
             "/jakarta.faces.resource/*"
     };
 
-    private static final String MFA_PATH = "/auth/mfa.xhtml";
+    private static final String MFA_PATH = "/auth/mfa.jsp";
 
     // Role-specific path mappings
     private static final List<PathRole> PATH_ROLES = Arrays.asList(
@@ -190,12 +190,12 @@ public class Middleware implements Filter {
             case SECURITY_STAFF -> resp.sendRedirect(contextPath + "/security/onboard-visitors.xhtml");
             case MANAGING_STAFF -> resp.sendRedirect(contextPath + "/admin/dashboard.xhtml");
             case SUPER_ADMIN -> resp.sendRedirect(contextPath + "/god/users.xhtml");
-            default -> resp.sendRedirect(contextPath + "/auth/sign-in.xhtml");
+            default -> resp.sendRedirect(contextPath + "/auth/sign-in.jsp");
         }
     }
 
     private void redirectToLogin(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        resp.sendRedirect(req.getContextPath() + "/auth/sign-in.xhtml");
+        resp.sendRedirect(req.getContextPath() + "/auth/sign-in.jsp");
     }
 
     @Override

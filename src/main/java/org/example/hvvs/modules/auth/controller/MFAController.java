@@ -1,11 +1,9 @@
 package org.example.hvvs.modules.auth.controller;
 
 import jakarta.ejb.EJB;
-import jakarta.faces.application.FacesMessage;
-import jakarta.faces.context.FacesContext;
-import jakarta.faces.view.ViewScoped;
-import jakarta.inject.Named;
-import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.*;
 import org.example.hvvs.model.MfaMethods;
 import org.example.hvvs.model.MfaMethodsFacade;
 import org.example.hvvs.model.Users;
@@ -13,11 +11,10 @@ import org.example.hvvs.modules.auth.service.AuthServices;
 import org.example.hvvs.utils.CommonParam;
 import org.example.hvvs.utils.SessionCacheManager;
 
-import java.io.Serializable;
+import java.io.IOException;
 
-@Named("mfaController")
-@ViewScoped
-public class MFAController implements Serializable {
+@WebServlet("/auth/mfa")
+public class MFAController extends HttpServlet {
 
     @EJB
     private AuthServices authServices;
@@ -28,69 +25,69 @@ public class MFAController implements Serializable {
     @EJB
     private SessionCacheManager sessionCacheManager;
 
-    private String code; // code the user inputs
-    private boolean isRecoveryMode = false; // toggle between MFA and recovery code mode
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        // Check pre-auth session
+        HttpSession session = request.getSession(false);
+        if (session == null || session.getAttribute(CommonParam.PRE_AUTH_USER) == null) {
+            response.sendRedirect(request.getContextPath() + "/auth/sign-in.jsp");
+            return;
+        }
 
-    public String verifyMfa() {
-        HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance()
-                .getExternalContext().getRequest();
+        // Add remaining attempts to request
+        String rateLimitKey = "login_attempts:" + request.getRemoteAddr();
+        request.setAttribute("remainingAttempts", sessionCacheManager.getRemainingAttempts(rateLimitKey));
+        request.setAttribute("isBlocked", sessionCacheManager.isBlocked(rateLimitKey));
+
+        request.getRequestDispatcher("/auth/mfa.jsp").forward(request, response);
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        String code = request.getParameter("code");
+        boolean isRecoveryMode = "true".equals(request.getParameter("isRecoveryMode"));
         String rateLimitKey = "login_attempts:" + request.getRemoteAddr();
 
         if (sessionCacheManager.isBlocked(rateLimitKey)) {
-            FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                            "Too many attempts",
-                            "Please try again in 15 minutes or use a recovery code"));
-            return null;
+            request.setAttribute("errorMessage", "Too many attempts. Please try again in 15 minutes.");
+            doGet(request, response);
+            return;
         }
 
         try {
-            // Retrieve the user from pre-auth session
-            FacesContext ctx = FacesContext.getCurrentInstance();
-            Users preAuthUser = (Users) ctx.getExternalContext()
-                    .getSessionMap().get(CommonParam.PRE_AUTH_USER);
+            HttpSession session = request.getSession();
+            Users preAuthUser = (Users) session.getAttribute(CommonParam.PRE_AUTH_USER);
 
             if (preAuthUser == null) {
-                ctx.addMessage(null, new FacesMessage(
-                        FacesMessage.SEVERITY_ERROR, "Error", "Please login first!"));
-                return "/auth/sign-in.xhtml?faces-redirect=true";
+                response.sendRedirect(request.getContextPath() + "/auth/sign-in");
+                return;
             }
 
-            // Find the user's primary method from DB
             MfaMethods primaryMethod = mfaMethodsFacade.findPrimaryMfaMethodByUser(preAuthUser);
-
             if (primaryMethod == null) {
-                ctx.addMessage(null, new FacesMessage(
-                        FacesMessage.SEVERITY_ERROR, "Error", "There is no primary MFA method associated with the user."));
-                return "/auth/sign-in.xhtml?faces-redirect=true";
+                session.removeAttribute(CommonParam.PRE_AUTH_USER);
+                response.sendRedirect(request.getContextPath() + "/auth/sign-in");
+                return;
             }
 
             boolean verificationSuccess = false;
             if (isRecoveryMode) {
                 verificationSuccess = authServices.verifyRecoveryCode(primaryMethod, code);
-                if (!verificationSuccess) {
-                    ctx.addMessage(null, new FacesMessage(
-                            FacesMessage.SEVERITY_ERROR, "Invalid Recovery Code",
-                            "The recovery code you entered is incorrect or has already been used."));
-                }
             } else {
-                // Handle different MFA methods
                 switch (primaryMethod.getMethod()) {
                     case TOTP:
-                        int codeVal = Integer.parseInt(code);
-                        verificationSuccess = authServices.verifyTotpCode(primaryMethod.getSecret(), codeVal);
+                        verificationSuccess = authServices.verifyTotpCode(primaryMethod.getSecret(), Integer.parseInt(code));
                         break;
                     case SMS:
-                        verificationSuccess = authServices.verifyEmailCode(primaryMethod, code);
-                        break;
-                    case EMAIL:
                         verificationSuccess = authServices.verifySMSCode(primaryMethod, code);
                         break;
+                    case EMAIL:
+                        verificationSuccess = authServices.verifyEmailCode(primaryMethod, code);
+                        break;
                     default:
-                        ctx.addMessage(null, new FacesMessage(
-                                FacesMessage.SEVERITY_ERROR, "Error", 
-                                "Unsupported MFA method"));
-                        return null;
+                        throw new ServletException("Unsupported MFA method");
                 }
             }
 
@@ -99,65 +96,22 @@ public class MFAController implements Serializable {
                 if (attempts >= 5) {
                     sessionCacheManager.blockAccess(rateLimitKey, 15 * 60);
                 }
-                if (!isRecoveryMode) {
-                    FacesContext.getCurrentInstance().addMessage(null,
-                            new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                                    "Invalid code",
-                                    "The verification code is incorrect"));
-                }
-                return null;
+                request.setAttribute("errorMessage", isRecoveryMode ?
+                        "Invalid recovery code" : "Invalid verification code");
+                doGet(request, response);
+                return;
             }
 
-            // Reset on success
+            // Successful verification
             sessionCacheManager.resetAttempts(rateLimitKey);
+            authServices.registerSession(preAuthUser, request);
 
-            authServices.registerSession(preAuthUser);
-            ctx.getExternalContext().getSessionMap().remove(CommonParam.PRE_AUTH_USER);
-
-            return authServices.redirectBasedOnRole(preAuthUser);
+            String redirectUrl = authServices.redirectBasedOnRole(preAuthUser);
+            response.sendRedirect(request.getContextPath() + redirectUrl);
         } catch (Exception e) {
-            int attempts = sessionCacheManager.incrementAttempt(rateLimitKey);
-            if (attempts >= 5) {
-                sessionCacheManager.blockAccess(rateLimitKey, 15 * 60);
-            }
-            FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                            "Error",
-                            "Verification failed: " + e.getMessage()));
-            return null;
+            sessionCacheManager.incrementAttempt(rateLimitKey);
+            request.setAttribute("errorMessage", "Verification failed: " + e.getMessage());
+            doGet(request, response);
         }
-    }
-
-    // getters/setters
-    public String getCode() {
-        return code;
-    }
-
-    public void setCode(String code) {
-        this.code = code;
-    }
-
-    public boolean getIsRecoveryMode() {
-        return isRecoveryMode;
-    }
-
-    public void setIsRecoveryMode(boolean isRecoveryMode) {
-        this.isRecoveryMode = isRecoveryMode;
-    }
-
-    public int getRemainingAttempts() {
-        HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance()
-                .getExternalContext().getRequest();
-        String ipAddress = request.getRemoteAddr();
-        String rateLimitKey = "login_attempts:" + ipAddress;
-        return sessionCacheManager.getRemainingAttempts(rateLimitKey);
-    }
-
-    public boolean isBlocked() {
-        HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance()
-                .getExternalContext().getRequest();
-        String ipAddress = request.getRemoteAddr();
-        String rateLimitKey = "login_attempts:" + ipAddress;
-        return sessionCacheManager.isBlocked(rateLimitKey);
     }
 }

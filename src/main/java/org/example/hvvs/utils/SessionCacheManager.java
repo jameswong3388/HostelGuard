@@ -134,6 +134,6 @@ public class SessionCacheManager {
      */
     public int getRemainingAttempts(String key) {
         Integer attempts = attemptCache.getIfPresent(key);
-        return attempts == null ? 5 : Math.max(0, 5 - attempts);
+        return attempts == null ? 5 : Math.max(0, 5 - attempts + 1);
     }
 }

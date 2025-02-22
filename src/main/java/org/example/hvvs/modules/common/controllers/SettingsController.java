@@ -801,7 +801,7 @@ public class SettingsController implements Serializable {
 
         // Invalidate current session
         FacesContext.getCurrentInstance().getExternalContext().invalidateSession();
-        return "/auth/sign-in.xhtml?faces-redirect=true";
+        return "/auth/sign-in.jsp?faces-redirect=true";
     }
 
     // ---------------------------------
