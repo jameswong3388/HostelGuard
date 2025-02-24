@@ -34,7 +34,7 @@
     <div class="mt-10 w-full">
         <!-- Login form -->
         <!-- NOTE: The action below posts to our SignInServlet at /auth/signIn -->
-        <form action="<c:out value='${pageContext.request.contextPath}/auth/signIn'/>" method="post">
+        <form action="<c:out value='${pageContext.request.contextPath}/auth/signIn'/>" method="post" onsubmit="handleSignIn(event)">
             <!-- Email/Username field -->
             <div class="flex flex-col gap-y-2 mb-4">
                 <label for="identifier" class="font-medium">Email or Username</label>
@@ -57,7 +57,7 @@
             </c:if>
 
             <!-- Continue button -->
-            <button type="submit"
+            <button type="submit" id="submitBtn"
                     class="w-full bg-blue-600 p-2 rounded text-white hover:bg-blue-700 mb-4">
                 Continue
             </button>
@@ -75,5 +75,13 @@
         </p>
     </div>
 </div>
+
+<script>
+function handleSignIn(e) {
+    const submitBtn = document.getElementById('submitBtn');
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = `Processing`;
+}
+</script>
 </body>
 </html>

@@ -29,7 +29,7 @@
   </div>
 
   <div class="mt-10 w-full">
-    <form method="POST" action="<c:out value='${pageContext.request.contextPath}/auth/mfa'/>" class="flex w-full flex-col gap-y-6">
+    <form method="POST" action="<c:out value='${pageContext.request.contextPath}/auth/mfa'/>" class="flex w-full flex-col gap-y-6" onsubmit="handleMfaVerify(event)">
       <c:if test="${not empty errorMessage}">
         <div class="text-red-600 p-3 bg-red-50 rounded-md">
             ${errorMessage}
@@ -74,7 +74,7 @@
             </c:choose>
           </div>
 
-          <button type="submit" class="w-full bg-blue-600 text-white p-2 rounded-md hover:bg-blue-700">
+          <button type="submit" id="verifyBtn" class="w-full bg-blue-600 text-white p-2 rounded-md hover:bg-blue-700">
             Verify
           </button>
 
@@ -122,6 +122,12 @@
     }
 
     window.location.href = url.toString();
+  }
+
+  function handleMfaVerify(e) {
+    const verifyBtn = document.getElementById('verifyBtn');
+    verifyBtn.disabled = true;
+    verifyBtn.innerHTML = `Processing`;
   }
 </script>
 
