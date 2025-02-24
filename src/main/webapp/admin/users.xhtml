@@ -333,6 +333,21 @@
                                      disabled="#{empty usersController.selectedUsers}"
                                      style="margin-right: .5rem"/>
                 </p:toolbarGroup>
+
+                <p:toolbarGroup align="right">
+                    <p:commandButton id="exportButton"
+                                   value="Export Selected"
+                                   icon="pi pi-upload"
+                                   styleClass="ui-button-help"
+                                   ajax="false"
+                                   disabled="#{empty usersController.selectedUsers}"
+                                   onclick="PrimeFaces.monitorDownload(start, stop);">
+                        <p:dataExporter type="csv"
+                                       target="usersTable"
+                                       fileName="selected_users"
+                                       selectionOnly="true"/>
+                    </p:commandButton>
+                </p:toolbarGroup>
             </p:toolbar>
 
             <p:confirmDialog global="true" showEffect="fade" hideEffect="fade" responsive="true" width="350">
@@ -373,7 +388,10 @@
                     </div>
                 </f:facet>
 
-                <p:column selectionMode="multiple" selectionBox="true" style="width: 12px;"/>
+                <p:column selectionMode="multiple" 
+                          selectionBox="true" 
+                          style="width: 12px;"
+                          exportable="false"/>
 
                 <!-- UserId -->
                 <p:column headerText="ID" sortBy="#{users.id}" style="width: 50px;">
@@ -434,31 +452,25 @@
                 </p:column>
 
                 <!-- Actions -->
-                <p:column headerText="Actions" style="width: 100px;">
+                <p:column headerText="Actions" 
+                          style="width: 100px;"
+                          exportable="false">
                     <p:commandButton value="Edit"
                                      action="#{usersController.prepareEdit(users)}"
                                      update=":editUserForm"
                                      oncomplete="PF('editUserSidebar').show();"/>
                 </p:column>
-
-                <!-- trigger partial update to refresh the button label -->
-                <p:ajax event="rowSelect" update=":usersTableForm:delete-users-button"/>
-                <p:ajax event="rowUnselect" update=":usersTableForm:delete-users-button"/>
-                <p:ajax event="rowSelectCheckbox" update=":usersTableForm:delete-users-button"/>
-                <p:ajax event="rowUnselectCheckbox" update=":usersTableForm:delete-users-button"/>
-                <p:ajax event="toggleSelect" update=":usersTableForm:delete-users-button"/>
-
-
+                
                 <p:ajax event="rowSelect"
-                        update=":usersTableForm:delete-users-button :usersTableForm:clearSelectionButton"/>
+                        update=":usersTableForm:delete-users-button :usersTableForm:clearSelectionButton :usersTableForm:exportButton"/>
                 <p:ajax event="rowUnselect"
-                        update=":usersTableForm:delete-users-button :usersTableForm:clearSelectionButton"/>
+                        update=":usersTableForm:delete-users-button :usersTableForm:clearSelectionButton :usersTableForm:exportButton"/>
                 <p:ajax event="rowSelectCheckbox"
-                        update=":usersTableForm:delete-users-button :usersTableForm:clearSelectionButton"/>
+                        update=":usersTableForm:delete-users-button :usersTableForm:clearSelectionButton :usersTableForm:exportButton"/>
                 <p:ajax event="rowUnselectCheckbox"
-                        update=":usersTableForm:delete-users-button :usersTableForm:clearSelectionButton"/>
+                        update=":usersTableForm:delete-users-button :usersTableForm:clearSelectionButton :usersTableForm:exportButton"/>
                 <p:ajax event="toggleSelect"
-                        update=":usersTableForm:delete-users-button :usersTableForm:clearSelectionButton"/>
+                        update=":usersTableForm:delete-users-button :usersTableForm:clearSelectionButton :usersTableForm:exportButton"/>
             </p:dataTable>
         </h:form>
     </ui:define>

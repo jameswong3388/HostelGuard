@@ -36,6 +36,21 @@
                                      disabled="#{empty VisitRequestsControllerAdmin.selectedRequests}"
                                      style="margin-right: .5rem"/>
                 </p:toolbarGroup>
+
+                <p:toolbarGroup align="right">
+                    <p:commandButton id="exportButton"
+                                   value="Export Selected"
+                                   icon="pi pi-upload"
+                                   styleClass="ui-button-help"
+                                   ajax="false"
+                                   disabled="#{empty VisitRequestsControllerAdmin.selectedRequests}"
+                                   onclick="PrimeFaces.monitorDownload(start, stop);">
+                        <p:dataExporter type="csv"
+                                       target="requestsTable"
+                                       fileName="selected_requests"
+                                       selectionOnly="true"/>
+                    </p:commandButton>
+                </p:toolbarGroup>
             </p:toolbar>
 
             <p:dataTable id="requestsTable"
@@ -71,7 +86,7 @@
                     </div>
                 </f:facet>
 
-                <p:column selectionMode="multiple" selectionBox="true" style="width: 12px;"/>
+                <p:column selectionMode="multiple" selectionBox="true" style="width: 12px;" exportable="false"/>
 
                 <p:column headerText="ID" sortBy="#{req.id}" style="width: 50px;">
                     <h:outputText value="#{req.id}"/>
@@ -135,7 +150,7 @@
                 </p:column>
 
                 <!-- Actions -->
-                <p:column headerText="Actions" style="width: 100px;" sortBy="#{null}">
+                <p:column headerText="Actions" style="width: 100px;" sortBy="#{null}" exportable="false">
                     <p:commandButton value="Edit"
                                      action="#{VisitRequestsControllerAdmin.prepareEdit(req)}"
                                      update=":editRequestForm"
@@ -144,15 +159,15 @@
 
                 <!-- Selection Events -->
                 <p:ajax event="rowSelect"
-                        update=":requestsTableForm:delete-requests-button :requestsTableForm:clearSelectionButton"/>
+                        update=":requestsTableForm:delete-requests-button :requestsTableForm:clearSelectionButton :requestsTableForm:exportButton"/>
                 <p:ajax event="rowUnselect"
-                        update=":requestsTableForm:delete-requests-button :requestsTableForm:clearSelectionButton"/>
+                        update=":requestsTableForm:delete-requests-button :requestsTableForm:clearSelectionButton :requestsTableForm:exportButton"/>
                 <p:ajax event="rowSelectCheckbox"
-                        update=":requestsTableForm:delete-requests-button :requestsTableForm:clearSelectionButton"/>
+                        update=":requestsTableForm:delete-requests-button :requestsTableForm:clearSelectionButton :requestsTableForm:exportButton"/>
                 <p:ajax event="rowUnselectCheckbox"
-                        update=":requestsTableForm:delete-requests-button :requestsTableForm:clearSelectionButton"/>
+                        update=":requestsTableForm:delete-requests-button :requestsTableForm:clearSelectionButton :requestsTableForm:exportButton"/>
                 <p:ajax event="toggleSelect"
-                        update=":requestsTableForm:delete-requests-button :requestsTableForm:clearSelectionButton"/>
+                        update=":requestsTableForm:delete-requests-button :requestsTableForm:clearSelectionButton :requestsTableForm:exportButton"/>
             </p:dataTable>
 
             <!-- Confirmation Dialog -->

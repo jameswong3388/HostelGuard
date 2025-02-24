@@ -37,6 +37,21 @@
                                      disabled="#{empty visitorRecordController.selectedRecords}"
                                      style="margin-right: .5rem"/>
                 </p:toolbarGroup>
+
+                <p:toolbarGroup align="right">
+                    <p:commandButton id="exportButton"
+                                   value="Export Selected"
+                                   icon="pi pi-upload"
+                                   styleClass="ui-button-help"
+                                   ajax="false"
+                                   disabled="#{empty visitorRecordController.selectedRecords}"
+                                   onclick="PrimeFaces.monitorDownload(start, stop);">
+                        <p:dataExporter type="csv"
+                                       target="recordsTable"
+                                       fileName="selected_visitor_records"
+                                       selectionOnly="true"/>
+                    </p:commandButton>
+                </p:toolbarGroup>
             </p:toolbar>
 
             <p:dataTable id="recordsTable"
@@ -59,7 +74,7 @@
             >
 
                 <!-- Selection column -->
-                <p:column selectionMode="multiple" selectionBox="true" style="width: 12px;"/>
+                <p:column selectionMode="multiple" selectionBox="true" style="width: 12px;" exportable="false"/>
 
                 <!-- Global search bar -->
                 <f:facet name="header">
@@ -137,7 +152,7 @@
                 </p:column>
 
                 <!-- Actions -->
-                <p:column headerText="Actions" style="width: 100px;">
+                <p:column headerText="Actions" style="width: 100px;" exportable="false">
                     <p:commandButton value="Edit"
                                      action="#{visitorRecordController.prepareEdit(record)}"
                                      update=":editRecordForm"
@@ -146,15 +161,15 @@
 
                 <!-- Selection Events -->
                 <p:ajax event="rowSelect"
-                        update=":recordsTableForm:delete-records-button :recordsTableForm:clearSelectionButton"/>
+                        update=":recordsTableForm:delete-records-button :recordsTableForm:clearSelectionButton :recordsTableForm:exportButton"/>
                 <p:ajax event="rowUnselect"
-                        update=":recordsTableForm:delete-records-button :recordsTableForm:clearSelectionButton"/>
+                        update=":recordsTableForm:delete-records-button :recordsTableForm:clearSelectionButton :recordsTableForm:exportButton"/>
                 <p:ajax event="rowSelectCheckbox"
-                        update=":recordsTableForm:delete-records-button :recordsTableForm:clearSelectionButton"/>
+                        update=":recordsTableForm:delete-records-button :recordsTableForm:clearSelectionButton :recordsTableForm:exportButton"/>
                 <p:ajax event="rowUnselectCheckbox"
-                        update=":recordsTableForm:delete-records-button :recordsTableForm:clearSelectionButton"/>
+                        update=":recordsTableForm:delete-records-button :recordsTableForm:clearSelectionButton :recordsTableForm:exportButton"/>
                 <p:ajax event="toggleSelect"
-                        update=":recordsTableForm:delete-records-button :recordsTableForm:clearSelectionButton"/>
+                        update=":recordsTableForm:delete-records-button :recordsTableForm:clearSelectionButton :recordsTableForm:exportButton"/>
 
             </p:dataTable>
 
