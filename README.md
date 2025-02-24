@@ -24,7 +24,7 @@ https://github.com/user-attachments/assets/94c52765-d23f-4e6f-8851-109621c8119c
 - Dashboard (Coming soon)
 - Calendar (Coming soon)
 - Media management with collection-based organization (profile pics, docs, etc)
-- Data export capabilities (Excel, PDF) with dynamic filtering
+- Data export capabilities (CSV, Excel, PDF)
 
 ### Security Staff Features
 - Visitor onboarding workflow with photo capture and validation
