@@ -40,6 +40,7 @@ public class UsersController implements Serializable {
     private SecurityStaffProfiles securityStaffProfile;
     private ManagingStaffProfiles managingStaffProfile;
     private Users editingUser;
+    private String exportFormat = "xlsx"; // Default format
 
     @PostConstruct
     public void init() {
@@ -327,5 +328,13 @@ public class UsersController implements Serializable {
 
     public void setManagingStaffProfile(ManagingStaffProfiles managingStaffProfile) {
         this.managingStaffProfile = managingStaffProfile;
+    }
+
+    public String getExportFormat() {
+        return exportFormat;
+    }
+
+    public void setExportFormat(String exportFormat) {
+        this.exportFormat = exportFormat;
     }
 } 

@@ -42,6 +42,7 @@ public class VisitRequestsController implements Serializable {
 
     private LazyDataModel<VisitRequests> lazyRequestsModel;
     private String globalFilter;
+    private String exportFormat = "xlsx"; // Default format
 
     @PostConstruct
     public void init() {
@@ -217,5 +218,13 @@ public class VisitRequestsController implements Serializable {
 
     public void setGlobalFilter(String globalFilter) {
         this.globalFilter = globalFilter;
+    }
+
+    public String getExportFormat() {
+        return exportFormat;
+    }
+
+    public void setExportFormat(String exportFormat) {
+        this.exportFormat = exportFormat;
     }
 }

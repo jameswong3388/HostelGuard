@@ -335,6 +335,14 @@
                 </p:toolbarGroup>
 
                 <p:toolbarGroup align="right">
+                    <p:selectOneMenu id="exportFormat" 
+                                   value="#{usersController.exportFormat}" 
+                                   style="margin-right: .5rem">
+                        <f:selectItem itemLabel="PDF" itemValue="pdf"/>
+                        <f:selectItem itemLabel="Excel (XLSX)" itemValue="xlsx"/>
+                        <f:selectItem itemLabel="Excel (XLS)" itemValue="xls"/>
+                        <f:selectItem itemLabel="CSV" itemValue="csv"/>
+                    </p:selectOneMenu>
                     <p:commandButton id="exportButton"
                                    value="Export Selected"
                                    icon="pi pi-upload"
@@ -342,7 +350,7 @@
                                    ajax="false"
                                    disabled="#{empty usersController.selectedUsers}"
                                    onclick="PrimeFaces.monitorDownload(start, stop);">
-                        <p:dataExporter type="csv"
+                        <p:dataExporter type="#{usersController.exportFormat}"
                                        target="usersTable"
                                        fileName="selected_users"
                                        selectionOnly="true"/>

@@ -32,6 +32,7 @@ public class VisitorRecordController implements Serializable {
 
     private LazyDataModel<VisitorRecords> lazyRecordsModel;
     private String globalFilter;
+    private String exportFormat = "xlsx"; // Default format
 
     @PostConstruct
     public void init() {
@@ -183,5 +184,13 @@ public class VisitorRecordController implements Serializable {
 
     public void setGlobalFilter(String globalFilter) {
         this.globalFilter = globalFilter;
+    }
+
+    public String getExportFormat() {
+        return exportFormat;
+    }
+
+    public void setExportFormat(String exportFormat) {
+        this.exportFormat = exportFormat;
     }
 } 
