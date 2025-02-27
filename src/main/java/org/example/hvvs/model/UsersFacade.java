@@ -179,4 +179,21 @@ public class UsersFacade extends AbstractFacade<Users> {
             cb.like(cb.lower(root.get("role")), pattern)
         );
     }
+
+    /**
+     * Count the number of users with a specific role
+     * 
+     * @param role The role to count
+     * @return The count of users with the specified role
+     */
+    public int countByRole(Users.Role role) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+        Root<Users> root = cq.from(Users.class);
+        
+        cq.select(cb.count(root));
+        cq.where(cb.equal(root.get("role"), role));
+        
+        return em.createQuery(cq).getSingleResult().intValue();
+    }
 }
