@@ -22,6 +22,7 @@ https://github.com/user-attachments/assets/94c52765-d23f-4e6f-8851-109621c8119c
 - Visit Request management (CRUD)
 - Visitor Records management (CRUD)
 - Dashboard with user statistics, visit request metrics, and status visualizations
+- Calendar (Coming soon)
 - Media management with collection-based organization (profile pics, docs, etc)
 - Data export capabilities (CSV, Excel, PDF)
 
