@@ -167,4 +167,13 @@ public class NotificationsController implements Serializable {
     public void setSelectedNotification(Notifications selectedNotification) {
         this.selectedNotification = selectedNotification;
     }
+
+    /**
+     * Prepares a notification for viewing in the sidebar
+     * 
+     * @param notification The notification to view
+     */
+    public void prepareView(Notifications notification) {
+        this.selectedNotification = notification;
+    }
 }

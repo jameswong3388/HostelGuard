@@ -77,7 +77,7 @@
                         <p:commandButton value="Cancel"
                                          icon="pi pi-times"
                                          onclick="PF('newRequestSidebar').hide(); return false;"
-                                         styleClass="p-button-text mr-2 ui-button-warning"
+                                         styleClass="p-button-text ui-button-secondary"
                                          immediate="true"/>
                         <p:commandButton value="Submit"
                                          icon="pi pi-check"
@@ -299,7 +299,7 @@
                                          rendered="#{visitRequestsControllerResident.editingRequest.status eq 'PENDING'}"/>
                         <p:commandButton value="Cancel"
                                          onclick="PF('editRequestSidebar').hide(); return false;"
-                                         styleClass="p-button-text mr-2 ui-button-warning"
+                                         styleClass="p-button-text ui-button-secondary"
                                          immediate="true"/>
                         <p:commandButton value="Save"
                                          action="#{visitRequestsControllerResident.updateRequest}"
