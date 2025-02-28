@@ -161,7 +161,8 @@
                             <p:inputText id="globalFilter"
                                          value="#{visitRequestsControllerResident.globalFilter}"
                                          onkeyup="PF('requestsTable').filter()"
-                                         placeholder="Search all fields"/>
+                                         placeholder="Search all fields">
+                            </p:inputText>
                         </span>
                     </div>
                 </f:facet>
@@ -220,13 +221,7 @@
                 <p:column headerText="Created At" sortBy="#{req.createdAt}" style="width: 150px;">
                     <pe:timeAgo value="#{req.createdAt}" titlePattern="MM/dd/yy HH:mm"/>
                 </p:column>
-
-                <f:facet name="empty">
-                    <div class="p-4 text-gray-500 text-center">
-                        <i class="pi pi-info-circle mr-2"></i> No records found
-                    </div>
-                </f:facet>
-
+                
                 <!-- Actions Column -->
                 <p:column headerText="Actions" style="width: 100px;">
                     <p:commandButton value="Edit"

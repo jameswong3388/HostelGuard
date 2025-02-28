@@ -83,7 +83,7 @@ public class VisitRequestsController implements Serializable {
         lazyRequestsModel = new LazyDataModel<VisitRequests>() {
             @Override
             public int count(Map<String, FilterMeta> filterBy) {
-                return visitRequestsFacade.count(globalFilter);
+                return 0;
             }
 
             @Override
