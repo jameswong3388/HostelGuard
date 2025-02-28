@@ -76,7 +76,7 @@ public class AuthServicesImpl implements AuthServices {
             return buildRateLimitedResult(rateLimitKey, errorMessage);
         }
 
-        String passDigest = DigestUtils.sha256Digest(user.getSalt() + password);
+        String passDigest = DigestUtils.hmacSha256Password(user.getSalt(), password);
         if (!user.getPassword().equals(passDigest)) {
             incrementFailedAttempt(rateLimitKey);
             return buildRateLimitedResult(rateLimitKey, errorMessage);

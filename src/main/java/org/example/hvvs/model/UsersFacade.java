@@ -52,8 +52,8 @@ public class UsersFacade extends AbstractFacade<Users> {
         random.nextBytes(saltBytes);
         String salt = Base64.getEncoder().encodeToString(saltBytes);
 
-        // Hash password using DigestUtils
-        String hashedPassword = DigestUtils.sha256Digest(salt + user.getPassword());
+        // Hash password using DigestUtils.hmacSha256Password instead of sha256Digest
+        String hashedPassword = DigestUtils.hmacSha256Password(salt, user.getPassword());
 
         // Set the hashed password and salt
         user.setPassword(hashedPassword);

@@ -4,6 +4,9 @@ import random
 import string
 from datetime import timedelta
 import uuid
+import hmac
+import hashlib
+import base64
 
 # ------------------------------
 # Global Configuration & Setup
@@ -21,9 +24,12 @@ DB_CONFIG = {
 # Initialize Faker (English - Malaysia)
 fake = Faker('en_MS')
 
-# Fixed salt and password values
+# Fixed salt value - we'll generate the password hash dynamically now
 FIXED_SALT = 'FTUa8P#OT7N8d>o3'
-FIXED_PASSWORD = 'F3A90A00BF8D619364F2059DED59AB2DD1FE4EA7B527A2713D2F876403A863E1'
+# Static pepper value for password hashing - must match the one in DigestUtils.java
+PASSWORD_PEPPER = "HostelGuard_Static_Pepper_Value_2024"
+# Default password for all test users
+DEFAULT_PASSWORD = "Password123!"
 
 # Data structures to ensure uniqueness
 existing_usernames = set()
@@ -31,6 +37,31 @@ existing_emails = set()
 existing_identity_numbers = set()
 existing_badge_numbers = set()
 existing_verification_codes = set()
+
+# ------------------------------
+# Password Hashing Function
+# ------------------------------
+
+def hmac_sha256_password(salt, password):
+    """
+    Python implementation of DigestUtils.hmacSha256Password
+    This creates the same hash that would be generated in Java
+    """
+    # Combine salt with the static pepper (same as in Java)
+    secret_with_pepper = salt + PASSWORD_PEPPER
+    
+    # Create HMAC using SHA-256
+    hmac_obj = hmac.new(
+        secret_with_pepper.encode('utf-8'),
+        password.encode('utf-8'),
+        hashlib.sha256
+    )
+    
+    # Get the digest in bytes and convert to uppercase hex string
+    digest = hmac_obj.digest()
+    hex_digest = ''.join([format(b, '02X') for b in digest])
+    
+    return hex_digest
 
 # ------------------------------
 # SQL Statements
@@ -391,6 +422,9 @@ def insert_user(cursor,
     """
     Inserts a user into the users table and returns the user ID.
     """
+    # Generate the password hash using HMAC-SHA256 with salt and pepper
+    hashed_password = hmac_sha256_password(salt, password)
+    
     add_user_sql = """
         INSERT INTO users
             (username, salt, password, email, first_name, last_name,
@@ -399,7 +433,7 @@ def insert_user(cursor,
         VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
     """
     user_data = (
-        username, salt, password, email, first_name, last_name,
+        username, salt, hashed_password, email, first_name, last_name,
         phone_number, identity_number, address, gender, role,
         is_mfa_enable, is_active
     )
@@ -550,7 +584,7 @@ def main():
             cursor,
             username=managing_username,
             salt=FIXED_SALT,
-            password=FIXED_PASSWORD,
+            password=DEFAULT_PASSWORD,
             email=managing_email,
             first_name="TestManager",
             last_name="User",
@@ -574,7 +608,7 @@ def main():
             cursor,
             username=super_username,
             salt=FIXED_SALT,
-            password=FIXED_PASSWORD,
+            password=DEFAULT_PASSWORD,
             email=super_email,
             first_name="Super",
             last_name="Admin",
@@ -601,7 +635,7 @@ def main():
             cursor,
             username=security_username,
             salt=FIXED_SALT,
-            password=FIXED_PASSWORD,
+            password=DEFAULT_PASSWORD,
             email=security_email,
             first_name="TestSecurity",
             last_name="User",
@@ -631,7 +665,7 @@ def main():
                 cursor,
                 username=username,
                 salt=FIXED_SALT,
-                password=FIXED_PASSWORD,
+                password=DEFAULT_PASSWORD,
                 email=email,
                 first_name=first_name,
                 last_name=last_name,
@@ -665,7 +699,7 @@ def main():
             cursor,
             username=resident_username,
             salt=FIXED_SALT,
-            password=FIXED_PASSWORD,
+            password=DEFAULT_PASSWORD,
             email=resident_email,
             first_name="TestResident",
             last_name="User",
@@ -692,7 +726,7 @@ def main():
                 cursor,
                 username=username,
                 salt=FIXED_SALT,
-                password=FIXED_PASSWORD,
+                password=DEFAULT_PASSWORD,
                 email=email,
                 first_name=first_name,
                 last_name=last_name,
@@ -852,14 +886,13 @@ def main():
         # Final Output
         print("Data generation and insertion completed successfully.")
         print("\n--- Test Users ---")
-        print(
-            f"Super Admin:\n  Username: {super_username}\n  Email: {super_email}\n  Department: Administration\n  Position: Super Admin")
-        print(f"Managing Staff:\n  Username: {managing_username}\n  Email: {managing_email}")
+        print(f"Super Admin:\n  Username: {super_username}\n  Email: {super_email}\n  Password: {DEFAULT_PASSWORD}\n  Department: Administration\n  Position: Super Admin")
+        print(f"Managing Staff:\n  Username: {managing_username}\n  Email: {managing_email}\n  Password: {DEFAULT_PASSWORD}")
         print("Security Staff:")
-        print(f"  Username: {security_username}\n  Email: {security_email}")
+        print(f"  Username: {security_username}\n  Email: {security_email}\n  Password: {DEFAULT_PASSWORD}")
         print("  (Additional Security Staff added with random data)")
         print("Residents:")
-        print(f"  Username: {resident_username}\n  Email: {resident_email}")
+        print(f"  Username: {resident_username}\n  Email: {resident_email}\n  Password: {DEFAULT_PASSWORD}")
         print("  (Additional Residents added with random data)")
 
     except mysql.connector.Error as err:

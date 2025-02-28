@@ -8,7 +8,7 @@ https://github.com/user-attachments/assets/94c52765-d23f-4e6f-8851-109621c8119c
 
 ### Core System Features (Shared)
 - Multi-factor Authentication (TOTP/SMS/Email) with recovery codes
-- Secure password storage using SHA-256 hashing with individual salts
+- Secure password storage using HMAC-SHA256 with individual salts and server-side pepper
 - Secure password reset with email verification, time-limited tokens and progressive rate limiting
 - Multi-device session management with IP address tracking with GeoLite integration
 - Role-based access control (Resident/Security/Managing staff/Super admin) with hierarchical permissions

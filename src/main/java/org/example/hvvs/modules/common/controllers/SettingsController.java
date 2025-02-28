@@ -282,7 +282,7 @@ public class SettingsController implements Serializable {
             }
 
             // Verify old password
-            String oldPassDigest = DigestUtils.sha256Digest(user.getSalt() + oldPassword);
+            String oldPassDigest = DigestUtils.hmacSha256Password(user.getSalt(), oldPassword);
             if (!user.getPassword().equals(oldPassDigest)) {
                 FacesContext.getCurrentInstance().addMessage(null,
                         new FacesMessage(FacesMessage.SEVERITY_ERROR,
@@ -310,7 +310,7 @@ public class SettingsController implements Serializable {
             }
 
             // Update the password
-            String newPassDigest = DigestUtils.sha256Digest(user.getSalt() + newPassword);
+            String newPassDigest = DigestUtils.hmacSha256Password(user.getSalt(), newPassword);
             user.setPassword(newPassDigest);
             usersFacade.edit(user);
 
