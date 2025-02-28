@@ -69,7 +69,7 @@
         <!-- Forgot password link -->
         <p class="text-sm text-gray-700">
             Forgot your password?
-            <a href="#" class="text-blue-600 hover:text-blue-700">
+            <a href="<c:out value='${pageContext.request.contextPath}/auth/password-reset'/>" class="text-blue-600 hover:text-blue-700">
                 Reset password
             </a>
         </p>

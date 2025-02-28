@@ -8,6 +8,7 @@ DROP TABLE IF EXISTS user_sessions;
 DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS medias;
 DROP TABLE IF EXISTS mfa_methods;
+DROP TABLE IF EXISTS password_reset_tokens;
 
 -- Create users table
 CREATE TABLE users
@@ -194,6 +195,19 @@ CREATE TABLE calendar_events
     CHECK (end_date >= start_date)
 );
 
+-- Create password_reset_tokens table
+CREATE TABLE password_reset_tokens
+(
+    id         CHAR(36) PRIMARY KEY,
+    user_id    INT UNSIGNED NOT NULL,
+    token      VARCHAR(100) NOT NULL UNIQUE,
+    used       BOOLEAN DEFAULT FALSE,
+    expires_at TIMESTAMP NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+);
+
 -- Create indexes for better query performance
 CREATE INDEX idx_user_sessions_user_active ON user_sessions (user_id);
 CREATE INDEX idx_user_sessions_expires_active ON user_sessions (expires_at);
@@ -213,3 +227,6 @@ CREATE INDEX idx_mfa_methods_user ON mfa_methods (user_id);
 CREATE INDEX idx_mfa_methods_user_method ON mfa_methods (user_id, method);
 
 CREATE INDEX idx_medias_model_composite ON medias (model, model_id);
+
+CREATE INDEX idx_password_reset_tokens_token ON password_reset_tokens (token);
+CREATE INDEX idx_password_reset_tokens_user ON password_reset_tokens (user_id);

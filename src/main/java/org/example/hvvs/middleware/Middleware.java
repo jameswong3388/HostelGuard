@@ -30,7 +30,7 @@ public class Middleware implements Filter {
     private static final String[] PUBLIC_PATHS = {
             "/auth/sign-in.jsp",
             "/index.jsp",
-            "/forget-password.xhtml",
+            "/password-reset.jsp",
             "/404.xhtml",
             "/jakarta.faces.resource/*"
     };
