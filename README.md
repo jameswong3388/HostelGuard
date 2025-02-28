@@ -18,18 +18,6 @@ https://github.com/user-attachments/assets/94c52765-d23f-4e6f-8851-109621c8119c
 - Automatic session timeout with configurable duration and warning dialog
 - Real-time notification system with multi-channel delivery
 
-### Authentication & Security Details
-#### Password Reset System
-- Email-based password reset with secure token generation
-- HMAC verification of tokens to prevent tampering
-- Progressive rate limiting with increasing timeouts for consecutive attempts
-- IP reputation tracking to detect and block suspicious behavior
-- Protection against email enumeration attacks
-- Email flood prevention with global and per-email rate limits
-- Clear user feedback with helpful error messages
-- Expiring tokens with configurable lifetime
-- Automatic user login after successful password reset
-
 ### Admin Features
 - User management (CRUD)
 - Visit Request management (CRUD)
