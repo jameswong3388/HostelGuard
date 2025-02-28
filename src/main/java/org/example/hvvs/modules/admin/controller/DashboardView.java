@@ -27,6 +27,8 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.example.hvvs.model.VisitRequests;
 import org.example.hvvs.model.Notifications;
+import org.example.hvvs.model.Users;
+import org.example.hvvs.utils.CommonParam;
 
 @Named
 @ViewScoped
@@ -137,10 +139,22 @@ public class DashboardView implements Serializable {
      */
     private int countUnreadNotifications() {
         try {
+            // Get the current user from the session
+            Users currentUser = (Users) FacesContext.getCurrentInstance()
+                    .getExternalContext()
+                    .getSessionMap()
+                    .get(CommonParam.SESSION_SELF);
+            
+            if (currentUser == null) {
+                // User not authenticated
+                return 0;
+            }
+            
             return em.createQuery(
-                    "SELECT COUNT(n) FROM Notifications n WHERE n.status = :status",
+                    "SELECT COUNT(n) FROM Notifications n WHERE n.status = :status AND n.user = :user",
                     Long.class)
                     .setParameter("status", Notifications.NotificationStatus.UNREAD)
+                    .setParameter("user", currentUser)
                     .getSingleResult()
                     .intValue();
         } catch (Exception e) {

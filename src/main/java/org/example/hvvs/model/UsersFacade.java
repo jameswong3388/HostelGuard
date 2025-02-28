@@ -187,13 +187,24 @@ public class UsersFacade extends AbstractFacade<Users> {
      * @return The count of users with the specified role
      */
     public int countByRole(Users.Role role) {
-        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
         CriteriaQuery<Long> cq = cb.createQuery(Long.class);
         Root<Users> root = cq.from(Users.class);
-        
         cq.select(cb.count(root));
         cq.where(cb.equal(root.get("role"), role));
-        
-        return em.createQuery(cq).getSingleResult().intValue();
+        return getEntityManager().createQuery(cq).getSingleResult().intValue();
+    }
+
+    /**
+     * Find users by their role
+     * 
+     * @param role The role to search for
+     * @return List of users with the specified role
+     */
+    public List<Users> findByRole(Users.Role role) {
+        TypedQuery<Users> query = em.createQuery(
+            "SELECT u FROM Users u WHERE u.role = :role", Users.class);
+        query.setParameter("role", role);
+        return query.getResultList();
     }
 }

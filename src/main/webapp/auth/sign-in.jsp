@@ -25,8 +25,8 @@
         </h2>
         <p class="mt-1 text-sm text-gray-700">
             Don't have an account?
-            <a href="#" class="text-blue-600 hover:text-blue-700">
-                Contact your administrator
+            <a href="<c:out value='${pageContext.request.contextPath}/auth/signUp'/>" class="text-blue-600 hover:text-blue-700">
+                Request an account
             </a>
         </p>
     </div>
