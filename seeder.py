@@ -197,7 +197,7 @@ CREATE TABLE password_reset_tokens
 (
     id         CHAR(36) PRIMARY KEY,
     user_id    INT UNSIGNED NOT NULL,
-    token      VARCHAR(100) NOT NULL UNIQUE,
+    token      VARCHAR(255) NOT NULL UNIQUE,
     used       BOOLEAN DEFAULT FALSE,
     expires_at TIMESTAMP NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,

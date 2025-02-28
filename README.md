@@ -9,6 +9,7 @@ https://github.com/user-attachments/assets/94c52765-d23f-4e6f-8851-109621c8119c
 ### Core System Features (Shared)
 - Multi-factor Authentication (TOTP/SMS/Email) with recovery codes
 - Secure password storage using SHA-256 hashing with individual salts
+- Secure password reset with email verification, time-limited tokens and progressive rate limiting
 - Multi-device session management with IP address tracking with GeoLite integration
 - Role-based access control (Resident/Security/Managing staff/Super admin) with hierarchical permissions
 - File upload handling with content validation and multiple storage collections
@@ -16,6 +17,18 @@ https://github.com/user-attachments/assets/94c52765-d23f-4e6f-8851-109621c8119c
 - Lazy loading data tables with server-side filtering, sorting and global search
 - Automatic session timeout with configurable duration and warning dialog
 - Real-time notification system with multi-channel delivery
+
+### Authentication & Security Details
+#### Password Reset System
+- Email-based password reset with secure token generation
+- HMAC verification of tokens to prevent tampering
+- Progressive rate limiting with increasing timeouts for consecutive attempts
+- IP reputation tracking to detect and block suspicious behavior
+- Protection against email enumeration attacks
+- Email flood prevention with global and per-email rate limits
+- Clear user feedback with helpful error messages
+- Expiring tokens with configurable lifetime
+- Automatic user login after successful password reset
 
 ### Admin Features
 - User management (CRUD)
@@ -80,7 +93,7 @@ python seeder.py
 - Create `application.properties` and place in `META-INF/application.properties`
 - Copy below to apply
 ```text
-# Email Configuration
+# Email Configuration (Required for password reset functionality)
 mail.smtp.host=
 mail.smtp.port=587
 mail.smtp.username=
@@ -109,3 +122,8 @@ Access via: `https://your-domain:8443/HVVS-1.0-SNAPSHOT/`
 | Security Staff | /security/onboard-visitors.xhtml |
 | Managing Staff | /admin/dashboard.xhtml           |
 | Super Admin    | /god/users.xhtml                 |
+
+### Password Reset
+Access the password reset functionality at: `https://your-domain:8443/HVVS-1.0-SNAPSHOT/auth/password-reset`
+
+Users can request a password reset by entering their email address. A secure time-limited token will be sent to their email with instructions to complete the reset process.

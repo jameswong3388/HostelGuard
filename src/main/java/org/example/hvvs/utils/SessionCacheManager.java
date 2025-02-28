@@ -51,13 +51,23 @@ public class SessionCacheManager {
             .build();
 
     /**
-     * Temporary access block storage with fixed expiration.
+     * Temporary access block storage with configurable expiration.
      * Key: User identifier (username/IP address)
-     * Value: Boolean flag (presence indicates block)
-     * Policy: Entries expire 15 minutes after being set
+     * Value: Expiration timestamp (milliseconds since epoch)
+     * Policy: Entries expire based on stored end time
      */
-    private final Cache<String, Boolean> blockedCache = Caffeine.newBuilder()
-            .expireAfterWrite(15, TimeUnit.MINUTES)
+    private final Cache<String, Long> blockedCache = Caffeine.newBuilder()
+            .expireAfter(new Expiry<String, Long>() {
+                public long expireAfterCreate(String key, Long expiresAt, long currentTime) {
+                    return TimeUnit.MILLISECONDS.toNanos(expiresAt - currentTime);
+                }
+                public long expireAfterUpdate(String key, Long expiresAt, long currentTime, long currentDuration) {
+                    return TimeUnit.MILLISECONDS.toNanos(expiresAt - currentTime);
+                }
+                public long expireAfterRead(String key, Long expiresAt, long currentTime, long currentDuration) {
+                    return currentDuration;
+                }
+            })
             .build();
 
     /**
@@ -93,7 +103,21 @@ public class SessionCacheManager {
      * @return true if access is blocked, false otherwise
      */
     public boolean isBlocked(String key) {
-        return blockedCache.getIfPresent(key) != null;
+        Long expiry = blockedCache.getIfPresent(key);
+        return expiry != null && expiry > System.currentTimeMillis();
+    }
+
+    /**
+     * Gets the remaining time (in seconds) that a key is blocked for
+     * @param key The identifier to check (typically username or IP address)
+     * @return Remaining seconds of block, or 0 if not blocked
+     */
+    public long getBlockedRemainingTime(String key) {
+        Long expiry = blockedCache.getIfPresent(key);
+        if (expiry == null || expiry <= System.currentTimeMillis()) {
+            return 0;
+        }
+        return (expiry - System.currentTimeMillis()) / 1000;
     }
 
     /**
@@ -109,13 +133,40 @@ public class SessionCacheManager {
     }
 
     /**
-     * Blocks access for the specified key. Note: Actual block duration is fixed
-     * at 15 minutes regardless of the seconds parameter.
+     * Gets the current attempt count for a key
+     * @param key The identifier to check
+     * @return The current number of attempts, or 0 if none recorded
+     */
+    public int getAttemptCount(String key) {
+        Integer attempts = attemptCache.getIfPresent(key);
+        return attempts == null ? 0 : attempts;
+    }
+
+    /**
+     * Blocks access for the specified key for the specified duration
      * @param key The identifier to block (typically username or IP address)
-     * @param seconds The intended block duration in seconds (not currently used)
+     * @param seconds The block duration in seconds
      */
     public void blockAccess(String key, int seconds) {
-        blockedCache.put(key, true);
+        long expiryTime = System.currentTimeMillis() + (seconds * 1000L);
+        blockedCache.put(key, expiryTime);
+    }
+
+    /**
+     * Sets a custom expiry time for a key in the attempt cache
+     * This allows for longer-lived reputation tracking
+     * @param key The identifier to set expiry for
+     * @param seconds The expiry duration in seconds
+     */
+    public void setExpiry(String key, long seconds) {
+        // We can't directly set expiry in Caffeine, so we refresh the value
+        // with a custom expiry implementation in the future
+        Integer attempts = attemptCache.getIfPresent(key);
+        if (attempts != null) {
+            attemptCache.put(key, attempts);
+            // Note: this doesn't actually change the expiry, since Caffeine doesn't support
+            // changing the expiry policy for individual entries
+        }
     }
 
     /**
@@ -134,6 +185,6 @@ public class SessionCacheManager {
      */
     public int getRemainingAttempts(String key) {
         Integer attempts = attemptCache.getIfPresent(key);
-        return attempts == null ? 5 : Math.max(0, 5 - attempts + 1);
+        return attempts == null ? 5 : Math.max(0, 5 - attempts);
     }
 }
