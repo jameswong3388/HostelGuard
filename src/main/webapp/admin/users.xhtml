@@ -417,12 +417,12 @@
                 </p:column>
 
                 <!-- First Name -->
-                <p:column headerText="First Name" sortBy="#{users.firstName}" style="width: 150px;">
+                <p:column headerText="First Name" sortBy="#{users.first_name}" style="width: 150px;">
                     <h:outputText value="#{users.firstName}"/>
                 </p:column>
 
                 <!-- Last Name -->
-                <p:column headerText="Last Name" sortBy="#{users.lastName}" style="width: 150px;">
+                <p:column headerText="Last Name" sortBy="#{users.last_name}" style="width: 150px;">
                     <h:outputText value="#{users.lastName}"/>
                 </p:column>
 
@@ -432,7 +432,7 @@
                 </p:column>
 
                 <!-- Phone Number -->
-                <p:column headerText="Phone Number" sortBy="#{users.phoneNumber}" style="width: 150px;">
+                <p:column headerText="Phone Number" sortBy="#{users.phone_number}" style="width: 150px;">
                     <h:outputText value="#{users.phoneNumber}"/>
                 </p:column>
 
@@ -442,19 +442,19 @@
                 </p:column>
 
                 <!-- Active Status -->
-                <p:column headerText="Status" sortBy="#{users.isActive}" style="width: 120px;">
+                <p:column headerText="Status" sortBy="#{users.is_active}" style="width: 120px;">
                     <p:tag severity="#{users.isActive ? 'success' : 'warning'}"
                            value="#{users.isActive ? 'Active' : 'Inactive'}"/>
                 </p:column>
 
                 <!-- Updated At -->
-                <p:column headerText="Updated At" sortBy="#{users.updatedAt}" style="width: 150px;">
+                <p:column headerText="Updated At" sortBy="#{users.updated_at}" style="width: 150px;">
                     <pe:timeAgo value="#{users.updatedAt}"
                                 titlePattern="MM/dd/yy HH:mm"/>
                 </p:column>
 
                 <!-- Created At -->
-                <p:column headerText="Created At" sortBy="#{users.createdAt}" style="width: 150px;">
+                <p:column headerText="Created At" sortBy="#{users.created_at}" style="width: 150px;">
                     <pe:timeAgo value="#{users.createdAt}"
                                 titlePattern="MM/dd/yy HH:mm"/>
                 </p:column>

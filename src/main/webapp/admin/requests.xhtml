@@ -106,23 +106,23 @@
                 </p:column>
 
                 <!-- Unit Number -->
-                <p:column headerText="Unit Number" sortBy="#{req.unitNumber}" style="width: 120px;">
+                <p:column headerText="Unit Number" sortBy="#{req.unit_number}" style="width: 120px;">
                     <h:outputText value="#{req.unitNumber}"/>
                 </p:column>
 
                 <!-- Verification Code -->
-                <p:column headerText="Verification Code" sortBy="#{req.verificationCode}" style="width: 325px;">
+                <p:column headerText="Verification Code" sortBy="#{req.verification_code}" style="width: 325px;">
                     <h:outputText value="#{req.verificationCode}"/>
                 </p:column>
 
                 <!-- Visit Date/Time -->
-                <p:column headerText="Visit Date/Time" sortBy="#{req.visitDateTime}" style="width: 150px;">
+                <p:column headerText="Visit Date/Time" sortBy="#{req.visit_datetime}" style="width: 150px;">
                     <pe:timeAgo value="#{req.visitDateTime}"
                                 titlePattern="MM/dd/yy HH:mm"/>
                 </p:column>
 
                 <!-- Number of Entries -->
-                <p:column headerText="Entries" sortBy="#{req.numberOfEntries}" style="width: 120px;">
+                <p:column headerText="Entries" sortBy="#{req.number_of_entries}" style="width: 120px;">
                     <h:outputText value="#{req.numberOfEntries}"/>
                 </p:column>
 
@@ -146,19 +146,19 @@
                 </p:column>
 
                 <!-- Updated At -->
-                <p:column headerText="Updated At" sortBy="#{req.updatedAt}" style="width: 150px;">
+                <p:column headerText="Updated At" sortBy="#{req.updated_at}" style="width: 150px;">
                     <pe:timeAgo value="#{req.updatedAt}"
                                 titlePattern="MM/dd/yy HH:mm"/>
                 </p:column>
 
                 <!-- Created At -->
-                <p:column headerText="Created At" sortBy="#{req.createdAt}" style="width: 150px;">
+                <p:column headerText="Created At" sortBy="#{req.created_at}" style="width: 150px;">
                     <pe:timeAgo value="#{req.createdAt}"
                                 titlePattern="MM/dd/yy HH:mm"/>
                 </p:column>
 
                 <!-- Actions -->
-                <p:column headerText="Actions" style="width: 100px;" sortBy="#{null}" exportable="false">
+                <p:column headerText="Actions" style="width: 100px;" exportable="false">
                     <p:commandButton value="Edit"
                                      action="#{VisitRequestsControllerAdmin.prepareEdit(req)}"
                                      update=":editRequestForm"

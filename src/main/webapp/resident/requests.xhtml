@@ -176,19 +176,19 @@
                 </p:column>
 
                 <!-- Verification Code column -->
-                <p:column headerText="Verification Code" sortBy="#{req.verificationCode}" style="width: 325px;">
+                <p:column headerText="Verification Code" sortBy="#{req.verification_code}" style="width: 325px;">
                     <h:outputText value="#{req.verificationCode}"/>
                 </p:column>
 
                 <!-- Visit Date/Time column -->
-                <p:column headerText="Visit Date/Time" sortBy="#{req.visitDateTime}" style="width: 150px;">
+                <p:column headerText="Visit Date/Time" sortBy="#{req.visit_datetime}" style="width: 150px;">
                     <h:outputText value="#{req.visitDateTime}">
                         <f:convertDateTime pattern="MM/dd/yy HH:mm"/>
                     </h:outputText>
                 </p:column>
 
                 <!-- Number of Entries column -->
-                <p:column headerText="Entries" sortBy="#{req.numberOfEntries}" style="width: 120px;">
+                <p:column headerText="Entries" sortBy="#{req.number_of_entries}" style="width: 120px;">
                     <h:outputText value="#{req.numberOfEntries}"/>
                 </p:column>
 
@@ -213,12 +213,12 @@
                 </p:column>
 
                 <!-- Updated At column -->
-                <p:column headerText="Updated At" sortBy="#{req.updatedAt}" style="width: 150px;">
+                <p:column headerText="Updated At" sortBy="#{req.updated_at}" style="width: 150px;">
                     <pe:timeAgo value="#{req.updatedAt}" titlePattern="MM/dd/yy HH:mm"/>
                 </p:column>
 
                 <!-- Created At column -->
-                <p:column headerText="Created At" sortBy="#{req.createdAt}" style="width: 150px;">
+                <p:column headerText="Created At" sortBy="#{req.created_at}" style="width: 150px;">
                     <pe:timeAgo value="#{req.createdAt}" titlePattern="MM/dd/yy HH:mm"/>
                 </p:column>
                 

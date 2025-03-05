@@ -7,11 +7,7 @@ package org.example.hvvs.model;
 import jakarta.ejb.Stateless;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.Order;
-import jakarta.persistence.criteria.Predicate;
-import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.*;
 import org.primefaces.model.SortMeta;
 
 import java.util.List;
@@ -47,28 +43,47 @@ public class VisitRequestsFacade extends AbstractFacade<VisitRequests> {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<VisitRequests> cq = cb.createQuery(VisitRequests.class);
         Root<VisitRequests> root = cq.from(VisitRequests.class);
-        
+
         // Filtering
         Predicate filterPredicate = buildFilterPredicate(cb, root, filter);
         if (filterPredicate != null) {
             cq.where(filterPredicate);
         }
-        
+
         // Sorting
         if (sortBy != null && !sortBy.isEmpty()) {
-            List<Order> orders = sortBy.values().stream()
-                .map(sort -> sort.getOrder().isAscending() ? 
-                    cb.asc(root.get(sort.getField())) : 
-                    cb.desc(root.get(sort.getField())))
-                .collect(Collectors.toList());
-            cq.orderBy(orders);
+            for (SortMeta sort : sortBy.values()) {
+                String sortField = sort.getField();    // e.g. "userId.email" or "verificationCode"
+                boolean ascending = sort.getOrder().isAscending();
+
+                // We create an Order object
+                Order order;
+                if ("userId.email".equals(sortField)) {
+                    // JOIN with user_id
+                    //  "user_id" is the *actual* field name in VisitRequests
+                    // or if your property name is "userId", you do root.join("userId")
+                    Join<VisitRequests, Users> userJoin = root.join("user_id");
+                    order = ascending
+                            ? cb.asc(userJoin.get("email"))
+                            : cb.desc(userJoin.get("email"));
+                } else {
+                    // default for non-relationship fields
+                    order = ascending
+                            ? cb.asc(root.get(sortField))
+                            : cb.desc(root.get(sortField));
+                }
+
+                cq.orderBy(order);
+            }
         }
-        
+
+        // Execute query
         return em.createQuery(cq)
                 .setFirstResult(first)
                 .setMaxResults(pageSize)
                 .getResultList();
     }
+
 
     public List<VisitRequests> findRange(int first, int pageSize, String filter, Map<String, SortMeta> sortBy, Users user) {
         CriteriaBuilder cb = em.getCriteriaBuilder();

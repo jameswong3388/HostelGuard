@@ -98,45 +98,45 @@
                 </f:facet>
 
                 <!-- Security Staff -->
-                <p:column headerText="Security Staff Username" sortBy="#{record.securityStaffId.username}"
+                <p:column headerText="Security Staff Username"
                           style="width: 150px;">
                     <h:outputText value="#{record.securityStaffId.username}"/>
                 </p:column>
 
                 <!-- Request ID -->
-                <p:column headerText="Request ID" sortBy="#{record.requestId.id}" style="width: 120px;">
+                <p:column headerText="Request ID" style="width: 120px;">
                     <h:outputText value="#{record.requestId.id}"/>
                 </p:column>
 
                 <!-- Request Unit Number -->
-                <p:column headerText="Unit Number" sortBy="#{record.requestId.unitNumber}" style="width: 120px;">
+                <p:column headerText="Unit Number" style="width: 120px;">
                     <h:outputText value="#{record.requestId.unitNumber}"/>
                 </p:column>
 
                 <!-- Visitor Name -->
-                <p:column headerText="Visitor Name" sortBy="#{record.visitorName}" style="width: 150px;">
+                <p:column headerText="Visitor Name" sortBy="#{record.visitor_name}" style="width: 150px;">
                     <h:outputText value="#{record.visitorName}"/>
                 </p:column>
 
                 <!-- Visitor IC -->
-                <p:column headerText="Visitor IC" sortBy="#{record.visitorIc}" style="width: 150px;">
+                <p:column headerText="Visitor IC" sortBy="#{record.visitor_ic}" style="width: 150px;">
                     <h:outputText value="#{record.visitorIc}"/>
                 </p:column>
 
                 <!-- Visitor Phone -->
-                <p:column headerText="Visitor Phone" sortBy="#{record.visitorPhone}" style="width: 150px;">
+                <p:column headerText="Visitor Phone" sortBy="#{record.visitor_phone}" style="width: 150px;">
                     <h:outputText value="#{record.visitorPhone}"/>
                 </p:column>
 
                 <!-- Check In Time -->
-                <p:column headerText="Check In Time" sortBy="#{record.checkInTime}" style="width: 150px;">
+                <p:column headerText="Check In Time" sortBy="#{record.check_in_time}" style="width: 150px;">
                     <h:outputText value="#{record.checkInTime}">
                         <f:convertDateTime pattern="MM/dd/yy HH:mm"/>
                     </h:outputText>
                 </p:column>
 
                 <!-- Check Out Time -->
-                <p:column headerText="Check Out Time" sortBy="#{record.checkOutTime}" style="width: 150px;">
+                <p:column headerText="Check Out Time" sortBy="#{record.check_out_time}" style="width: 150px;">
                     <h:outputText value="#{record.checkOutTime}">
                         <f:convertDateTime pattern="MM/dd/yy HH:mm"/>
                     </h:outputText>
@@ -148,13 +148,13 @@
                 </p:column>
 
                 <!-- Updated At -->
-                <p:column headerText="Updated At" sortBy="#{record.updatedAt}" style="width: 150px;">
+                <p:column headerText="Updated At" sortBy="#{record.updated_at}" style="width: 150px;">
                     <pe:timeAgo value="#{record.updatedAt}"
                                 titlePattern="MM/dd/yy HH:mm"/>
                 </p:column>
 
                 <!-- Created At -->
-                <p:column headerText="Created At" sortBy="#{record.createdAt}" style="width: 150px;">
+                <p:column headerText="Created At" sortBy="#{record.created_at}" style="width: 150px;">
                     <pe:timeAgo value="#{record.createdAt}"
                                 titlePattern="MM/dd/yy HH:mm"/>
                 </p:column>
