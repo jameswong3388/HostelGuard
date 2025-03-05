@@ -8,27 +8,6 @@
 
     <ui:define name="title">Onboard Visitor - HostelGuard™</ui:define>
 
-<!--    <ui:define name="navigation">-->
-<!--        <h:form id="navigationForm">-->
-<!--            <nav class="flex items-center justify-between space-x-8 px-12 py-2 bg-white border-b">-->
-<!--                <h:link outcome="/security/onboard-visitors.xhtml"-->
-<!--                        styleClass="py-2 text-blue-600 font-medium focus:outline-none">Onboard Visitors</h:link>-->
-<!--                <p:outputPanel id="stepBar">-->
-<!--                    <ol class="mx-auto flex w-24 flex-nowrap gap-1 md:w-fit">-->
-<!--                        <ui:repeat value="#{onboardVisitorsController.stepSequence}" var="step">-->
-<!--                            <li class="#{onboardVisitorsController.currentStep ge step ? 'h-1 w-12 rounded-full bg-blue-500' : 'h-1 w-12 rounded-full bg-gray-200'}"/>-->
-<!--                        </ui:repeat>-->
-<!--                    </ol>-->
-<!--                </p:outputPanel>-->
-
-<!--                <p:commandButton value="Restart"-->
-<!--                                 action="#{onboardVisitorsController.restart}"-->
-<!--                                 update=":navigationForm:stepBar :onboardingForm"-->
-<!--                                 styleClass="ui-button-secondary ui-button-flat"/>-->
-<!--            </nav>-->
-<!--        </h:form>-->
-<!--    </ui:define>-->
-
     <ui:define name="content">
         <div class="container mx-auto px-4 py-8">
             <h:form id="onboardingForm" enctype="multipart/form-data">
