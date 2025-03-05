@@ -37,6 +37,9 @@ public class OnboardVisitorsController implements Serializable {
     private boolean isCheckIn = true;
     private List<VisitorRecords> checkoutVisitors;
     private VisitorRecords selectedVisitor;
+    
+    private int verificationAttempts = 0;
+    private final int MAX_VERIFICATION_ATTEMPTS = 3;
 
     public OnboardVisitorsController() {
         visitorRecord = new VisitorRecords();
@@ -59,28 +62,48 @@ public class OnboardVisitorsController implements Serializable {
 
     public void verifyCode() {
         try {
+            // Check if maximum attempts reached
+            if (verificationAttempts >= MAX_VERIFICATION_ATTEMPTS) {
+                FacesContext.getCurrentInstance().addMessage(null, 
+                    new FacesMessage(FacesMessage.SEVERITY_WARN, "Warning", 
+                    "Maximum verification attempts reached. Please try again."));
+                // Reset attempts and go back to first step
+                verificationAttempts = 0;
+                restart();
+                return;
+            }
+            
             if (isCheckIn) {
                 visitRequest = securityVisitorService.verifyVisitRequest(verificationCode);
                 if (visitRequest != null) {
                     currentStep = 3;
+                    verificationAttempts = 0; // Reset attempts on success
                     FacesContext.getCurrentInstance().addMessage(null, 
                         new FacesMessage(FacesMessage.SEVERITY_INFO, "Success", "Verification code is valid"));
                 } else {
+                    verificationAttempts++;
+                    int remainingAttempts = MAX_VERIFICATION_ATTEMPTS - verificationAttempts;
                     FacesContext.getCurrentInstance().addMessage(null, 
-                        new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Invalid verification code"));
+                        new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", 
+                        "Invalid verification code. Attempts remaining: " + remainingAttempts));
                 }
             } else {
                 checkoutVisitors = securityVisitorService.findVisitorsForCheckout(verificationCode);
                 if (!checkoutVisitors.isEmpty()) {
                     currentStep = 3;
+                    verificationAttempts = 0; // Reset attempts on success
                     FacesContext.getCurrentInstance().addMessage(null,
                             new FacesMessage(FacesMessage.SEVERITY_INFO, "Success", "Visitor(s) found"));
                 } else {
+                    verificationAttempts++;
+                    int remainingAttempts = MAX_VERIFICATION_ATTEMPTS - verificationAttempts;
                     FacesContext.getCurrentInstance().addMessage(null,
-                            new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "No active visitors found"));
+                            new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", 
+                            "No active visitors found. Attempts remaining: " + remainingAttempts));
                 }
             }
         } catch (Exception e) {
+            verificationAttempts++;
             FacesContext.getCurrentInstance().addMessage(null, 
                 new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", e.getMessage()));
         }
@@ -105,6 +128,7 @@ public class OnboardVisitorsController implements Serializable {
         visitorRecord = new VisitorRecords();
         tempVisitorPhoto = null;
         isCheckIn = true;
+        verificationAttempts = 0;
     }
 
     public void completeRegistration() {

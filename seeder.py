@@ -29,7 +29,7 @@ FIXED_SALT = 'FTUa8P#OT7N8d>o3'
 # Static pepper value for password hashing - must match the one in DigestUtils.java
 PASSWORD_PEPPER = "HostelGuard_Static_Pepper_Value_2024"
 # Default password for all test users
-DEFAULT_PASSWORD = "Password123!"
+DEFAULT_PASSWORD = "password"
 
 # Data structures to ensure uniqueness
 existing_usernames = set()
