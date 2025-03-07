@@ -63,7 +63,7 @@ public class OnboardVisitorsController implements Serializable {
     public void verifyCode() {
         try {
             // Check if maximum attempts reached
-            if (verificationAttempts >= MAX_VERIFICATION_ATTEMPTS) {
+            if (verificationAttempts > MAX_VERIFICATION_ATTEMPTS) {
                 FacesContext.getCurrentInstance().addMessage(null, 
                     new FacesMessage(FacesMessage.SEVERITY_WARN, "Warning", 
                     "Maximum verification attempts reached. Please try again."));
@@ -75,11 +75,26 @@ public class OnboardVisitorsController implements Serializable {
             
             if (isCheckIn) {
                 visitRequest = securityVisitorService.verifyVisitRequest(verificationCode);
+                
                 if (visitRequest != null) {
+                    // Check if the visit request is expired (24 hours after scheduled time)
+                    Timestamp visitTime = visitRequest.getVisitDateTime();
+                    Timestamp currentTime = new Timestamp(System.currentTimeMillis());
+                    Timestamp expirationTime = new Timestamp(visitTime.getTime() + (24 * 60 * 60 * 1000)); // 24 hours
+                    
+                    if (currentTime.after(expirationTime)) {
+                        // The visit request has expired
+                        FacesContext.getCurrentInstance().addMessage(null,
+                                new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", 
+                                "This visit request has expired."));
+                        visitRequest = null;
+                        return;
+                    }
+
                     currentStep = 3;
                     verificationAttempts = 0; // Reset attempts on success
-                    FacesContext.getCurrentInstance().addMessage(null, 
-                        new FacesMessage(FacesMessage.SEVERITY_INFO, "Success", "Verification code is valid"));
+                    FacesContext.getCurrentInstance().addMessage(null,
+                            new FacesMessage(FacesMessage.SEVERITY_INFO, "Success", "Verification successful"));
                 } else {
                     verificationAttempts++;
                     int remainingAttempts = MAX_VERIFICATION_ATTEMPTS - verificationAttempts;
