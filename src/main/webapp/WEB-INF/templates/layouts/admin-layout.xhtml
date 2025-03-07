@@ -63,93 +63,93 @@
     <p:growl id="messages" showDetail="true"/>
 
     <!-- Idle Monitor Form -->
-    <h:form id="globalForm">
-        <!-- Idle Monitor -->
-        <p:idleMonitor
-                timeout="60000"
-                onidle="handleIdle()"
-                onactive="handleActive()"/>
+<!--    <h:form id="globalForm">-->
+<!--        &lt;!&ndash; Idle Monitor &ndash;&gt;-->
+<!--        <p:idleMonitor-->
+<!--                timeout="60000"-->
+<!--                onidle="handleIdle()"-->
+<!--                onactive="handleActive()"/>-->
 
-        <!-- Hidden logout button for automatic logout -->
-        <p:commandButton id="autoLogoutBtn"
-                         style="display:none;"
-                         action="#{IdleMonitorController.handleIdle}"
-                         process="@this"
-                         update=":globalForm"/>
+<!--        &lt;!&ndash; Hidden logout button for automatic logout &ndash;&gt;-->
+<!--        <p:commandButton id="autoLogoutBtn"-->
+<!--                         style="display:none;"-->
+<!--                         action="#{IdleMonitorController.handleIdle}"-->
+<!--                         process="@this"-->
+<!--                         update=":globalForm"/>-->
 
-        <script type="text/javascript">
-            var idleDialogTimer;
-            var countdownDuration = 15; // seconds
+<!--        <script type="text/javascript">-->
+<!--            var idleDialogTimer;-->
+<!--            var countdownDuration = 15; // seconds-->
 
-            function handleIdle() {
-                PF('idleDialog').show();
-                startCountdown();
-            }
+<!--            function handleIdle() {-->
+<!--                PF('idleDialog').show();-->
+<!--                startCountdown();-->
+<!--            }-->
 
-            // Called when activity is detected again
-            function handleActive() {
-                PF('idleDialog').hide();
-                stopCountdown();
-            }
+<!--            // Called when activity is detected again-->
+<!--            function handleActive() {-->
+<!--                PF('idleDialog').hide();-->
+<!--                stopCountdown();-->
+<!--            }-->
 
-            function startCountdown() {
-                var timeLeft = countdownDuration;
-                updateCountdownDisplay(timeLeft);
-                idleDialogTimer = setInterval(function () {
-                    timeLeft--;
-                    updateCountdownDisplay(timeLeft);
-                    if (timeLeft &lt;= 0) {
-                        clearInterval(idleDialogTimer);
-                        PF('idleDialog').hide();
-                        // Trigger auto logout
-                        document.getElementById('globalForm:autoLogoutBtn').click();
-                    }
-                }, 1000);
-            }
+<!--            function startCountdown() {-->
+<!--                var timeLeft = countdownDuration;-->
+<!--                updateCountdownDisplay(timeLeft);-->
+<!--                idleDialogTimer = setInterval(function () {-->
+<!--                    timeLeft&#45;&#45;;-->
+<!--                    updateCountdownDisplay(timeLeft);-->
+<!--                    if (timeLeft &lt;= 0) {-->
+<!--                        clearInterval(idleDialogTimer);-->
+<!--                        PF('idleDialog').hide();-->
+<!--                        // Trigger auto logout-->
+<!--                        document.getElementById('globalForm:autoLogoutBtn').click();-->
+<!--                    }-->
+<!--                }, 1000);-->
+<!--            }-->
 
-            function stopCountdown() {
-                if (idleDialogTimer) {
-                    clearInterval(idleDialogTimer);
-                }
-            }
+<!--            function stopCountdown() {-->
+<!--                if (idleDialogTimer) {-->
+<!--                    clearInterval(idleDialogTimer);-->
+<!--                }-->
+<!--            }-->
 
-            function updateCountdownDisplay(value) {
-                var countdownEl = document.getElementById('countdown');
-                if (countdownEl) {
-                    countdownEl.innerHTML = value;
-                }
-            }
+<!--            function updateCountdownDisplay(value) {-->
+<!--                var countdownEl = document.getElementById('countdown');-->
+<!--                if (countdownEl) {-->
+<!--                    countdownEl.innerHTML = value;-->
+<!--                }-->
+<!--            }-->
 
-            // Optionally, add more listeners to catch activity:
-            ['mousemove', 'keydown', 'scroll', 'click'].forEach(function (eventName) {
-                document.addEventListener(eventName, function () {
-                    // If dialog is showing and user interacts, consider them active.
-                    if (PF('idleDialog').isVisible()) {
-                        handleActive();
-                    }
-                });
-            });
-        </script>
+<!--            // Optionally, add more listeners to catch activity:-->
+<!--            ['mousemove', 'keydown', 'scroll', 'click'].forEach(function (eventName) {-->
+<!--                document.addEventListener(eventName, function () {-->
+<!--                    // If dialog is showing and user interacts, consider them active.-->
+<!--                    if (PF('idleDialog').isVisible()) {-->
+<!--                        handleActive();-->
+<!--                    }-->
+<!--                });-->
+<!--            });-->
+<!--        </script>-->
 
-        <!-- Idle Dialog -->
-        <p:dialog
-                widgetVar="idleDialog"
-                header="Session Timeout Warning"
-                modal="true"
-                closable="false"
-                resizable="false"
-                appendTo="@body">
-            <h:panelGrid columns="1" styleClass="p-4">
-                <h:outputText
-                        value="You have been inactive for a while. You will be logged out unless you continue your session."
-                        styleClass="text-gray-700"/>
-                <br/>
-                <h:outputText value="You will be logged out in " styleClass="text-gray-700"/>
-                <span id="countdown" class="text-red-600 font-bold"></span>
-                <h:outputText value=" seconds." styleClass="text-gray-700"/>
-            </h:panelGrid>
-        </p:dialog>
-    </h:form>
+<!--        &lt;!&ndash; Idle Dialog &ndash;&gt;-->
+<!--        <p:dialog-->
+<!--                widgetVar="idleDialog"-->
+<!--                header="Session Timeout Warning"-->
+<!--                modal="true"-->
+<!--                closable="false"-->
+<!--                resizable="false"-->
+<!--                appendTo="@body">-->
+<!--            <h:panelGrid columns="1" styleClass="p-4">-->
+<!--                <h:outputText-->
+<!--                        value="You have been inactive for a while. You will be logged out unless you continue your session."-->
+<!--                        styleClass="text-gray-700"/>-->
+<!--                <br/>-->
+<!--                <h:outputText value="You will be logged out in " styleClass="text-gray-700"/>-->
+<!--                <span id="countdown" class="text-red-600 font-bold"></span>-->
+<!--                <h:outputText value=" seconds." styleClass="text-gray-700"/>-->
+<!--            </h:panelGrid>-->
+<!--        </p:dialog>-->
+<!--    </h:form>-->
 
     <!-- Secondary Tab Nav -->
     <nav class="flex items-center space-x-8 px-12 py-2 bg-white border-b">

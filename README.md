@@ -15,7 +15,6 @@ https://github.com/user-attachments/assets/94c52765-d23f-4e6f-8851-109621c8119c
 - File upload handling with content validation and multiple storage collections
 - Rate limiting for authentication endpoints with bulk operation protection
 - Lazy loading data tables with server-side filtering, sorting and global search
-- Automatic session timeout with configurable duration and warning dialog
 - Real-time notification system with multi-channel delivery
 
 ### Admin Features
