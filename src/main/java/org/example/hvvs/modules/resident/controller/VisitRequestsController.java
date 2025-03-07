@@ -228,6 +228,14 @@ public class VisitRequestsController implements Serializable {
         this.editingRequest = request;
     }
 
+    /**
+     * Prepares the QR code dialog for displaying the QR code for a specific verification code
+     * @param verificationCode The verification code to display as QR code
+     */
+    public void prepareQrCode(String verificationCode) {
+        this.currentQrCode = verificationCode;
+    }
+
     public List<VisitRequests> getFilteredRequests() {
         return filteredRequests;
     }

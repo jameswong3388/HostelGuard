@@ -59,7 +59,9 @@
                         <p:inputText id="numberOfEntries"
                                      value="#{visitRequestsControllerResident.newRequest.numberOfEntries}"
                                      required="true"
-                                     styleClass="w-full"/>
+                                     styleClass="w-full">
+                            <f:attribute name="value" value="1"/>
+                        </p:inputText>
                     </div>
 
                     <!-- Purpose -->
@@ -223,11 +225,19 @@
                 </p:column>
                 
                 <!-- Actions Column -->
-                <p:column headerText="Actions" style="width: 100px;">
-                    <p:commandButton value="Edit"
-                                     action="#{visitRequestsControllerResident.prepareEdit(req)}"
-                                     update=":editRequestForm"
-                                     oncomplete="PF('editRequestSidebar').show();"/>
+                <p:column headerText="Actions" style="width: 200px;">
+                    <div class="flex gap-2">
+                        <p:commandButton value="Edit"
+                                         action="#{visitRequestsControllerResident.prepareEdit(req)}"
+                                         update=":editRequestForm"
+                                         oncomplete="PF('editRequestSidebar').show();"
+                                         styleClass="p-button-sm"/>
+                        <p:commandButton value="View QR"
+                                         action="#{visitRequestsControllerResident.prepareQrCode(req.verificationCode)}"
+                                         update=":qrCodeForm"
+                                         oncomplete="PF('qrCodeDialog').show();"
+                                         styleClass="p-button-sm p-button-secondary"/>
+                    </div>
                 </p:column>
 
             </p:dataTable>
