@@ -5,9 +5,11 @@ import jakarta.ejb.EJB;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Named;
+import org.example.hvvs.model.Medias;
 import org.example.hvvs.model.Notifications;
 import org.example.hvvs.model.NotificationsFacade;
 import org.example.hvvs.model.Users;
+import org.example.hvvs.modules.common.service.MediaService;
 import org.example.hvvs.modules.common.service.NotificationService;
 import org.example.hvvs.utils.CommonParam;
 import org.primefaces.model.FilterMeta;
@@ -18,7 +20,6 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
-import static org.example.hvvs.model.Notifications.NotificationType.SECURITY_ALERT;
 
 @Named("notificationsController")
 @ViewScoped
@@ -29,6 +30,9 @@ public class NotificationsController implements Serializable {
 
     @EJB
     private NotificationsFacade notificationsFacade;
+    
+    @EJB
+    private MediaService mediaService;
 
     private List<Notifications> filteredNotifications;
     private List<Notifications> selectedNotifications;
@@ -39,6 +43,9 @@ public class NotificationsController implements Serializable {
 
     // Single notification actions
     private Notifications selectedNotification;
+    
+    // Media related fields
+    private List<Medias> notificationMedia;
 
     @PostConstruct
     public void init() {
@@ -175,5 +182,15 @@ public class NotificationsController implements Serializable {
      */
     public void prepareView(Notifications notification) {
         this.selectedNotification = notification;
+        List<Medias> medias = mediaService.findByModelAndModelId("notifications", selectedNotification.getId().toString());
+        setNotificationMedia(medias);
+    }
+
+    public List<Medias> getNotificationMedia() {
+        return notificationMedia;
+    }
+
+    public void setNotificationMedia(List<Medias> notificationMedia) {
+        this.notificationMedia = notificationMedia;
     }
 }

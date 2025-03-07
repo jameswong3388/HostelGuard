@@ -5,6 +5,7 @@ import jakarta.ejb.Stateless;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
+import org.example.hvvs.model.Notifications;
 import org.example.hvvs.modules.common.service.NotificationService;
 import org.example.hvvs.utils.CustomPart;
 import org.example.hvvs.model.Medias;
@@ -61,6 +62,7 @@ public class OnboardVisitorsServiceImpl implements OnboardVisitorsService {
             entityManager.flush(); // Force the persistence to get the ID
 
             // Now save visitor photo if provided
+            Medias visitorPhotoMedia = null;
             if (tempVisitorPhoto != null && tempVisitorPhoto.getContent() != null) {
                 mediaService.deleteByModelAndModelId("visitor-record", visitorRecord.getId().toString());
 
@@ -72,7 +74,7 @@ public class OnboardVisitorsServiceImpl implements OnboardVisitorsService {
                         input
                 );
 
-                Medias media = mediaService.uploadFile(part, "visitor-record", visitorRecord.getId().toString(), "visitor-images");
+                visitorPhotoMedia = mediaService.uploadFile(part, "visitor-record", visitorRecord.getId().toString(), "visitor-images");
             }
 
             // Update visit request status
@@ -80,8 +82,7 @@ public class OnboardVisitorsServiceImpl implements OnboardVisitorsService {
             request.setStatus(VisitRequests.VisitStatus.PROGRESS);
             entityManager.merge(request);
 
-            // send notification to the resident 
-            notificationService.createNotification(
+            Notifications notification = notificationService.createNotification(
                     request.getUserId(),
                     VISIT_REMINDER,
                     "New visitor Check-in",
@@ -90,6 +91,30 @@ public class OnboardVisitorsServiceImpl implements OnboardVisitorsService {
                     request.getId().toString()
             );
 
+            // send notification to the resident with the visitor photo attached
+            if (visitorPhotoMedia != null && visitorPhotoMedia.getId() != null) {
+                try {
+                    InputStream input = tempVisitorPhoto.getInputStream();
+                    CustomPart part = new CustomPart(
+                            tempVisitorPhoto.getFileName(),
+                            tempVisitorPhoto.getContentType(),
+                            tempVisitorPhoto.getSize(),
+                            input
+                    );
+
+                    mediaService.uploadFile(
+                            part,
+                            "notifications",
+                            notification.getId().toString(),
+                            "notification-media"
+                    );
+                } catch (IOException e) {
+                    // Log the error but continue - notification will be created without media
+                    System.err.println("Failed to attach media to notification: " + e.getMessage());
+                }
+
+            }
+
         } catch (IOException e) {
             throw new RuntimeException("Failed to save visitor photo", e);
         }
@@ -97,15 +122,16 @@ public class OnboardVisitorsServiceImpl implements OnboardVisitorsService {
 
     @Override
     public List<VisitorRecords> findVisitorsForCheckout(String code) {
-        return entityManager.createQuery(
-                        "SELECT vr FROM VisitorRecords vr " +
-                                "JOIN vr.request_id r " +
-                                "WHERE r.verification_code = :code " +
-                                "AND r.status = 'PROGRESS' " +
-                                "AND vr.check_out_time IS NULL",
-                        VisitorRecords.class)
-                .setParameter("code", code)
-                .getResultList();
+        TypedQuery<VisitorRecords> query = entityManager.createQuery(
+                "SELECT v FROM VisitorRecords v " +
+                        "JOIN v.request_id r " +
+                        "WHERE r.verification_code = :code " +
+                        "AND v.check_out_time IS NULL",
+                VisitorRecords.class
+        );
+
+        query.setParameter("code", code);
+        return query.getResultList();
     }
 
     @Override

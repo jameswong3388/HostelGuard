@@ -2,10 +2,15 @@ package org.example.hvvs.modules.common.service;
 
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
+import org.example.hvvs.model.Medias;
 import org.example.hvvs.model.Notifications;
 import org.example.hvvs.model.NotificationsFacade;
 import org.example.hvvs.model.Users;
+import org.example.hvvs.utils.CustomPart;
+import org.primefaces.model.file.UploadedFile;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.List;
@@ -14,9 +19,12 @@ import java.util.List;
 public class NotificationServiceImpl implements NotificationService {
     @EJB
     private NotificationsFacade notificationsFacade;
+    
+    @EJB
+    private MediaService mediaService;
 
     @Override
-    public void createNotification(Users user, Notifications.NotificationType type, String title, String message,
+    public Notifications createNotification(Users user, Notifications.NotificationType type, String title, String message,
                                    String relatedEntityType, String relatedEntityId) {
 
         Notifications notification = new Notifications();
@@ -28,6 +36,8 @@ public class NotificationServiceImpl implements NotificationService {
         notification.setRelatedEntityId(relatedEntityId);
         notification.setStatus(Notifications.NotificationStatus.UNREAD);
         notificationsFacade.create(notification);
+
+        return notification;
     }
 
     @Override

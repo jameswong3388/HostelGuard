@@ -17,7 +17,7 @@
                 <h2 class="text-xl font-semibold mb-4">Notification Details</h2>
 
                 <!-- Notification Title -->
-                <div class="field mb-4">
+                <div class="field mb-4" >
                     <p:outputLabel value="Title" styleClass="block font-bold mb-1"/>
                     <div class="p-2 bg-gray-50 rounded-md">
                         <h:outputText value="#{notificationsController.selectedNotification.title}"/>
@@ -59,6 +59,29 @@
                         </h:outputText>
                     </div>
                 </div>
+
+                <!-- Media Attachment (if present) -->
+                <h:panelGroup layout="block" styleClass="field mb-4" rendered="#{not empty notificationsController.notificationMedia}">
+                    <p:outputLabel value="Attachments" styleClass="block font-bold mb-1"/>
+                    <div class="p-2 bg-gray-50 rounded-md">
+                        <ui:repeat value="#{notificationsController.notificationMedia}" var="media">
+                            <!-- Example: direct download link -->
+                            <h:outputLink
+                                    value="#{media.disk}"
+                                    target="_blank"
+                                    style="display: inline-block; margin-right: 1rem;">
+                                #{media.fileName}
+                            </h:outputLink>
+                            <p:graphicImage value="#{media.disk}"/>
+
+                            <!--
+                               If you have different media types, you can conditionally render
+                               an <h:graphicImage>, <p:media>, or a different link type based
+                               on the file's extension.
+                            -->
+                        </ui:repeat>
+                    </div>
+                </h:panelGroup>
 
                 <!-- Action Buttons -->
                 <div class="flex justify-content-end gap-4">
@@ -145,7 +168,7 @@
                         </div>
                     </f:facet>
 
-                    <p:column selectionMode="multiple" selectionBox="true" style="width: 40px;"/>
+                    <p:column selectionMode="multiple" selectionBox="true" style="width: 12px;"/>
 
                     <p:column headerText="Title" sortBy="#{notif.title}" style="width: 250px;">
                         <h:outputText value="#{notif.title}" style="word-wrap: break-word; white-space: normal;"/>
@@ -167,7 +190,7 @@
                                 severity="#{notif.status == 'UNREAD' ? 'warning' : 'success'}"/>
                     </p:column>
 
-                    <p:column headerText="Created" sortBy="#{notif.createdAt}" style="width: 140px;">
+                    <p:column headerText="Created" sortBy="#{notif.createdAt}" style="width: 150px;">
                         <pe:timeAgo value="#{notif.createdAt}"
                                     titlePattern="MM/dd/yy HH:mm"/>
                     </p:column>
