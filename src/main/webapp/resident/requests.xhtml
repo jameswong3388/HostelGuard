@@ -232,12 +232,13 @@
                                          oncomplete="PF('editRequestSidebar').show();"
                                          styleClass="p-button-sm"
                                          rendered="#{req.status eq 'PENDING'}"/>
-                        <p:commandButton value="View QR"
+                        <p:commandButton icon="pi pi-qrcode"
                                          action="#{visitRequestsControllerResident.prepareQrCode(req.verificationCode)}"
                                          update=":qrCodeForm"
                                          oncomplete="PF('qrCodeDialog').show();"
-                                         styleClass="p-button-sm p-button-secondary"
-                                         rendered="#{req.status eq 'PENDING' or req.status eq 'APPROVED' or req.status eq 'PROGRESS'}"/>
+                                         styleClass="p-button-sm p-button-secondary p-button-rounded"
+                                         rendered="#{req.status eq 'PENDING' or req.status eq 'APPROVED' or req.status eq 'PROGRESS'}"
+                                         title="View QR Code"/>
                     </div>
                 </p:column>
 

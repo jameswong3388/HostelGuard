@@ -62,16 +62,8 @@ public class OnboardVisitorsController implements Serializable {
 
     public void verifyCode() {
         try {
-            // Check if maximum attempts reached
-            if (verificationAttempts > MAX_VERIFICATION_ATTEMPTS) {
-                FacesContext.getCurrentInstance().addMessage(null, 
-                    new FacesMessage(FacesMessage.SEVERITY_WARN, "Warning", 
-                    "Maximum verification attempts reached. Please try again."));
-                // Reset attempts and go back to first step
-                verificationAttempts = 0;
-                restart();
-                return;
-            }
+            // Increment attempts counter (we'll check after verification)
+            verificationAttempts++;
             
             if (isCheckIn) {
                 visitRequest = securityVisitorService.verifyVisitRequest(verificationCode);
@@ -96,11 +88,8 @@ public class OnboardVisitorsController implements Serializable {
                     FacesContext.getCurrentInstance().addMessage(null,
                             new FacesMessage(FacesMessage.SEVERITY_INFO, "Success", "Verification successful"));
                 } else {
-                    verificationAttempts++;
-                    int remainingAttempts = MAX_VERIFICATION_ATTEMPTS - verificationAttempts;
-                    FacesContext.getCurrentInstance().addMessage(null, 
-                        new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", 
-                        "Invalid verification code. Attempts remaining: " + remainingAttempts));
+                    // Check if we've reached max attempts
+                    checkMaxAttemptsAndHandle();
                 }
             } else {
                 checkoutVisitors = securityVisitorService.findVisitorsForCheckout(verificationCode);
@@ -110,17 +99,34 @@ public class OnboardVisitorsController implements Serializable {
                     FacesContext.getCurrentInstance().addMessage(null,
                             new FacesMessage(FacesMessage.SEVERITY_INFO, "Success", "Visitor(s) found"));
                 } else {
-                    verificationAttempts++;
-                    int remainingAttempts = MAX_VERIFICATION_ATTEMPTS - verificationAttempts;
-                    FacesContext.getCurrentInstance().addMessage(null,
-                            new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", 
-                            "No active visitors found. Attempts remaining: " + remainingAttempts));
+                    // Check if we've reached max attempts
+                    checkMaxAttemptsAndHandle();
                 }
             }
         } catch (Exception e) {
-            verificationAttempts++;
+            // Check if we've reached max attempts
+            checkMaxAttemptsAndHandle();
             FacesContext.getCurrentInstance().addMessage(null, 
                 new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", e.getMessage()));
+        }
+    }
+    
+    private void checkMaxAttemptsAndHandle() {
+        int remainingAttempts = MAX_VERIFICATION_ATTEMPTS - verificationAttempts;
+        
+        if (remainingAttempts <= 0) {
+            // Max attempts reached, redirect to home page
+            FacesContext.getCurrentInstance().addMessage(null, 
+                new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", 
+                "Maximum verification attempts reached."));
+            
+            // Reset everything
+            restart();
+        } else {
+            // Still have attempts left
+            FacesContext.getCurrentInstance().addMessage(null, 
+                new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", 
+                "Invalid verification code. Attempts remaining: " + remainingAttempts));
         }
     }
 

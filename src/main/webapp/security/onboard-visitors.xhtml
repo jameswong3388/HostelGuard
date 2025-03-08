@@ -80,6 +80,7 @@
                                                  title="Scan QR Code"/>
                             </div>
                             <p:commandButton value="Verify"
+                                             id="verifyButton"
                                              action="#{onboardVisitorsController.verifyCode}"
                                              update=":navigationForm:stepBar :onboardingForm"
                                              styleClass="w-full bg-blue-600 text-white p-3 rounded"/>
@@ -90,7 +91,8 @@
                                 <p:ajax event="codeScanned"
                                         listener="#{onboardVisitorsController.onCodeScanned}"
                                         update=":onboardingForm:verificationCode"
-                                        oncomplete="PF('scannerDialog').hide()"/>
+                                        oncomplete="PF('scannerDialog').hide(); document.getElementById('onboardingForm:verifyButton').click();"
+                                        />
                             </pe:codeScanner>
                         </p:dialog>
                     </div>
