@@ -181,10 +181,14 @@ public class SessionCacheManager {
     /**
      * Calculates the number of remaining allowed login attempts
      * @param key The identifier to check (typically username or IP address)
-     * @return Remaining attempts before blocking occurs (max 5, min 0)
+     * @return Remaining attempts before blocking occurs (max 5, min 1)
      */
     public int getRemainingAttempts(String key) {
+        if (isBlocked(key)) {
+            return 0; // Account is locked
+        }
+        
         Integer attempts = attemptCache.getIfPresent(key);
-        return attempts == null ? 5 : Math.max(0, 5 - attempts);
+        return attempts == null ? 5 : Math.max(1, 5 - attempts);
     }
 }

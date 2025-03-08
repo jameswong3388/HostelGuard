@@ -89,7 +89,11 @@ public class AuthServicesImpl implements AuthServices {
     private ServiceResult<Users> buildRateLimitedResult(String rateLimitKey, String baseMessage) {
         int remaining = sessionCacheManager.getRemainingAttempts(rateLimitKey);
 
-        baseMessage += ", " + remaining + " attempts remaining before lockout";
+        if (sessionCacheManager.isBlocked(rateLimitKey)) {
+            baseMessage += ", account is temporarily locked. Please try again in 15 minutes.";
+        } else {
+            baseMessage += ", " + remaining + " attempts remaining before lockout";
+        }
 
         return ServiceResult.failure("INVALID_CREDENTIALS", baseMessage);
     }
