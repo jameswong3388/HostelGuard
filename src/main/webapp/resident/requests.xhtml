@@ -60,7 +60,6 @@
                                      value="#{visitRequestsControllerResident.newRequest.numberOfEntries}"
                                      required="true"
                                      styleClass="w-full">
-                            <f:attribute name="value" value="1"/>
                         </p:inputText>
                     </div>
 
@@ -231,12 +230,14 @@
                                          action="#{visitRequestsControllerResident.prepareEdit(req)}"
                                          update=":editRequestForm"
                                          oncomplete="PF('editRequestSidebar').show();"
-                                         styleClass="p-button-sm"/>
+                                         styleClass="p-button-sm"
+                                         rendered="#{req.status eq 'PENDING'}"/>
                         <p:commandButton value="View QR"
                                          action="#{visitRequestsControllerResident.prepareQrCode(req.verificationCode)}"
                                          update=":qrCodeForm"
                                          oncomplete="PF('qrCodeDialog').show();"
-                                         styleClass="p-button-sm p-button-secondary"/>
+                                         styleClass="p-button-sm p-button-secondary"
+                                         rendered="#{req.status eq 'PENDING' or req.status eq 'APPROVED' or req.status eq 'PROGRESS'}"/>
                     </div>
                 </p:column>
 

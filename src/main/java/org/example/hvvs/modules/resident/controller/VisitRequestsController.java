@@ -62,6 +62,7 @@ public class VisitRequestsController implements Serializable {
         // Prepare the 'newRequest' object for the dialog
         this.newRequest = new VisitRequests();
         String verificationCode = UUID.randomUUID().toString();
+        newRequest.setNumberOfEntries(1);
         newRequest.setStatus(VisitRequests.VisitStatus.PENDING);
         newRequest.setRemarks("Awaiting approval");
         newRequest.setVerificationCode(verificationCode);
@@ -128,6 +129,14 @@ public class VisitRequestsController implements Serializable {
                 return;
             }
 
+            if (newRequest.getVisitDateTime().before(new Timestamp(System.currentTimeMillis()))) {
+                FacesContext.getCurrentInstance().addMessage(null,
+                        new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                                "Error", "Visit date and time must be in the future"));
+                FacesContext.getCurrentInstance().validationFailed();
+                return;
+            }
+
             if (newRequest.getPurpose() == null || newRequest.getPurpose().trim().isEmpty()) {
                 FacesContext.getCurrentInstance().addMessage(null,
                         new FacesMessage(FacesMessage.SEVERITY_ERROR,
@@ -165,6 +174,7 @@ public class VisitRequestsController implements Serializable {
             newRequest = new VisitRequests();
             String verificationCode = UUID.randomUUID().toString();
             newRequest.setVerificationCode(verificationCode);
+            newRequest.setNumberOfEntries(1);
             newRequest.setStatus(VisitRequests.VisitStatus.PENDING);
             newRequest.setRemarks("Awaiting approval");
 
