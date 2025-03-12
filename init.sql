@@ -208,6 +208,26 @@ CREATE TABLE password_reset_tokens
     FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
 );
 
+-- Create audit_logs table
+CREATE TABLE audit_logs
+(
+    id                CHAR(36) PRIMARY KEY,
+    user_id           INT UNSIGNED,
+    action            VARCHAR(20) NOT NULL,
+    entity_type       VARCHAR(50) NOT NULL,
+    entity_id         VARCHAR(36),
+    description       TEXT,
+    ip_address        VARCHAR(45),
+    user_agent        VARCHAR(512),
+    old_values        JSON,
+    new_values        JSON,
+    additional_data   JSON,
+    created_at        TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE SET NULL,
+    CHECK (action IN ('CREATE', 'READ', 'UPDATE', 'DELETE', 'LOGIN', 'LOGOUT', 'EXPORT', 'IMPORT', 'APPROVE', 'REJECT', 'EXECUTE'))
+);
+
 -- Create indexes for better query performance
 CREATE INDEX idx_user_sessions_user_active ON user_sessions (user_id);
 CREATE INDEX idx_user_sessions_expires_active ON user_sessions (expires_at);
@@ -230,3 +250,11 @@ CREATE INDEX idx_medias_model_composite ON medias (model, model_id);
 
 CREATE INDEX idx_password_reset_tokens_token ON password_reset_tokens (token);
 CREATE INDEX idx_password_reset_tokens_user ON password_reset_tokens (user_id);
+
+-- Indexes for audit_logs
+CREATE INDEX idx_audit_logs_user ON audit_logs (user_id);
+CREATE INDEX idx_audit_logs_action ON audit_logs (action);
+CREATE INDEX idx_audit_logs_entity ON audit_logs (entity_type, entity_id);
+CREATE INDEX idx_audit_logs_created ON audit_logs (created_at);
+CREATE INDEX idx_audit_logs_user_action ON audit_logs (user_id, action);
+CREATE INDEX idx_audit_logs_entity_action ON audit_logs (entity_type, entity_id, action);
