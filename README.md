@@ -26,6 +26,10 @@ https://github.com/user-attachments/assets/94c52765-d23f-4e6f-8851-109621c8119c
 - Media management with collection-based organization (profile pics, docs, etc)
 - Data export capabilities (CSV, Excel, PDF)
 
+### Super Admin Features
+- User Mangement (CRUD), specifically used to create admin
+- Comprehensive audit logs tracking all CRUD operations and authentication activities
+
 ### Security Staff Features
 - Visitor onboarding workflow with photo capture and validation
 - check-in/check-out operations with QR verification
