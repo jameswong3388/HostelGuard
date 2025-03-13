@@ -29,6 +29,7 @@ https://github.com/user-attachments/assets/94c52765-d23f-4e6f-8851-109621c8119c
 ### Super Admin Features
 - User Mangement (CRUD), specifically used to create admin
 - Comprehensive audit logs tracking all CRUD operations and authentication activities
+- Configurable audit log cleanup with automated retention policies and scheduling
 
 ### Security Staff Features
 - Visitor onboarding workflow with photo capture and validation

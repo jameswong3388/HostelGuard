@@ -1,0 +1,159 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:pe="http://primefaces.org/ui/extensions"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                template="/WEB-INF/templates/layouts/god-layout.xhtml">
+    <ui:define name="title">Audit Log Cleanup Settings - HostelGuard™</ui:define>
+
+    <ui:define name="navigation">
+        <h:link outcome="/god/settings/general.xhtml"
+                styleClass="py-2 focus:outline-none #{view.viewId eq '/god/settings/general.xhtml' ? 'text-blue-600' : 'text-gray-500 hover:text-gray-700'}">
+            General
+        </h:link>
+        <h:link outcome="/god/settings/account.xhtml"
+                styleClass="py-2 focus:outline-none #{view.viewId eq '/god/settings/account.xhtml' ? 'text-blue-600' : 'text-gray-500 hover:text-gray-700'}">
+            Account
+        </h:link>
+        <h:link outcome="/god/settings/authentication-security.xhtml"
+                styleClass="py-2 focus:outline-none #{view.viewId eq '/god/settings/authentication-security.xhtml' ? 'text-blue-600' : 'text-gray-500 hover:text-gray-700'}">
+            Authentication &amp; Security
+        </h:link>
+        <h:link outcome="/god/settings/cron-job.xhtml"
+                styleClass="py-2 focus:outline-none #{view.viewId eq '/god/settings/cron-job.xhtml' ? 'text-blue-600' : 'text-gray-500 hover:text-gray-700'}">
+            Cron Job
+        </h:link>
+    </ui:define>
+    
+    <ui:define name="content">
+        <div class="space-y-10">
+            <section aria-labelledby="audit-cleanup-settings">
+                <h:form id="auditCleanupForm">
+                    <div class="grid grid-cols-1 gap-x-14 gap-y-8 md:grid-cols-3">
+                        <div>
+                            <h2 id="audit-cleanup-settings" class="scroll-mt-10 font-semibold text-gray-900">
+                                Audit Log Cleanup
+                            </h2>
+                            <p class="mt-1 text-sm leading-6 text-gray-500">
+                                Configure automatic cleanup settings for audit logs to maintain system performance.
+                            </p>
+                        </div>
+
+                        <div class="md:col-span-2">
+                            <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
+                                <!-- Enable Automatic Cleanup -->
+                                <div class="col-span-full">
+                                    <h:outputLabel for="enabled" value="Enable Automatic Cleanup" styleClass="font-medium"/>
+                                    <div class="mt-2">
+                                        <p:toggleSwitch id="enabled" 
+                                                      value="#{auditLogCleanupController.enabled}"
+                                                      styleClass="mt-1" />
+                                    </div>
+                                    <p class="mt-2 text-xs text-gray-500">
+                                        When enabled, old audit logs will be automatically deleted based on the retention period.
+                                    </p>
+                                </div>
+                                
+                                <!-- Retention Period -->
+                                <div class="col-span-full sm:col-span-3">
+                                    <h:outputLabel for="retentionMinutes" value="Retention Period (minutes)" styleClass="font-medium"/>
+                                    <div class="mt-2">
+                                        <p:inputNumber id="retentionMinutes" value="#{auditLogCleanupController.retentionMinutes}" 
+                                                      minValue="1" maxValue="5256000" decimalPlaces="0"
+                                                      styleClass="w-full" />
+                                    </div>
+                                    <p class="mt-2 text-xs text-gray-500">
+                                        Audit logs older than this many minutes will be permanently deleted.
+                                        Recommended: 129600 minutes (approximately 90 days).
+                                    </p>
+                                </div>
+
+                                <!-- Cleanup Interval -->
+                                <div class="col-span-full sm:col-span-3">
+                                    <h:outputLabel for="intervalMinutes" value="Cleanup Interval (minutes)" styleClass="font-medium"/>
+                                    <div class="mt-2">
+                                        <p:inputNumber id="intervalMinutes" value="#{auditLogCleanupController.intervalMinutes}"
+                                                       minValue="1" maxValue="10080" decimalPlaces="0"
+                                                       styleClass="w-full" />
+                                    </div>
+                                    <p class="mt-2 text-xs text-gray-500">
+                                        How often the cleanup job should run.
+                                        Recommended: 1440 minutes (daily cleanup).
+                                    </p>
+                                </div>
+                                
+                                <!-- Save button -->
+                                <div class="col-span-full mt-6 flex justify-end gap-3">
+                                    <p:commandButton value="Run Now" 
+                                                   action="#{auditLogCleanupController.runJobNow}"
+                                                   update="messages"
+                                                   styleClass="p-button-outlined p-button-secondary"
+                                                   icon="pi pi-play" />
+                                    <p:commandButton value="Save Settings" 
+                                                    action="#{auditLogCleanupController.saveConfig}"
+                                                    update="@form messages"
+                                                    styleClass="p-button-raised p-button-primary" />
+                                </div>
+                                
+                                <!-- Status indicator -->
+                                <div class="col-span-full mt-6 p-4 bg-gray-50 rounded-md border border-gray-200">
+                                    <div class="flex items-center">
+                                        <div class="mr-3">
+                                            <ui:fragment rendered="#{auditLogCleanupController.enabled}">
+                                                <i class="pi pi-clock text-blue-600" style="font-size: 1.5rem"></i>
+                                            </ui:fragment>
+                                            <ui:fragment rendered="#{!auditLogCleanupController.enabled}">
+                                                <i class="pi pi-clock text-gray-400" style="font-size: 1.5rem"></i>
+                                            </ui:fragment>
+                                        </div>
+                                        <div>
+                                            <h3 class="text-sm font-medium text-gray-900">Cron Job Status</h3>
+                                            <ui:fragment rendered="#{auditLogCleanupController.enabled}">
+                                                <p class="text-sm text-gray-500">
+                                                    Active - will run every #{auditLogCleanupController.intervalMinutes} minutes
+                                                </p>
+                                            </ui:fragment>
+                                            <ui:fragment rendered="#{!auditLogCleanupController.enabled}">
+                                                <p class="text-sm text-gray-500">
+                                                    Inactive - job is currently disabled
+                                                </p>
+                                            </ui:fragment>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </h:form>
+            </section>
+            
+            <!-- Divider -->
+            <hr class="border-gray-300"/>
+            
+            <!-- About Section -->
+            <section aria-labelledby="about-audit-cleanup">
+                <div class="grid grid-cols-1 gap-x-14 gap-y-8 md:grid-cols-3">
+                    <div>
+                        <h2 id="about-audit-cleanup" class="scroll-mt-10 font-semibold text-gray-900">
+                            About Audit Log Cleanup
+                        </h2>
+                        <p class="mt-1 text-sm leading-6 text-gray-500">
+                            Important information about the audit log cleanup process.
+                        </p>
+                    </div>
+                    
+                    <div class="md:col-span-2">
+                        <div class="flex items-start p-4 bg-yellow-50 rounded-md border border-yellow-200">
+                            <i class="pi pi-exclamation-triangle text-yellow-600 mr-3 mt-0.5"></i>
+                            <p class="text-sm text-yellow-700">
+                                <strong>Warning:</strong> The audit log cleanup job runs automatically at midnight every day. Deleted audit logs cannot be recovered. Make sure to set an appropriate
+                                retention period based on your compliance and security requirements.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </ui:define>
+</ui:composition>
