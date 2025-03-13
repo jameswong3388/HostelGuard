@@ -2,7 +2,7 @@ import mysql.connector
 from faker import Faker
 import random
 import string
-from datetime import timedelta
+from datetime import timedelta, date
 import uuid
 import hmac
 import hashlib
@@ -149,12 +149,13 @@ CREATE TABLE visit_requests
     id                INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     user_id           INT UNSIGNED NOT NULL,
     verification_code VARCHAR(36)  NOT NULL UNIQUE,
-    visit_datetime    TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    visit_day         DATE         NOT NULL,
+    visitor_name      VARCHAR(100) NOT NULL,
+    visitor_identity  VARCHAR(20)  NOT NULL,
     purpose           TEXT         NOT NULL,
     status            VARCHAR(20)  NOT NULL,
     remarks           TEXT,
     unit_number       VARCHAR(10)  NOT NULL,
-    number_of_entries INT UNSIGNED NOT NULL DEFAULT 1,
     created_at        TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at        TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
@@ -306,7 +307,7 @@ CREATE INDEX idx_user_sessions_expires_active ON user_sessions (expires_at);
 CREATE INDEX idx_user_sessions_last_access ON user_sessions (last_access);
 CREATE INDEX idx_user_sessions_user_expires ON user_sessions (user_id, expires_at);
 
-CREATE INDEX idx_visit_requests_verification_status_entries ON visit_requests (verification_code, status, number_of_entries);
+CREATE INDEX idx_visit_requests_verification_status ON visit_requests (verification_code, status);
 
 CREATE INDEX idx_resident_profiles_user_id ON resident_profiles (user_id);
 CREATE INDEX idx_security_staff_profiles_user_id ON security_staff_profiles (user_id);
@@ -506,21 +507,21 @@ def insert_resident_profile(cursor, user_id: int, unit_number: str):
     cursor.execute(sql, (user_id, unit_number))
 
 
-def insert_visit_request(cursor, user_id: int, verification_code: str, visit_datetime,
-                         purpose: str, status: str, remarks: str, unit_number: str,
-                         number_of_entries: int) -> int:
+def insert_visit_request(cursor, user_id: int, verification_code: str, visit_day,
+                         visitor_name: str, visitor_identity: str, purpose: str, 
+                         status: str, remarks: str, unit_number: str) -> int:
     """
     Inserts a visit_requests record and returns the generated request ID.
     """
     sql = """
         INSERT INTO visit_requests
-            (user_id, verification_code, visit_datetime, purpose, status, remarks,
-             unit_number, number_of_entries)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+            (user_id, verification_code, visit_day, visitor_name, visitor_identity, 
+             purpose, status, remarks, unit_number)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
     """
     data = (
-        user_id, verification_code, visit_datetime, purpose, status, remarks,
-        unit_number, number_of_entries
+        user_id, verification_code, visit_day, visitor_name, visitor_identity,
+        purpose, status, remarks, unit_number
     )
     cursor.execute(sql, data)
     return cursor.lastrowid
@@ -813,46 +814,50 @@ def main():
         for _ in range(10):
             user_id = random.choice(resident_ids)
             verification_code = generate_verification_code()
+            # Only store the date part for visit day
             visit_datetime = fake.date_time_between(start_date='-30d', end_date='now')
+            visit_day = visit_datetime.date()
+            
+            # Generate visitor data FIRST to ensure consistency
+            visitor_name = fake.name()
+            visitor_identity = ''.join(random.choices(string.ascii_uppercase + string.digits, k=12))
+            visitor_phone = generate_malaysia_phone_number()
+            
             purpose = random.choice(purposes)
             status = random.choice(['PENDING', 'APPROVED', 'REJECTED', 'PROGRESS', 'COMPLETED', 'CANCELLED'])
             remarks = fake.sentence(nb_words=6)
             unit_number = resident_unit_map[user_id]
 
-            num_visitors = random.randint(1, 5)
             request_id = insert_visit_request(
                 cursor,
                 user_id,
                 verification_code,
-                visit_datetime,
+                visit_day,
+                visitor_name,
+                visitor_identity,
                 purpose,
                 status,
                 remarks,
-                unit_number,
-                num_visitors
+                unit_number
             )
 
-            # Insert visitor records
-            for _ in range(num_visitors):
-                sec_id = random.choice(security_staff_ids)
-                visitor_name = fake.name()
-                visitor_ic = ''.join(random.choices(string.ascii_uppercase + string.digits, k=12))
-                visitor_phone = generate_malaysia_phone_number()
-                check_in_time = visit_datetime + timedelta(minutes=random.randint(0, 30))
-                check_out_time = check_in_time + timedelta(hours=random.randint(1, 3))
-                visitor_remarks = fake.sentence(nb_words=8)
+            # Insert visitor record using the SAME visitor data
+            sec_id = random.choice(security_staff_ids)
+            check_in_time = visit_datetime + timedelta(minutes=random.randint(0, 30))
+            check_out_time = check_in_time + timedelta(hours=random.randint(1, 3))
+            visitor_remarks = fake.sentence(nb_words=8)
 
-                insert_visitor_record(
-                    cursor,
-                    request_id,
-                    sec_id,
-                    visitor_name,
-                    visitor_ic,
-                    visitor_phone,
-                    check_in_time,
-                    check_out_time,
-                    visitor_remarks
-                )
+            insert_visitor_record(
+                cursor,
+                request_id,
+                sec_id,
+                visitor_name,  # Same name as in the request
+                visitor_identity,  # Same identity as in the request
+                visitor_phone,
+                check_in_time,
+                check_out_time,
+                visitor_remarks
+            )
 
         cnx.commit()
 

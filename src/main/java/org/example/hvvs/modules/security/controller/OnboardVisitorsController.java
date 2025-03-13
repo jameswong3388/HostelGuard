@@ -17,6 +17,8 @@ import org.primefaces.model.file.UploadedFile;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.sql.Date;
+import java.time.LocalDate;
 import java.util.List;
 
 @Named
@@ -69,19 +71,23 @@ public class OnboardVisitorsController implements Serializable {
                 visitRequest = securityVisitorService.verifyVisitRequest(verificationCode);
                 
                 if (visitRequest != null) {
-                    // Check if the visit request is expired (24 hours after scheduled time)
-                    Timestamp visitTime = visitRequest.getVisitDateTime();
-                    Timestamp currentTime = new Timestamp(System.currentTimeMillis());
-                    Timestamp expirationTime = new Timestamp(visitTime.getTime() + (24 * 60 * 60 * 1000)); // 24 hours
+                    // Check if the visit request is expired (visit day should be today or in the future)
+                    Date visitDay = visitRequest.getVisitDay();
+                    LocalDate today = LocalDate.now();
+                    LocalDate visitDate = visitDay.toLocalDate();
                     
-                    if (currentTime.after(expirationTime)) {
+                    if (visitDate.isBefore(today)) {
                         // The visit request has expired
                         FacesContext.getCurrentInstance().addMessage(null,
                                 new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", 
-                                "This visit request has expired."));
+                                "This visit request has expired or the visit day has passed."));
                         visitRequest = null;
                         return;
                     }
+
+                    // Auto-populate visitor information from the visit request
+                    visitorRecord.setVisitorName(visitRequest.getVisitorName());
+                    visitorRecord.setVisitorIc(visitRequest.getVisitorIdentity());
 
                     currentStep = 3;
                     verificationAttempts = 0; // Reset attempts on success
@@ -94,10 +100,22 @@ public class OnboardVisitorsController implements Serializable {
             } else {
                 checkoutVisitors = securityVisitorService.findVisitorsForCheckout(verificationCode);
                 if (!checkoutVisitors.isEmpty()) {
-                    currentStep = 3;
+                    // Skip the selection step and automatically select the first visitor
+                    if (checkoutVisitors.size() == 1) {
+                        // Only one visitor to check out - straightforward case
+                        selectedVisitor = checkoutVisitors.get(0);
+                        currentStep = 3;
+                        FacesContext.getCurrentInstance().addMessage(null,
+                                new FacesMessage(FacesMessage.SEVERITY_INFO, "Success", "Visitor found for checkout"));
+                    } else {
+                        // Multiple visitors - select the first one but inform the user
+                        selectedVisitor = checkoutVisitors.get(0);
+                        currentStep = 3;
+                        FacesContext.getCurrentInstance().addMessage(null,
+                                new FacesMessage(FacesMessage.SEVERITY_INFO, "Success", 
+                                "Multiple visitors found - showing the first one. You'll need to check out others separately."));
+                    }
                     verificationAttempts = 0; // Reset attempts on success
-                    FacesContext.getCurrentInstance().addMessage(null,
-                            new FacesMessage(FacesMessage.SEVERITY_INFO, "Success", "Visitor(s) found"));
                 } else {
                     // Check if we've reached max attempts
                     checkMaxAttemptsAndHandle();
@@ -131,7 +149,9 @@ public class OnboardVisitorsController implements Serializable {
     }
 
     public void nextStep() {
-        if ((isCheckIn && currentStep < 4) || (!isCheckIn && currentStep < 4)) {
+        if (isCheckIn && currentStep < 4) {
+            currentStep++;
+        } else if (!isCheckIn && currentStep < 3) { // Check-out now has only 3 steps
             currentStep++;
         }
     }
@@ -176,11 +196,6 @@ public class OnboardVisitorsController implements Serializable {
 
             securityVisitorService.registerVisitor(visitorRecord, tempVisitorPhoto);
             
-            // Decrement number_of_entries after successful check-in
-            int remainingEntries = visitRequest.getNumberOfEntries() - 1;
-            visitRequest.setNumberOfEntries(remainingEntries);
-            visitRequestsFacade.edit(visitRequest);
-
             FacesContext.getCurrentInstance().addMessage(null, 
                 new FacesMessage(FacesMessage.SEVERITY_INFO, "Success", "Visitor check-in completed"));
             
@@ -210,7 +225,7 @@ public class OnboardVisitorsController implements Serializable {
     }
 
     public Integer[] getStepSequence() {
-        int totalSteps = 4;
+        int totalSteps = isCheckIn ? 4 : 3; // 4 steps for check-in, 3 steps for check-out
         Integer[] sequence = new Integer[totalSteps];
         for (int i = 0; i < totalSteps; i++) {
             sequence[i] = i + 1;
@@ -272,7 +287,6 @@ public class OnboardVisitorsController implements Serializable {
 
     public void setSelectedVisitor(VisitorRecords selectedVisitor) {
         this.selectedVisitor = selectedVisitor;
-        nextStep();
     }
 
     public List<VisitorRecords> getCheckoutVisitors() {
@@ -281,5 +295,13 @@ public class OnboardVisitorsController implements Serializable {
 
     public void setCheckoutVisitors(List<VisitorRecords> checkoutVisitors) {
         this.checkoutVisitors = checkoutVisitors;
+    }
+
+    public VisitRequests getVisitRequest() {
+        return visitRequest;
+    }
+
+    public void setVisitRequest(VisitRequests visitRequest) {
+        this.visitRequest = visitRequest;
     }
 }

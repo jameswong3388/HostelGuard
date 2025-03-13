@@ -47,8 +47,7 @@
                                 </h3>
                                 <ul class="text-sm text-gray-600 space-y-1 flex flex-col">
                                     <p:tag icon="pi pi-check" severity="info">Validate Verification Code</p:tag>
-                                    <p:tag icon="pi pi-check" severity="info">Select Visitor to Checkout</p:tag>
-                                    <p:tag icon="pi pi-check" severity="info">Confirm Checkout</p:tag>
+                                    <p:tag icon="pi pi-check" severity="info">Confirm Visitor Checkout</p:tag>
                                 </ul>
                             </p:commandLink>
                         </div>
@@ -102,22 +101,31 @@
                 <p:outputPanel rendered="#{onboardVisitorsController.currentStep == 3 and onboardVisitorsController.checkIn}">
                     <div class="space-y-4">
                         <h2 class="text-xl font-semibold">Step 3: Visitor Information</h2>
+                        <p class="text-sm text-blue-600 mb-2">
+                            <i class="pi pi-info-circle mr-1"></i>
+                            The visitor name and identification have been auto-filled from the visit request.
+                        </p>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div class="flex flex-col space-y-2">
+                                <p:outputLabel for="visitorName" value="Visitor Name" />
                                 <p:inputText id="visitorName"
                                              value="#{onboardVisitorsController.visitorRecord.visitorName}"
                                              placeholder="Visitor Name"
                                              required="true"
-                                             styleClass="p-3 border rounded"/>
+                                             styleClass="p-3 border rounded bg-gray-50"
+                                             style="border-left: 3px solid #3B82F6;"/>
                             </div>
                             <div class="flex flex-col space-y-2">
+                                <p:outputLabel for="visitorIc" value="IC/Passport Number" />
                                 <p:inputText id="visitorIc"
                                              value="#{onboardVisitorsController.visitorRecord.visitorIc}"
                                              placeholder="IC/Passport Number"
                                              required="true"
-                                             styleClass="p-3 border rounded"/>
+                                             styleClass="p-3 border rounded bg-gray-50"
+                                             style="border-left: 3px solid #3B82F6;"/>
                             </div>
                             <div class="flex flex-col space-y-2">
+                                <p:outputLabel for="visitorPhone" value="Phone Number" />
                                 <p:inputText id="visitorPhone"
                                              value="#{onboardVisitorsController.visitorRecord.visitorPhone}"
                                              placeholder="Phone Number"
@@ -125,6 +133,7 @@
                                              styleClass="p-3 border rounded"/>
                             </div>
                             <div class="flex flex-col space-y-2">
+                                <p:outputLabel for="remarks" value="Remarks (Optional)" />
                                 <p:inputTextarea id="remarks"
                                                  value="#{onboardVisitorsController.visitorRecord.remarks}"
                                                  placeholder="Remarks (Optional)"
@@ -170,43 +179,10 @@
                     </div>
                 </p:outputPanel>
 
-                <!-- Step 3: Select Visitor -->
+                <!-- Checkout Confirmation -->
                 <p:outputPanel rendered="#{onboardVisitorsController.currentStep == 3 and not onboardVisitorsController.checkIn}">
                     <div class="space-y-4">
-                        <h2 class="text-xl font-semibold">Step 3: Select Visitor</h2>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <ui:repeat value="#{onboardVisitorsController.checkoutVisitors}" var="visitor">
-                                <p:commandLink styleClass="border rounded-lg p-4 hover:border-2 cursor-pointer #{onboardVisitorsController.visitorRecord.id eq visitor.id ? 'border-2 border-blue-600' : ''}"
-                                               process="@this"
-                                               actionListener="#{onboardVisitorsController.setSelectedVisitor(visitor)}"
-                                               update=":navigationForm:stepBar :onboardingForm">
-                                    <div class="space-y-2">
-                                        <h3 class="text-lg font-medium">#{visitor.visitorName}</h3>
-                                        <p class="text-sm text-gray-600">IC: #{visitor.visitorIc}</p>
-                                        <p class="text-sm text-gray-600">
-                                            Checked in:
-                                            <pe:timeAgo value="#{visitor.checkInTime}" pattern="MM/dd/yy HH:mm"/>
-                                        </p>
-                                    </div>
-                                </p:commandLink>
-                            </ui:repeat>
-                        </div>
-                        <div class="flex justify-between">
-                            <p:commandButton value="Back"
-                                             action="#{onboardVisitorsController.previousStep}"
-                                             update=":navigationForm:stepBar :onboardingForm"/>
-                            <p:commandButton value="Next"
-                                             action="#{onboardVisitorsController.nextStep}"
-                                             disabled="#{onboardVisitorsController.visitorRecord eq null}"
-                                             update=":navigationForm:stepBar :onboardingForm"/>
-                        </div>
-                    </div>
-                </p:outputPanel>
-
-                <!-- Checkout Confirmation -->
-                <p:outputPanel rendered="#{onboardVisitorsController.currentStep == 4 and not onboardVisitorsController.checkIn}">
-                    <div class="space-y-4">
-                        <h2 class="text-xl font-semibold">Confirm Check-out</h2>
+                        <h2 class="text-xl font-semibold">Step 3: Confirm Check-out</h2>
                         <div class="bg-gray-50 p-4 border rounded-lg">
                             <div class="grid grid-cols-2 gap-4">
                                 <div class="col-span-2">

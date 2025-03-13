@@ -17,6 +17,8 @@ import org.primefaces.model.file.UploadedFile;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.sql.Date;
 import java.util.List;
 
 import static org.example.hvvs.model.Notifications.NotificationType.ENTRY_EXIT;
@@ -36,19 +38,20 @@ public class OnboardVisitorsServiceImpl implements OnboardVisitorsService {
 
     @Override
     public VisitRequests verifyVisitRequest(String verificationCode) {
+        // Get current date to check if visit day is valid
+        Date today = new Date(System.currentTimeMillis());
+        
         TypedQuery<VisitRequests> query = entityManager.createQuery(
                 "SELECT v FROM VisitRequests v WHERE v.verification_code = :code " +
-                        "AND v.number_of_entries >= 1 " +
-                        "AND (v.status = 'APPROVED' OR v.status = 'PROGRESS')",
+                        "AND v.visit_day = :today " +
+                        "AND (v.status = 'APPROVED')",
                 VisitRequests.class
         );
         query.setParameter("code", verificationCode);
+        query.setParameter("today", today);
 
         try {
-            VisitRequests request = query.getSingleResult();
-            request.setStatus(VisitRequests.VisitStatus.PROGRESS);
-            entityManager.merge(request);
-            return request;
+            return query.getSingleResult();
         } catch (Exception e) {
             return null;
         }
@@ -86,7 +89,7 @@ public class OnboardVisitorsServiceImpl implements OnboardVisitorsService {
                     request.getUserId(),
                     VISIT_REMINDER,
                     "New visitor Check-in",
-                    "A new visitor " + visitorRecord.getVisitorName() + " has checked in, please verify the visitor",
+                    "Visitor " + request.getVisitorName() + " has checked in to visit your unit",
                     "visit-requests",
                     request.getId().toString()
             );
@@ -159,7 +162,7 @@ public class OnboardVisitorsServiceImpl implements OnboardVisitorsService {
                     request.getUserId(),
                     ENTRY_EXIT,
                     "Visitor Check-out",
-                    "All visitors have checked out, please verify the visitor",
+                    "Visitor " + request.getVisitorName() + " has completed their visit",
                     "visit-requests",
                     request.getId().toString()
             );
@@ -169,7 +172,7 @@ public class OnboardVisitorsServiceImpl implements OnboardVisitorsService {
                     request.getUserId(),
                     ENTRY_EXIT,
                     "Visitor Check-out",
-                    "Visitor " + visitorRecord.getVisitorName() + " has checked out, please verify the visitor",
+                    "Visitor from your unit has checked out",
                     "visit-requests",
                     request.getId().toString()
             );

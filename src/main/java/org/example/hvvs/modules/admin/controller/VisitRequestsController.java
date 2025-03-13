@@ -121,10 +121,11 @@ public class VisitRequestsController implements Serializable {
                     if (managedRequest != null) {
                         // Prepare audit information before deletion
                         String oldValues = String.format(
-                                "{\"id\":%d,\"verificationCode\":\"%s\",\"unitNumber\":\"%s\",\"purpose\":\"%s\",\"status\":\"%s\"}",
+                                "{\"id\":%d,\"verificationCode\":\"%s\",\"unitNumber\":\"%s\",\"visitorName\":\"%s\",\"purpose\":\"%s\",\"status\":\"%s\"}",
                                 managedRequest.getId(),
                                 managedRequest.getVerificationCode(),
                                 managedRequest.getUnitNumber(),
+                                managedRequest.getVisitorName(),
                                 managedRequest.getPurpose(),
                                 managedRequest.getStatus()
                         );
@@ -134,7 +135,7 @@ public class VisitRequestsController implements Serializable {
                                 currentUser,
                                 "VISIT_REQUESTS",
                                 managedRequest.getId().toString(),
-                                "Deleted visit request for unit: " + managedRequest.getUnitNumber(),
+                                "Deleted visit request for unit: " + managedRequest.getUnitNumber() + ", visitor: " + managedRequest.getVisitorName(),
                                 oldValues,
                                 request
                         );
@@ -169,6 +170,8 @@ public class VisitRequestsController implements Serializable {
         VisitRequests request = (VisitRequests) value;
         return request.getVerificationCode().toLowerCase().contains(filterText)
                 || request.getUnitNumber().toLowerCase().contains(filterText)
+                || request.getVisitorName().toLowerCase().contains(filterText)
+                || request.getVisitorIdentity().toLowerCase().contains(filterText)
                 || request.getPurpose().toLowerCase().contains(filterText)
                 || request.getStatus().toString().contains(filterText)
                 || request.getRemarks().toLowerCase().contains(filterText);
@@ -194,7 +197,7 @@ public class VisitRequestsController implements Serializable {
                         currentUser,
                         "VISIT_REQUESTS",
                         request.getId().toString(),
-                        "Viewed details for visit request to unit: " + request.getUnitNumber(),
+                        "Viewed details for visit request to unit: " + request.getUnitNumber() + ", visitor: " + request.getVisitorName(),
                         httpRequest
                 );
             }
@@ -219,9 +222,12 @@ public class VisitRequestsController implements Serializable {
 
             // Prepare old values for audit logging
             String oldValues = String.format(
-                    "{\"verificationCode\":\"%s\",\"unitNumber\":\"%s\",\"purpose\":\"%s\",\"status\":\"%s\",\"remarks\":\"%s\"}",
+                    "{\"verificationCode\":\"%s\",\"unitNumber\":\"%s\",\"visitorName\":\"%s\",\"visitorIdentity\":\"%s\",\"visitDay\":\"%s\",\"purpose\":\"%s\",\"status\":\"%s\",\"remarks\":\"%s\"}",
                     original.getVerificationCode(),
                     original.getUnitNumber(),
+                    original.getVisitorName(),
+                    original.getVisitorIdentity(),
+                    original.getVisitDay(),
                     original.getPurpose(),
                     original.getStatus(),
                     original.getRemarks()
@@ -231,9 +237,12 @@ public class VisitRequestsController implements Serializable {
 
             // Prepare new values for audit logging
             String newValues = String.format(
-                    "{\"verificationCode\":\"%s\",\"unitNumber\":\"%s\",\"purpose\":\"%s\",\"status\":\"%s\",\"remarks\":\"%s\"}",
+                    "{\"verificationCode\":\"%s\",\"unitNumber\":\"%s\",\"visitorName\":\"%s\",\"visitorIdentity\":\"%s\",\"visitDay\":\"%s\",\"purpose\":\"%s\",\"status\":\"%s\",\"remarks\":\"%s\"}",
                     editingRequest.getVerificationCode(),
                     editingRequest.getUnitNumber(),
+                    editingRequest.getVisitorName(),
+                    editingRequest.getVisitorIdentity(),
+                    editingRequest.getVisitDay(),
                     editingRequest.getPurpose(),
                     editingRequest.getStatus(),
                     editingRequest.getRemarks()
@@ -244,7 +253,7 @@ public class VisitRequestsController implements Serializable {
                     currentUser,
                     "VISIT_REQUESTS",
                     editingRequest.getId().toString(),
-                    "Updated visit request for unit: " + editingRequest.getUnitNumber(),
+                    "Updated visit request for unit: " + editingRequest.getUnitNumber() + ", visitor: " + editingRequest.getVisitorName(),
                     oldValues,
                     newValues,
                     request
@@ -255,7 +264,7 @@ public class VisitRequestsController implements Serializable {
                         editingRequest.getUserId(),
                         Notifications.NotificationType.SYSTEM_UPDATE,
                         "Visit Request Status Updated",
-                        "Your visit request #" + editingRequest.getId() + " status has changed to " + editingRequest.getStatus(),
+                        "Your visit request #" + editingRequest.getId() + " for visitor " + editingRequest.getVisitorName() + " status has changed to " + editingRequest.getStatus(),
                         "visit-requests",
                         String.valueOf(editingRequest.getId())
                 );

@@ -41,26 +41,36 @@
                                      styleClass="w-full"/>
                     </div>
 
-                    <!-- Combined Date/Time -->
+                    <!-- Visitor Name -->
                     <div class="field mb-4">
-                        <p:outputLabel for="visitDateTime" value="Visit Date/Time" styleClass="block mb-1"/>
-                        <p:datePicker id="visitDateTime"
-                                      value="#{visitRequestsControllerResident.newRequest.visitDateTime}"
-                                      pattern="MM/dd/yy HH:mm"
-                                      showTime="true"
-                                      converter="timestampConverter"
-                                      required="true"
-                                      styleClass="w-full"/>
+                        <p:outputLabel for="visitorName" value="Visitor Name" styleClass="block mb-1"/>
+                        <p:inputText id="visitorName"
+                                    value="#{visitRequestsControllerResident.newRequest.visitorName}"
+                                    required="true"
+                                    placeholder="Enter visitor's full name"
+                                    styleClass="w-full"/>
                     </div>
 
-                    <!-- Number of Entries -->
+                    <!-- Visitor Identity -->
                     <div class="field mb-4">
-                        <p:outputLabel for="numberOfEntries" value="Number of Entries" styleClass="block mb-1"/>
-                        <p:inputText id="numberOfEntries"
-                                     value="#{visitRequestsControllerResident.newRequest.numberOfEntries}"
-                                     required="true"
-                                     styleClass="w-full">
-                        </p:inputText>
+                        <p:outputLabel for="visitorIdentity" value="Visitor Identity/IC" styleClass="block mb-1"/>
+                        <p:inputText id="visitorIdentity"
+                                    value="#{visitRequestsControllerResident.newRequest.visitorIdentity}"
+                                    required="true"
+                                    placeholder="Enter visitor's ID/IC number"
+                                    styleClass="w-full"/>
+                    </div>
+
+                    <!-- Visit Day (Date only) -->
+                    <div class="field mb-4">
+                        <p:outputLabel for="visitDay" value="Visit Day" styleClass="block mb-1"/>
+                        <p:datePicker id="visitDay"
+                                      value="#{visitRequestsControllerResident.newRequest.visitDay}"
+                                      pattern="MM/dd/yyyy"
+                                      showTime="false"
+                                      converter="sqlDateConverter"
+                                      required="true"
+                                      styleClass="w-full"/>
                     </div>
 
                     <!-- Purpose -->
@@ -181,16 +191,16 @@
                     <h:outputText value="#{req.verificationCode}"/>
                 </p:column>
 
-                <!-- Visit Date/Time column -->
-                <p:column headerText="Visit Date/Time" sortBy="#{req.visit_datetime}" style="width: 150px;">
-                    <h:outputText value="#{req.visitDateTime}">
-                        <f:convertDateTime pattern="MM/dd/yy HH:mm"/>
-                    </h:outputText>
+                <!-- Visitor Name column -->
+                <p:column headerText="Visitor" sortBy="#{req.visitor_name}" style="width: 150px;">
+                    <h:outputText value="#{req.visitorName}"/>
                 </p:column>
 
-                <!-- Number of Entries column -->
-                <p:column headerText="Entries" sortBy="#{req.number_of_entries}" style="width: 120px;">
-                    <h:outputText value="#{req.numberOfEntries}"/>
+                <!-- Visit Day column -->
+                <p:column headerText="Visit Day" sortBy="#{req.visit_day}" style="width: 120px;">
+                    <h:outputText value="#{req.visitDay}">
+                        <f:convertDateTime pattern="MM/dd/yyyy"/>
+                    </h:outputText>
                 </p:column>
 
                 <!-- Purpose column -->
@@ -237,7 +247,7 @@
                                          update=":qrCodeForm"
                                          oncomplete="PF('qrCodeDialog').show();"
                                          styleClass="p-button-sm p-button-secondary p-button-rounded"
-                                         rendered="#{req.status eq 'PENDING' or req.status eq 'APPROVED' or req.status eq 'PROGRESS'}"
+                                         rendered="#{req.status eq 'PENDING' or req.status eq 'APPROVED'}"
                                          title="View QR Code"/>
                     </div>
                 </p:column>
@@ -265,25 +275,34 @@
                                      styleClass="w-full"/>
                     </div>
 
-                    <!-- Visit Date/Time -->
+                    <!-- Visitor Name -->
                     <div class="field mb-4">
-                        <p:outputLabel for="editVisitDateTime" value="Visit Date/Time" styleClass="block mb-1"/>
-                        <p:datePicker id="editVisitDateTime"
-                                      value="#{visitRequestsControllerResident.editingRequest.visitDateTime}"
-                                      pattern="MM/dd/yy HH:mm"
-                                      showTime="true"
-                                      converter="timestampConverter"
-                                      required="true"
-                                      styleClass="w-full"/>
-                    </div>
-
-                    <!-- Number of Entries -->
-                    <div class="field mb-4">
-                        <p:outputLabel for="editNumberOfEntries" value="Number of Entries" styleClass="block mb-1"/>
-                        <p:inputText id="editNumberOfEntries"
-                                     value="#{visitRequestsControllerResident.editingRequest.numberOfEntries}"
+                        <p:outputLabel for="editVisitorName" value="Visitor Name" styleClass="block mb-1"/>
+                        <p:inputText id="editVisitorName"
+                                     value="#{visitRequestsControllerResident.editingRequest.visitorName}"
                                      required="true"
                                      styleClass="w-full"/>
+                    </div>
+
+                    <!-- Visitor Identity -->
+                    <div class="field mb-4">
+                        <p:outputLabel for="editVisitorIdentity" value="Visitor Identity/IC" styleClass="block mb-1"/>
+                        <p:inputText id="editVisitorIdentity"
+                                     value="#{visitRequestsControllerResident.editingRequest.visitorIdentity}"
+                                     required="true"
+                                     styleClass="w-full"/>
+                    </div>
+
+                    <!-- Visit Day -->
+                    <div class="field mb-4">
+                        <p:outputLabel for="editVisitDay" value="Visit Day" styleClass="block mb-1"/>
+                        <p:datePicker id="editVisitDay"
+                                      value="#{visitRequestsControllerResident.editingRequest.visitDay}"
+                                      pattern="MM/dd/yyyy"
+                                      showTime="false"
+                                      converter="sqlDateConverter"
+                                      required="true"
+                                      styleClass="w-full"/>
                     </div>
 
                     <!-- Purpose -->

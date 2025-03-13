@@ -15,7 +15,9 @@ import org.primefaces.model.FilterMeta;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.sql.Date;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 import java.util.Map;
@@ -47,6 +49,7 @@ public class VisitRequestsController implements Serializable {
 
         VisitRequests request = (VisitRequests) value;
         return request.getVerificationCode().toLowerCase().contains(filterText)
+                || request.getVisitorName().toLowerCase().contains(filterText)
                 || request.getPurpose().toLowerCase().contains(filterText)
                 || request.getStatus().toString().contains(filterText)
                 || request.getRemarks().toLowerCase().contains(filterText);
@@ -62,10 +65,12 @@ public class VisitRequestsController implements Serializable {
         // Prepare the 'newRequest' object for the dialog
         this.newRequest = new VisitRequests();
         String verificationCode = UUID.randomUUID().toString();
-        newRequest.setNumberOfEntries(1);
         newRequest.setStatus(VisitRequests.VisitStatus.PENDING);
         newRequest.setRemarks("Awaiting approval");
         newRequest.setVerificationCode(verificationCode);
+        newRequest.setVisitDay(new Date(System.currentTimeMillis()));
+        newRequest.setVisitorName("");
+        newRequest.setVisitorIdentity("");
 
         // Get current user from session
         Users currentUser = (Users) FacesContext
@@ -92,16 +97,16 @@ public class VisitRequestsController implements Serializable {
                                             Map<String, SortMeta> sortBy, Map<String, FilterMeta> filterBy) {
 
                 List<VisitRequests> results = visitRequestsFacade.findRange(
-                    first,
-                    pageSize,
-                    globalFilter,
-                    sortBy,
-                    currentUser
+                        first,
+                        pageSize,
+                        globalFilter,
+                        sortBy,
+                        currentUser
                 );
-                
+
                 // Set the total count for pagination
                 setRowCount(visitRequestsFacade.count(globalFilter));
-                
+
                 return results;
             }
 
@@ -121,18 +126,29 @@ public class VisitRequestsController implements Serializable {
     public void createRequest() {
         try {
             // Basic validation
-            if (newRequest.getNumberOfEntries() <= 0) {
+            if (newRequest.getVisitorName() == null || newRequest.getVisitorName().trim().isEmpty()) {
                 FacesContext.getCurrentInstance().addMessage(null,
                         new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                                "Error", "Number of entries must be greater than 0"));
+                                "Error", "Visitor name is required"));
                 FacesContext.getCurrentInstance().validationFailed();
                 return;
             }
 
-            if (newRequest.getVisitDateTime().before(new Timestamp(System.currentTimeMillis()))) {
+            if (newRequest.getVisitorIdentity() == null || newRequest.getVisitorIdentity().trim().isEmpty()) {
                 FacesContext.getCurrentInstance().addMessage(null,
                         new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                                "Error", "Visit date and time must be in the future"));
+                                "Error", "Visitor identity is required"));
+                FacesContext.getCurrentInstance().validationFailed();
+                return;
+            }
+
+            // Check if visit day is in the past
+            LocalDate today = LocalDate.now();
+            LocalDate visitDay = newRequest.getVisitDay().toLocalDate();
+            if (visitDay.isBefore(today)) {
+                FacesContext.getCurrentInstance().addMessage(null,
+                        new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                                "Error", "Visit day must be today or in the future"));
                 FacesContext.getCurrentInstance().validationFailed();
                 return;
             }
@@ -174,9 +190,11 @@ public class VisitRequestsController implements Serializable {
             newRequest = new VisitRequests();
             String verificationCode = UUID.randomUUID().toString();
             newRequest.setVerificationCode(verificationCode);
-            newRequest.setNumberOfEntries(1);
             newRequest.setStatus(VisitRequests.VisitStatus.PENDING);
             newRequest.setRemarks("Awaiting approval");
+            newRequest.setVisitDay(new Date(System.currentTimeMillis()));
+            newRequest.setVisitorName("");
+            newRequest.setVisitorIdentity("");
 
             // Refresh the table
             lazyRequestsModel.setRowCount(visitRequestsFacade.count(globalFilter));
@@ -240,6 +258,7 @@ public class VisitRequestsController implements Serializable {
 
     /**
      * Prepares the QR code dialog for displaying the QR code for a specific verification code
+     *
      * @param verificationCode The verification code to display as QR code
      */
     public void prepareQrCode(String verificationCode) {

@@ -91,12 +91,13 @@ CREATE TABLE visit_requests
     id                INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     user_id           INT UNSIGNED NOT NULL,
     verification_code VARCHAR(36)  NOT NULL,
-    visit_datetime    TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    visit_day         DATE         NOT NULL,
+    visitor_name      VARCHAR(100) NOT NULL,
+    visitor_identity  VARCHAR(20)  NOT NULL,
     purpose           TEXT         NOT NULL,
     status            VARCHAR(20)  NOT NULL,
     remarks           TEXT,
     unit_number       VARCHAR(10)  NOT NULL,
-    number_of_entries INT UNSIGNED NOT NULL DEFAULT 1,
     created_at        TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at        TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
@@ -235,7 +236,7 @@ CREATE INDEX idx_user_sessions_expires_active ON user_sessions (expires_at);
 CREATE INDEX idx_user_sessions_last_access ON user_sessions (last_access);
 CREATE INDEX idx_user_sessions_user_expires ON user_sessions (user_id, expires_at);
 
-CREATE INDEX idx_visit_requests_verification_status_entries ON visit_requests (verification_code, status, number_of_entries);
+CREATE INDEX idx_visit_requests_verification_status ON visit_requests (verification_code, status);
 
 CREATE INDEX idx_resident_profiles_user_id ON resident_profiles (user_id);
 CREATE INDEX idx_security_staff_profiles_user_id ON security_staff_profiles (user_id);

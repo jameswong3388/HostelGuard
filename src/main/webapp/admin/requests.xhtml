@@ -111,19 +111,25 @@
                 </p:column>
 
                 <!-- Verification Code -->
-                <p:column headerText="Verification Code" sortBy="#{req.verification_code}" style="width: 350px;">
+                <p:column headerText="Verification Code" sortBy="#{req.verification_code}" style="width: 250px;">
                     <h:outputText value="#{req.verificationCode}"/>
                 </p:column>
 
-                <!-- Visit Date/Time -->
-                <p:column headerText="Visit Date/Time" sortBy="#{req.visit_datetime}" style="width: 150px;">
-                    <pe:timeAgo value="#{req.visitDateTime}"
-                                titlePattern="MM/dd/yy HH:mm"/>
+                <!-- Visitor Name -->
+                <p:column headerText="Visitor Name" sortBy="#{req.visitor_name}" style="width: 150px;">
+                    <h:outputText value="#{req.visitorName}"/>
                 </p:column>
 
-                <!-- Number of Entries -->
-                <p:column headerText="Entries" sortBy="#{req.number_of_entries}" style="width: 120px;">
-                    <h:outputText value="#{req.numberOfEntries}"/>
+                <!-- Visitor Identity -->
+                <p:column headerText="Visitor ID" sortBy="#{req.visitor_identity}" style="width: 120px;">
+                    <h:outputText value="#{req.visitorIdentity}"/>
+                </p:column>
+
+                <!-- Visit Day -->
+                <p:column headerText="Visit Day" sortBy="#{req.visit_day}" style="width: 120px;">
+                    <h:outputText value="#{req.visitDay}">
+                        <f:convertDateTime pattern="MM/dd/yyyy"/>
+                    </h:outputText>
                 </p:column>
 
                 <!-- Purpose -->
@@ -204,26 +210,35 @@
                                      styleClass="w-full"/>
                     </div>
 
-                    <!-- Visit Date/Time -->
+                    <!-- Visitor Name -->
                     <div class="field mb-4">
-                        <p:outputLabel for="editVisitDateTime" value="Visit Date/Time" styleClass="block mb-1"/>
-                        <p:datePicker id="editVisitDateTime"
-                                      value="#{VisitRequestsControllerAdmin.editingRequest.visitDateTime}"
-                                      pattern="MM/dd/yy HH:mm"
-                                      showTime="true"
-                                      showIcon="true"
-                                      converter="timestampConverter"
-                                      required="true"
-                                      styleClass="w-full"/>
-                    </div>
-
-                    <!-- Number of Entries -->
-                    <div class="field mb-4">
-                        <p:outputLabel for="editNumberOfEntries" value="Number of Entries" styleClass="block mb-1"/>
-                        <p:inputText id="editNumberOfEntries"
-                                     value="#{VisitRequestsControllerAdmin.editingRequest.numberOfEntries}"
+                        <p:outputLabel for="editVisitorName" value="Visitor Name" styleClass="block mb-1"/>
+                        <p:inputText id="editVisitorName"
+                                     value="#{VisitRequestsControllerAdmin.editingRequest.visitorName}"
                                      required="true"
                                      styleClass="w-full"/>
+                    </div>
+
+                    <!-- Visitor Identity -->
+                    <div class="field mb-4">
+                        <p:outputLabel for="editVisitorIdentity" value="Visitor Identity/IC" styleClass="block mb-1"/>
+                        <p:inputText id="editVisitorIdentity"
+                                     value="#{VisitRequestsControllerAdmin.editingRequest.visitorIdentity}"
+                                     required="true"
+                                     styleClass="w-full"/>
+                    </div>
+
+                    <!-- Visit Day -->
+                    <div class="field mb-4">
+                        <p:outputLabel for="editVisitDay" value="Visit Day" styleClass="block mb-1"/>
+                        <p:datePicker id="editVisitDay"
+                                      value="#{VisitRequestsControllerAdmin.editingRequest.visitDay}"
+                                      pattern="MM/dd/yyyy"
+                                      showTime="false"
+                                      showIcon="true"
+                                      converter="sqlDateConverter"
+                                      required="true"
+                                      styleClass="w-full"/>
                     </div>
 
                     <!-- Purpose -->

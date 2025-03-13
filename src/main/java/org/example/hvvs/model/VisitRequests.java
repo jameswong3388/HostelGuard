@@ -3,13 +3,14 @@ package org.example.hvvs.model;
 import jakarta.persistence.*;
 
 import java.sql.Timestamp;
+import java.sql.Date;
 
 @Entity
 @Table(name = "visit_requests")
 @NamedQueries({
         @NamedQuery(name = "VisitRequest.findAll", query = "SELECT v FROM VisitRequests v"),
         @NamedQuery(name = "VisitRequest.findByUserId", query = "SELECT v FROM VisitRequests v WHERE v.user_id = :user_id"),
-        @NamedQuery(name = "VisitRequest.findByVisitDate", query = "SELECT v FROM VisitRequests v WHERE v.visit_datetime = :visit_date"),
+        @NamedQuery(name = "VisitRequest.findByVisitDay", query = "SELECT v FROM VisitRequests v WHERE v.visit_day = :visit_day"),
         @NamedQuery(name = "VisitRequest.findByStatus", query = "SELECT v FROM VisitRequests v WHERE v.status = :status")
 })
 public class VisitRequests extends BaseEntity {
@@ -20,8 +21,14 @@ public class VisitRequests extends BaseEntity {
     @Column(name = "verification_code", nullable = false)
     private String verification_code;
 
-    @Column(name = "visit_datetime", nullable = false)
-    private Timestamp visit_datetime;
+    @Column(name = "visit_day", nullable = false)
+    private Date visit_day;
+
+    @Column(name = "visitor_name", nullable = false)
+    private String visitor_name;
+    
+    @Column(name = "visitor_identity", nullable = false)
+    private String visitor_identity;
 
     @Column(name = "purpose", nullable = false)
     private String purpose;
@@ -35,9 +42,6 @@ public class VisitRequests extends BaseEntity {
 
     @Column(name = "unit_number", nullable = false)
     private String unit_number;
-
-    @Column(name = "number_of_entries", nullable = false)
-    private int number_of_entries;
 
     @Column(name = "created_at", nullable = false)
     private Timestamp created_at;
@@ -61,16 +65,18 @@ public class VisitRequests extends BaseEntity {
         super();
     }
 
-    public VisitRequests(Users user_id, String verification_code, Timestamp visit_datetime, String purpose, VisitStatus status,
-                         String remarks, String unit_number, int number_of_entries) {
+    public VisitRequests(Users user_id, String verification_code, Date visit_day, String visitor_name, 
+                         String visitor_identity, String purpose, VisitStatus status,
+                         String remarks, String unit_number) {
         this.user_id = user_id;
         this.verification_code = verification_code;
-        this.visit_datetime = visit_datetime;
+        this.visit_day = visit_day;
+        this.visitor_name = visitor_name;
+        this.visitor_identity = visitor_identity;
         this.purpose = purpose;
         this.status = status;
         this.remarks = remarks;
         this.unit_number = unit_number;
-        this.number_of_entries = number_of_entries;
     }
 
     public enum VisitStatus {
@@ -85,8 +91,16 @@ public class VisitRequests extends BaseEntity {
         return verification_code;
     }
 
-    public Timestamp getVisitDateTime() {
-        return visit_datetime;
+    public Date getVisitDay() {
+        return visit_day;
+    }
+
+    public String getVisitorName() {
+        return visitor_name;
+    }
+
+    public String getVisitorIdentity() {
+        return visitor_identity;
     }
 
     public String getPurpose() {
@@ -105,10 +119,6 @@ public class VisitRequests extends BaseEntity {
         return unit_number;
     }
 
-    public int getNumberOfEntries() {
-        return number_of_entries;
-    }
-
     public Timestamp getCreatedAt() {
         return created_at;
     }
@@ -125,8 +135,16 @@ public class VisitRequests extends BaseEntity {
         this.verification_code = verification_code;
     }
 
-    public void setVisitDateTime(Timestamp visit_date) {
-        this.visit_datetime = visit_date;
+    public void setVisitDay(Date visit_day) {
+        this.visit_day = visit_day;
+    }
+
+    public void setVisitorName(String visitor_name) {
+        this.visitor_name = visitor_name;
+    }
+
+    public void setVisitorIdentity(String visitor_identity) {
+        this.visitor_identity = visitor_identity;
     }
 
     public void setPurpose(String purpose) {
@@ -151,9 +169,5 @@ public class VisitRequests extends BaseEntity {
 
     public void setUnitNumber(String unit_number) {
         this.unit_number = unit_number;
-    }
-
-    public void setNumberOfEntries(int number_of_entries) {
-        this.number_of_entries = number_of_entries;
     }
 }
