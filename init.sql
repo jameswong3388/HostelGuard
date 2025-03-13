@@ -169,29 +169,29 @@ CREATE TABLE notifications
 );
 
 -- Create calendar_events table
-CREATE TABLE calendar_events 
+CREATE TABLE calendar_events
 (
-    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    user_id INT UNSIGNED NOT NULL,
-    title VARCHAR(255) NOT NULL,
-    description TEXT,
-    start_date DATETIME NOT NULL,
-    end_date DATETIME NOT NULL,
-    all_day BOOLEAN DEFAULT FALSE,
-    url VARCHAR(512),
-    border_color VARCHAR(20),
-    background_color VARCHAR(20),
-    display_mode ENUM('BACKGROUND', 'INVERSE', 'NORMAL') DEFAULT 'NORMAL',
-    status ENUM('ACTIVE', 'CANCELLED', 'COMPLETED') DEFAULT 'ACTIVE',
-    recurrence_pattern ENUM('NONE', 'DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY') DEFAULT 'NONE',
-    parent_event_id INT UNSIGNED,
-    time_zone VARCHAR(50) NOT NULL DEFAULT 'UTC',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    FOREIGN KEY (parent_event_id) REFERENCES calendar_events(id) ON DELETE SET NULL,
-    
+    id                 INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    user_id            INT UNSIGNED NOT NULL,
+    title              VARCHAR(255) NOT NULL,
+    description        TEXT,
+    start_date         DATETIME     NOT NULL,
+    end_date           DATETIME     NOT NULL,
+    all_day            BOOLEAN                                               DEFAULT FALSE,
+    url                VARCHAR(512),
+    border_color       VARCHAR(20),
+    background_color   VARCHAR(20),
+    display_mode       ENUM ('BACKGROUND', 'INVERSE', 'NORMAL')              DEFAULT 'NORMAL',
+    status             ENUM ('ACTIVE', 'CANCELLED', 'COMPLETED')             DEFAULT 'ACTIVE',
+    recurrence_pattern ENUM ('NONE', 'DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY') DEFAULT 'NONE',
+    parent_event_id    INT UNSIGNED,
+    time_zone          VARCHAR(50)  NOT NULL                                 DEFAULT 'UTC',
+    created_at         TIMESTAMP                                             DEFAULT CURRENT_TIMESTAMP,
+    updated_at         TIMESTAMP                                             DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
+    FOREIGN KEY (parent_event_id) REFERENCES calendar_events (id) ON DELETE SET NULL,
+
     CHECK (end_date >= start_date)
 );
 
@@ -201,31 +201,32 @@ CREATE TABLE password_reset_tokens
     id         CHAR(36) PRIMARY KEY,
     user_id    INT UNSIGNED NOT NULL,
     token      VARCHAR(255) NOT NULL UNIQUE,
-    used       BOOLEAN DEFAULT FALSE,
-    expires_at TIMESTAMP NOT NULL,
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    used       BOOLEAN               DEFAULT FALSE,
+    expires_at TIMESTAMP    NOT NULL,
+    created_at TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
 );
 
 -- Create audit_logs table
 CREATE TABLE audit_logs
 (
-    id                CHAR(36) PRIMARY KEY,
-    user_id           INT UNSIGNED,
-    action            VARCHAR(20) NOT NULL,
-    entity_type       VARCHAR(50) NOT NULL,
-    entity_id         VARCHAR(36),
-    description       TEXT,
-    ip_address        VARCHAR(45),
-    user_agent        VARCHAR(512),
-    old_values        JSON,
-    new_values        JSON,
-    additional_data   JSON,
-    created_at        TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    
+    id              INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    user_id         INT UNSIGNED,
+    action          VARCHAR(20) NOT NULL,
+    entity_type     VARCHAR(50) NOT NULL,
+    entity_id       VARCHAR(36),
+    description     TEXT,
+    ip_address      VARCHAR(45),
+    user_agent      VARCHAR(512),
+    old_values      JSON,
+    new_values      JSON,
+    additional_data JSON,
+    created_at      TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
     FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE SET NULL,
-    CHECK (action IN ('CREATE', 'READ', 'UPDATE', 'DELETE', 'LOGIN', 'LOGOUT', 'EXPORT', 'IMPORT', 'APPROVE', 'REJECT', 'EXECUTE'))
+    CHECK (action IN
+           ('CREATE', 'READ', 'UPDATE', 'DELETE', 'LOGIN', 'LOGOUT', 'EXPORT', 'IMPORT', 'APPROVE', 'REJECT', 'EXECUTE'))
 );
 
 -- Create indexes for better query performance

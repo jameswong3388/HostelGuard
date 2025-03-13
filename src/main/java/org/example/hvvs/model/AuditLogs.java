@@ -59,11 +59,6 @@ public class AuditLogs extends BaseEntity {
         DELETE,
         LOGIN,
         LOGOUT,
-        EXPORT,
-        IMPORT,
-        APPROVE,
-        REJECT,
-        EXECUTE
     }
 
     public AuditLogs() {

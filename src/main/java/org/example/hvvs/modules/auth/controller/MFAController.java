@@ -8,6 +8,7 @@ import org.example.hvvs.model.MfaMethods;
 import org.example.hvvs.model.MfaMethodsFacade;
 import org.example.hvvs.model.Users;
 import org.example.hvvs.modules.auth.service.AuthServices;
+import org.example.hvvs.modules.common.service.AuditLogService;
 import org.example.hvvs.utils.CommonParam;
 import org.example.hvvs.utils.SessionCacheManager;
 
@@ -18,6 +19,9 @@ public class MFAController extends HttpServlet {
 
     @EJB
     private AuthServices authServices;
+
+    @EJB
+    private AuditLogService auditLogService;
 
     @EJB
     private MfaMethodsFacade mfaMethodsFacade;
@@ -105,6 +109,12 @@ public class MFAController extends HttpServlet {
             // Successful verification
             sessionCacheManager.resetAttempts(rateLimitKey);
             authServices.registerSession(preAuthUser, request);
+
+            auditLogService.logLogin(
+                    preAuthUser,
+                    "Login completed successfully",
+                    request
+            );
 
             String redirectUrl = authServices.redirectBasedOnRole(preAuthUser);
             response.sendRedirect(request.getContextPath() + redirectUrl);

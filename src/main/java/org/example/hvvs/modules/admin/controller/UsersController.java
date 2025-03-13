@@ -6,7 +6,9 @@ import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Named;
+import jakarta.servlet.http.HttpServletRequest;
 import org.example.hvvs.model.*;
+import org.example.hvvs.modules.common.service.AuditLogService;
 import org.example.hvvs.modules.common.service.SessionService;
 import org.example.hvvs.utils.CommonParam;
 import org.primefaces.model.LazyDataModel;
@@ -30,6 +32,8 @@ public class UsersController implements Serializable {
     private ManagingStaffProfilesFacade managingStaffProfilesFacade;
     @EJB
     private SessionService sessionService;
+    @EJB
+    private AuditLogService auditLogService;
 
     private LazyDataModel<Users> lazyUsersModel;
     private String globalFilter;
@@ -50,6 +54,23 @@ public class UsersController implements Serializable {
         securityStaffProfile = new SecurityStaffProfiles();
         managingStaffProfile = new ManagingStaffProfiles();
         editingUser = new Users();
+        
+        // Log page access when controller is initialized
+        try {
+            Users currentUser = getCurrentUser();
+            if (currentUser != null) {
+                HttpServletRequest request = getHttpServletRequest();
+                auditLogService.logRead(
+                    currentUser,
+                    "USERS_LIST",
+                    null,
+                    "Accessed users management page",
+                    request
+                );
+            }
+        } catch (Exception e) {
+            // Silent catch - don't disrupt the UI for logging errors
+        }
     }
 
     private void initializeLazyModel() {
@@ -112,6 +133,10 @@ public class UsersController implements Serializable {
 
     public void createUser() {
         try {
+            // Get current user from session for audit logging
+            Users currentUser = getCurrentUser();
+            HttpServletRequest request = getHttpServletRequest();
+            
             // Validate unique constraints
             if (usersFacade.isUsernameExists(newUser.getUsername())) {
                 addErrorMessage("Username already exists");
@@ -124,6 +149,7 @@ public class UsersController implements Serializable {
 
             Users createdUser = usersFacade.createUser(newUser);
 
+            // Create profile based on role
             switch (newUser.getRole()) {
                 case RESIDENT:
                     if (residentProfile != null) {
@@ -147,6 +173,18 @@ public class UsersController implements Serializable {
                     break;
             }
 
+            // Log the user creation
+            auditLogService.logCreate(
+                currentUser,
+                "USERS",
+                createdUser.getId().toString(),
+                "Created new user with username: " + createdUser.getUsername(),
+                "{\"username\":\"" + createdUser.getUsername() + 
+                "\",\"email\":\"" + createdUser.getEmail() + 
+                "\",\"role\":\"" + createdUser.getRole() + "\"}",
+                request
+            );
+
             lazyUsersModel.setRowCount(usersFacade.count(globalFilter)); // Refresh count
             newUser = new Users(); // Reset the form
             residentProfile = new ResidentProfiles(); // Reset profiles
@@ -160,13 +198,17 @@ public class UsersController implements Serializable {
 
     public void deleteSelectedUsers() {
         try {
+            // Get current user from session for audit logging
+            Users currentUser = getCurrentUser();
+            HttpServletRequest request = getHttpServletRequest();
+            
             if (selectedUsers != null && !selectedUsers.isEmpty()) {
-                Users currentUser = (Users) FacesContext.getCurrentInstance()
+                Users currentSessionUser = (Users) FacesContext.getCurrentInstance()
                     .getExternalContext().getSessionMap().get(CommonParam.SESSION_SELF);
                 
                 // Filter out current user from deletion
                 List<Users> usersToDelete = selectedUsers.stream()
-                    .filter(user -> !user.getId().equals(currentUser.getId()))
+                    .filter(user -> !user.getId().equals(currentSessionUser.getId()))
                     .toList();
 
                 if (usersToDelete.isEmpty()) {
@@ -175,6 +217,18 @@ public class UsersController implements Serializable {
                 }
 
                 for (Users user : usersToDelete) {
+                    // Log before deletion to capture user details
+                    auditLogService.logDelete(
+                        currentUser,
+                        "USERS",
+                        user.getId().toString(),
+                        "Deleted user with username: " + user.getUsername(),
+                        "{\"username\":\"" + user.getUsername() + 
+                        "\",\"email\":\"" + user.getEmail() + 
+                        "\",\"role\":\"" + user.getRole() + "\"}",
+                        request
+                    );
+                    
                     // Revoke all sessions first
                     sessionService.revokeAllSessions(user.getId());
                     usersFacade.remove(user);
@@ -235,11 +289,33 @@ public class UsersController implements Serializable {
 
     public void prepareEdit(Users user) {
         this.editingUser = user;
+        
+        // Log user details view
+        try {
+            Users currentUser = getCurrentUser();
+            if (currentUser != null) {
+                HttpServletRequest request = getHttpServletRequest();
+                auditLogService.logRead(
+                    currentUser,
+                    "USERS",
+                    user.getId().toString(),
+                    "Viewed details for user: " + user.getUsername(),
+                    request
+                );
+            }
+        } catch (Exception e) {
+            // Silent catch - don't disrupt the UI for logging errors
+        }
     }
 
     public void updateUser() {
         try {
+            // Get current user from session for audit logging
+            Users currentUser = getCurrentUser();
+            HttpServletRequest request = getHttpServletRequest();
+            
             Users existingUser = usersFacade.find(editingUser.getId());
+            
             if (!existingUser.getUsername().equals(editingUser.getUsername()) 
                 && usersFacade.isUsernameExists(editingUser.getUsername())) {
                 addErrorMessage("Username already exists");
@@ -251,7 +327,35 @@ public class UsersController implements Serializable {
                 return;
             }
 
+            // Prepare old values for audit logging
+            String oldValues = "{\"username\":\"" + existingUser.getUsername() + 
+                "\",\"email\":\"" + existingUser.getEmail() + 
+                "\",\"firstName\":\"" + existingUser.getFirstName() + 
+                "\",\"lastName\":\"" + existingUser.getLastName() + 
+                "\",\"phoneNumber\":\"" + existingUser.getPhoneNumber() + 
+                "\",\"role\":\"" + existingUser.getRole() + "\"}";
+                
+            // Update the user
             usersFacade.edit(editingUser);
+            
+            // Prepare new values for audit logging
+            String newValues = "{\"username\":\"" + editingUser.getUsername() + 
+                "\",\"email\":\"" + editingUser.getEmail() + 
+                "\",\"firstName\":\"" + editingUser.getFirstName() + 
+                "\",\"lastName\":\"" + editingUser.getLastName() + 
+                "\",\"phoneNumber\":\"" + editingUser.getPhoneNumber() + 
+                "\",\"role\":\"" + editingUser.getRole() + "\"}";
+            
+            // Log the update
+            auditLogService.logUpdate(
+                currentUser,
+                "USERS",
+                editingUser.getId().toString(),
+                "Updated user with username: " + editingUser.getUsername(),
+                oldValues,
+                newValues,
+                request
+            );
             
             lazyUsersModel.setRowCount(usersFacade.count(globalFilter)); // Refresh count
             
@@ -336,5 +440,21 @@ public class UsersController implements Serializable {
 
     public void setExportFormat(String exportFormat) {
         this.exportFormat = exportFormat;
+    }
+
+    /**
+     * Get the current user from the session
+     */
+    private Users getCurrentUser() {
+        return (Users) FacesContext.getCurrentInstance()
+            .getExternalContext().getSessionMap().get(CommonParam.SESSION_SELF);
+    }
+    
+    /**
+     * Get the current HttpServletRequest
+     */
+    private HttpServletRequest getHttpServletRequest() {
+        return (HttpServletRequest) FacesContext.getCurrentInstance()
+            .getExternalContext().getRequest();
     }
 } 

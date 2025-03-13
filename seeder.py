@@ -283,7 +283,7 @@ CREATE TABLE calendar_events
 -- Create audit_logs table
 CREATE TABLE audit_logs
 (
-    id                CHAR(36) PRIMARY KEY,
+     id               INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     user_id           INT UNSIGNED,
     action            VARCHAR(20) NOT NULL,
     entity_type       VARCHAR(50) NOT NULL,

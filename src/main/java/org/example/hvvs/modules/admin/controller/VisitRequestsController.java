@@ -4,25 +4,24 @@ import jakarta.annotation.PostConstruct;
 import jakarta.ejb.EJB;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
-import jakarta.faces.model.SelectItem;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Named;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import org.example.hvvs.model.Notifications;
+import org.example.hvvs.model.Users;
 import org.example.hvvs.model.VisitRequests;
 import org.example.hvvs.model.VisitRequestsFacade;
+import org.example.hvvs.modules.common.service.AuditLogService;
 import org.example.hvvs.modules.common.service.NotificationService;
+import org.example.hvvs.utils.CommonParam;
 import org.primefaces.model.LazyDataModel;
 import org.primefaces.model.SortMeta;
 import org.primefaces.model.FilterMeta;
 
 import java.io.Serializable;
-import java.sql.Timestamp;
-import java.time.Instant;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Named("VisitRequestsControllerAdmin")
 @ViewScoped
@@ -33,6 +32,9 @@ public class VisitRequestsController implements Serializable {
 
     @EJB
     private NotificationService notificationService;
+
+    @EJB
+    private AuditLogService auditLogService;
 
     private List<VisitRequests> filteredRequests;
     private List<VisitRequests> selectedRequests;
@@ -47,6 +49,23 @@ public class VisitRequestsController implements Serializable {
     @PostConstruct
     public void init() {
         initializeLazyModel();
+
+        // Log page access when controller is initialized
+        try {
+            Users currentUser = getCurrentUser();
+            if (currentUser != null) {
+                HttpServletRequest request = getHttpServletRequest();
+                auditLogService.logRead(
+                        currentUser,
+                        "VISIT_REQUESTS_LIST",
+                        null,
+                        "Accessed visit requests management page",
+                        request
+                );
+            }
+        } catch (Exception e) {
+            // Silent catch - don't disrupt the UI for logging errors
+        }
     }
 
     private void initializeLazyModel() {
@@ -57,23 +76,23 @@ public class VisitRequestsController implements Serializable {
             }
 
             @Override
-            public List<VisitRequests> load(int first, int pageSize, 
-                    Map<String, SortMeta> sortBy, Map<String, FilterMeta> filterBy) {
+            public List<VisitRequests> load(int first, int pageSize,
+                                            Map<String, SortMeta> sortBy, Map<String, FilterMeta> filterBy) {
                 List<VisitRequests> results = visitRequestsFacade.findRange(
-                    first, 
-                    pageSize, 
-                    globalFilter,
-                    sortBy
+                        first,
+                        pageSize,
+                        globalFilter,
+                        sortBy
                 );
                 lazyRequestsModel.setRowCount(visitRequestsFacade.count(globalFilter));
                 return results;
             }
-            
+
             @Override
             public VisitRequests getRowData(String rowKey) {
                 return visitRequestsFacade.find(Integer.valueOf(rowKey));
             }
-            
+
             @Override
             public String getRowKey(VisitRequests request) {
                 return String.valueOf(request.getId());
@@ -93,15 +112,39 @@ public class VisitRequestsController implements Serializable {
     public void deleteSelectedRequests() {
         if (selectedRequests != null && !selectedRequests.isEmpty()) {
             try {
+                // Get current user from session for audit logging
+                Users currentUser = getCurrentUser();
+                HttpServletRequest request = getHttpServletRequest();
+
                 for (VisitRequests req : selectedRequests) {
                     VisitRequests managedRequest = visitRequestsFacade.find(req.getId());
                     if (managedRequest != null) {
+                        // Prepare audit information before deletion
+                        String oldValues = String.format(
+                                "{\"id\":%d,\"verificationCode\":\"%s\",\"unitNumber\":\"%s\",\"purpose\":\"%s\",\"status\":\"%s\"}",
+                                managedRequest.getId(),
+                                managedRequest.getVerificationCode(),
+                                managedRequest.getUnitNumber(),
+                                managedRequest.getPurpose(),
+                                managedRequest.getStatus()
+                        );
+
+                        // Log the deletion
+                        auditLogService.logDelete(
+                                currentUser,
+                                "VISIT_REQUESTS",
+                                managedRequest.getId().toString(),
+                                "Deleted visit request for unit: " + managedRequest.getUnitNumber(),
+                                oldValues,
+                                request
+                        );
+
                         visitRequestsFacade.remove(managedRequest);
                     }
                 }
                 selectedRequests.clear();
                 lazyRequestsModel.setRowCount(visitRequestsFacade.count(globalFilter));
-                
+
                 FacesContext.getCurrentInstance().addMessage(null,
                         new FacesMessage(FacesMessage.SEVERITY_INFO, "Success", "Selected requests deleted successfully"));
             } catch (Exception e) {
@@ -141,6 +184,23 @@ public class VisitRequestsController implements Serializable {
      */
     public void prepareEdit(VisitRequests request) {
         this.editingRequest = request;
+
+        // Log request view for audit
+        try {
+            Users currentUser = getCurrentUser();
+            if (currentUser != null) {
+                HttpServletRequest httpRequest = getHttpServletRequest();
+                auditLogService.logRead(
+                        currentUser,
+                        "VISIT_REQUESTS",
+                        request.getId().toString(),
+                        "Viewed details for visit request to unit: " + request.getUnitNumber(),
+                        httpRequest
+                );
+            }
+        } catch (Exception e) {
+            // Silent catch - don't disrupt the UI for logging errors
+        }
     }
 
     /**
@@ -149,11 +209,46 @@ public class VisitRequestsController implements Serializable {
     @Transactional
     public void updateRequest() {
         try {
-            // Get original state before changes
+            // Get current user from session for audit logging
+            Users currentUser = getCurrentUser();
+            HttpServletRequest request = getHttpServletRequest();
+
+            // Get original request for comparison
             VisitRequests original = visitRequestsFacade.find(editingRequest.getId());
             VisitRequests.VisitStatus originalStatus = original.getStatus(); // Capture status before changes
 
+            // Prepare old values for audit logging
+            String oldValues = String.format(
+                    "{\"verificationCode\":\"%s\",\"unitNumber\":\"%s\",\"purpose\":\"%s\",\"status\":\"%s\",\"remarks\":\"%s\"}",
+                    original.getVerificationCode(),
+                    original.getUnitNumber(),
+                    original.getPurpose(),
+                    original.getStatus(),
+                    original.getRemarks()
+            );
+
             visitRequestsFacade.edit(editingRequest);
+
+            // Prepare new values for audit logging
+            String newValues = String.format(
+                    "{\"verificationCode\":\"%s\",\"unitNumber\":\"%s\",\"purpose\":\"%s\",\"status\":\"%s\",\"remarks\":\"%s\"}",
+                    editingRequest.getVerificationCode(),
+                    editingRequest.getUnitNumber(),
+                    editingRequest.getPurpose(),
+                    editingRequest.getStatus(),
+                    editingRequest.getRemarks()
+            );
+
+            // Log the update
+            auditLogService.logUpdate(
+                    currentUser,
+                    "VISIT_REQUESTS",
+                    editingRequest.getId().toString(),
+                    "Updated visit request for unit: " + editingRequest.getUnitNumber(),
+                    oldValues,
+                    newValues,
+                    request
+            );
 
             if (!originalStatus.equals(editingRequest.getStatus())) {
                 notificationService.createNotification(
@@ -176,7 +271,22 @@ public class VisitRequestsController implements Serializable {
                     new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Failed to update visit request: " + e.getMessage()));
             FacesContext.getCurrentInstance().validationFailed();
         }
+    }
 
+    /**
+     * Get the current user from the session
+     */
+    private Users getCurrentUser() {
+        return (Users) FacesContext.getCurrentInstance()
+                .getExternalContext().getSessionMap().get(CommonParam.SESSION_SELF);
+    }
+
+    /**
+     * Get the current HttpServletRequest
+     */
+    private HttpServletRequest getHttpServletRequest() {
+        return (HttpServletRequest) FacesContext.getCurrentInstance()
+                .getExternalContext().getRequest();
     }
 
     // --- Getters and Setters ---

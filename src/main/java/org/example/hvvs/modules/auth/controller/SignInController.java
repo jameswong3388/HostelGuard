@@ -8,6 +8,7 @@ import org.example.hvvs.model.MfaMethods;
 import org.example.hvvs.model.MfaMethodsFacade;
 import org.example.hvvs.model.Users;
 import org.example.hvvs.modules.auth.service.AuthServices;
+import org.example.hvvs.modules.common.service.AuditLogService;
 import org.example.hvvs.utils.CommonParam;
 import org.example.hvvs.utils.ServiceResult;
 import org.example.hvvs.utils.SessionCacheManager;
@@ -25,6 +26,9 @@ public class SignInController extends HttpServlet {
 
     @EJB
     private MfaMethodsFacade mfaMethodsFacade;
+
+    @EJB
+    private AuditLogService auditLogService;
 
     private static final String SIGN_IN_JSP = "/auth/sign-in.jsp";
 
@@ -108,6 +112,13 @@ public class SignInController extends HttpServlet {
 
         // If MFA is not enabled, finalize login
         authServices.registerSession(user, request);
+
+        // Log successful authentication completion
+        auditLogService.logLogin(
+            user,
+            "Login completed successfully",
+            request
+        );
 
         // Redirect based on user role
         String redirectUrl = authServices.redirectBasedOnRole(user);

@@ -6,15 +6,18 @@ import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Named;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
+import org.example.hvvs.model.Users;
 import org.example.hvvs.model.VisitorRecords;
 import org.example.hvvs.model.VisitorRecordsFacade;
+import org.example.hvvs.modules.common.service.AuditLogService;
+import org.example.hvvs.utils.CommonParam;
 import org.primefaces.model.LazyDataModel;
 import org.primefaces.model.SortMeta;
 import org.primefaces.model.FilterMeta;
 
 import java.io.Serializable;
-import java.sql.Timestamp;
 import java.util.List;
 import java.util.Map;
 
@@ -24,9 +27,12 @@ public class VisitorRecordController implements Serializable {
     @EJB
     private VisitorRecordsFacade visitorRecordsFacade;
 
+    @EJB
+    private AuditLogService auditLogService;
+
     private List<VisitorRecords> filteredRecords;
     private List<VisitorRecords> selectedRecords;
-    
+
     // New field to hold the record being edited via sidebar
     private VisitorRecords editingRecord;
 
@@ -37,6 +43,23 @@ public class VisitorRecordController implements Serializable {
     @PostConstruct
     public void init() {
         initializeLazyModel();
+
+        // Log page access when controller is initialized
+        try {
+            Users currentUser = getCurrentUser();
+            if (currentUser != null) {
+                HttpServletRequest request = getHttpServletRequest();
+                auditLogService.logRead(
+                        currentUser,
+                        "VISITOR_RECORDS_LIST",
+                        null,
+                        "Accessed visitor records management page",
+                        request
+                );
+            }
+        } catch (Exception e) {
+            // Silent catch - don't disrupt the UI for logging errors
+        }
     }
 
     private void initializeLazyModel() {
@@ -47,23 +70,23 @@ public class VisitorRecordController implements Serializable {
             }
 
             @Override
-            public List<VisitorRecords> load(int first, int pageSize, 
-                    Map<String, SortMeta> sortBy, Map<String, FilterMeta> filterBy) {
+            public List<VisitorRecords> load(int first, int pageSize,
+                                             Map<String, SortMeta> sortBy, Map<String, FilterMeta> filterBy) {
                 List<VisitorRecords> results = visitorRecordsFacade.findRange(
-                    first, 
-                    pageSize, 
-                    globalFilter,
-                    sortBy
+                        first,
+                        pageSize,
+                        globalFilter,
+                        sortBy
                 );
                 lazyRecordsModel.setRowCount(visitorRecordsFacade.count(globalFilter));
                 return results;
             }
-            
+
             @Override
             public VisitorRecords getRowData(String rowKey) {
                 return visitorRecordsFacade.find(Integer.valueOf(rowKey));
             }
-            
+
             @Override
             public String getRowKey(VisitorRecords record) {
                 return String.valueOf(record.getId());
@@ -74,9 +97,32 @@ public class VisitorRecordController implements Serializable {
     public void deleteSelectedRecords() {
         if (selectedRecords != null && !selectedRecords.isEmpty()) {
             try {
+                // Get current user from session for audit logging
+                Users currentUser = getCurrentUser();
+                HttpServletRequest request = getHttpServletRequest();
+
                 for (VisitorRecords selectedRecord : selectedRecords) {
                     VisitorRecords managedRecord = visitorRecordsFacade.find(selectedRecord.getId());
                     if (managedRecord != null) {
+                        // Prepare audit information before deletion
+                        String oldValues = String.format(
+                                "{\"id\":%d,\"visitorName\":\"%s\",\"visitorIc\":\"%s\",\"visitorPhone\":\"%s\"}",
+                                managedRecord.getId(),
+                                managedRecord.getVisitorName(),
+                                managedRecord.getVisitorIc(),
+                                managedRecord.getVisitorPhone()
+                        );
+
+                        // Log the deletion
+                        auditLogService.logDelete(
+                                currentUser,
+                                "VISITOR_RECORDS",
+                                managedRecord.getId().toString(),
+                                "Deleted visitor record for: " + managedRecord.getVisitorName(),
+                                oldValues,
+                                request
+                        );
+
                         visitorRecordsFacade.remove(managedRecord);
                     }
                 }
@@ -107,6 +153,23 @@ public class VisitorRecordController implements Serializable {
      */
     public void prepareEdit(VisitorRecords record) {
         this.editingRecord = record;
+
+        // Log record view for audit
+        try {
+            Users currentUser = getCurrentUser();
+            if (currentUser != null) {
+                HttpServletRequest request = getHttpServletRequest();
+                auditLogService.logRead(
+                        currentUser,
+                        "VISITOR_RECORDS",
+                        record.getId().toString(),
+                        "Viewed details for visitor: " + record.getVisitorName(),
+                        request
+                );
+            }
+        } catch (Exception e) {
+            // Silent catch - don't disrupt the UI for logging errors
+        }
     }
 
     /**
@@ -115,7 +178,47 @@ public class VisitorRecordController implements Serializable {
     @Transactional
     public void updateRecord() {
         try {
+            // Get current user from session for audit logging
+            Users currentUser = getCurrentUser();
+            HttpServletRequest request = getHttpServletRequest();
+
+            // Get original record for comparison
+            VisitorRecords originalRecord = visitorRecordsFacade.find(editingRecord.getId());
+
+            // Prepare old values for audit logging
+            String oldValues = String.format(
+                    "{\"visitorName\":\"%s\",\"visitorIc\":\"%s\",\"visitorPhone\":\"%s\",\"checkInTime\":\"%s\",\"checkOutTime\":\"%s\"}",
+                    originalRecord.getVisitorName(),
+                    originalRecord.getVisitorIc(),
+                    originalRecord.getVisitorPhone(),
+                    originalRecord.getCheckInTime(),
+                    originalRecord.getCheckOutTime()
+            );
+
+            // Update the record
             visitorRecordsFacade.edit(editingRecord);
+
+            // Prepare new values for audit logging
+            String newValues = String.format(
+                    "{\"visitorName\":\"%s\",\"visitorIc\":\"%s\",\"visitorPhone\":\"%s\",\"checkInTime\":\"%s\",\"checkOutTime\":\"%s\"}",
+                    editingRecord.getVisitorName(),
+                    editingRecord.getVisitorIc(),
+                    editingRecord.getVisitorPhone(),
+                    editingRecord.getCheckInTime(),
+                    editingRecord.getCheckOutTime()
+            );
+
+            // Log the update
+            auditLogService.logUpdate(
+                    currentUser,
+                    "VISITOR_RECORDS",
+                    editingRecord.getId().toString(),
+                    "Updated visitor record for: " + editingRecord.getVisitorName(),
+                    oldValues,
+                    newValues,
+                    request
+            );
+
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_INFO, "Success", "Visitor record updated successfully"));
             init(); // Refresh the list after update
@@ -147,6 +250,22 @@ public class VisitorRecordController implements Serializable {
         return selectedRecords.size() > 1 ?
                 String.format("Delete (%d records)", selectedRecords.size()) :
                 "Delete (1 record)";
+    }
+
+    /**
+     * Get the current user from the session
+     */
+    private Users getCurrentUser() {
+        return (Users) FacesContext.getCurrentInstance()
+                .getExternalContext().getSessionMap().get(CommonParam.SESSION_SELF);
+    }
+
+    /**
+     * Get the current HttpServletRequest
+     */
+    private HttpServletRequest getHttpServletRequest() {
+        return (HttpServletRequest) FacesContext.getCurrentInstance()
+                .getExternalContext().getRequest();
     }
 
     // Getters and Setters

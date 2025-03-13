@@ -1,0 +1,289 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:pe="http://primefaces.org/ui/extensions"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                template="/WEB-INF/templates/layouts/god-layout.xhtml">
+    <ui:define name="title">Audit Logs - HostelGuard™</ui:define>
+
+    <ui:define name="content">
+        <!-- Audit Logs Table -->
+        <h:form id="auditLogsTableForm">
+            <p:toolbar>
+                <p:toolbarGroup>
+                    <p:commandButton id="clearSelectionButton"
+                                     value="Clear Selection"
+                                     icon="pi pi-times"
+                                     styleClass="ui-button-secondary"
+                                     actionListener="#{auditLogsController.clearSelection}"
+                                     process="@form"
+                                     update="@form :messages"
+                                     disabled="#{empty auditLogsController.selectedAuditLogs}"
+                                     style="margin-right: .5rem"/>
+                </p:toolbarGroup>
+
+                <p:toolbarGroup align="right">
+                    <p:selectOneMenu id="exportFormat"
+                                     value="#{auditLogsController.exportFormat}"
+                                     style="margin-right: .5rem">
+                        <f:selectItem itemLabel="PDF" itemValue="pdf"/>
+                        <f:selectItem itemLabel="Excel (XLSX)" itemValue="xlsx"/>
+                        <f:selectItem itemLabel="Excel (XLS)" itemValue="xls"/>
+                        <f:selectItem itemLabel="CSV" itemValue="csv"/>
+                    </p:selectOneMenu>
+                    <p:commandButton id="exportButton"
+                                     value="Export Selected"
+                                     icon="pi pi-upload"
+                                     styleClass="ui-button-help"
+                                     ajax="false"
+                                     disabled="#{empty auditLogsController.selectedAuditLogs}"
+                                     onclick="PrimeFaces.monitorDownload(start, stop);">
+                        <p:dataExporter type="#{auditLogsController.exportFormat}"
+                                        target="auditLogsTable"
+                                        fileName="selected_audit_logs"
+                                        selectionOnly="true"/>
+                    </p:commandButton>
+                </p:toolbarGroup>
+            </p:toolbar>
+
+            <p:dataTable id="auditLogsTable"
+                         value="#{auditLogsController.lazyAuditLogsModel}"
+                         lazy="true"
+                         var="log"
+                         reflow="true"
+                         widgetVar="auditLogsTable"
+                         paginator="true"
+                         rows="20"
+                         paginatorPosition="bottom"
+                         styleClass="w-full border rounded-md mt-2"
+                         rowKey="#{log.id}"
+                         selection="#{auditLogsController.selectedAuditLogs}"
+                         selectionRowMode="add"
+                         tableStyle="min-width: 1200px; table-layout: fixed;"
+                         filteredValue="#{auditLogsController.filteredAuditLogs}"
+                         globalFilterFunction="#{auditLogsController.globalFilterFunction}"
+                         filter="#{auditLogsController.globalFilter}"
+                         rowsPerPageTemplate="20,50,100">
+
+                <!-- Global search bar in the header facet -->
+                <f:facet name="header">
+                    <div class="flex justify-between">
+                        <span class="filter-container ui-input-icon-left">
+                            <i class="pi pi-search"></i>
+                            <p:inputText id="globalFilter"
+                                         value="#{auditLogsController.globalFilter}"
+                                         onkeyup="PF('auditLogsTable').filter()"
+                                         placeholder="Search all fields"/>
+                        </span>
+                    </div>
+                </f:facet>
+
+                <p:column selectionMode="multiple"
+                          selectionBox="true"
+                          style="width: 12px;"
+                          exportable="false"/>
+
+                <!-- ID -->
+                <p:column headerText="ID" sortBy="#{log.id}" style="width: 50px;">
+                    <h:outputText value="#{log.id}"/>
+                </p:column>
+
+                <!-- User -->
+                <p:column headerText="User" style="width: 150px;">
+                    <h:outputText value="#{log.userId.username}" rendered="#{log.userId != null}"/>
+                    <h:outputText value="System" rendered="#{log.userId == null}" styleClass="text-gray-500 italic"/>
+                </p:column>
+
+                <!-- Action -->
+                <p:column headerText="Action" sortBy="#{log.action}" style="width: 100px;">
+                    <p:tag value="#{log.action}"
+                           severity="#{log.action == 'CREATE' ? 'success' : 
+                                       log.action == 'DELETE' ? 'danger' : 
+                                       log.action == 'UPDATE' ? 'warning' : 
+                                       log.action == 'LOGIN' ? 'info' :
+                                       log.action == 'LOGOUT' ? 'secondary' : 'info'}"/>
+                </p:column>
+
+                <!-- Entity Type -->
+                <p:column headerText="Entity Type" sortBy="#{log.entity_type}" style="width: 150px;">
+                    <h:outputText value="#{log.entityType}"/>
+                </p:column>
+
+                <!-- Entity ID -->
+                <p:column headerText="Entity ID" sortBy="#{log.entity_id}" style="width: 150px;">
+                    <h:outputText value="#{log.entityId}"/>
+                </p:column>
+
+                <!-- Description -->
+                <p:column headerText="Description" sortBy="#{log.description}" style="width: 300px;">
+                    <h:outputText value="#{log.description}" escape="false"/>
+                    <p:tooltip for="@parent" value="#{log.description}" escape="false"
+                               showEffect="fade" hideEffect="fade" position="top"
+                               rendered="#{log.description.length() > 50}"/>
+                </p:column>
+
+                <!-- IP Address -->
+                <p:column headerText="IP Address" sortBy="#{log.ip_address}" style="width: 130px;">
+                    <h:outputText value="#{log.ipAddress}"/>
+                </p:column>
+
+                <!-- Created At -->
+                <p:column headerText="Created At" sortBy="#{log.created_at}" style="width: 150px;">
+                    <pe:timeAgo value="#{log.createdAt}"
+                                titlePattern="MM/dd/yy HH:mm"/>
+                </p:column>
+
+                <!-- Details -->
+                <p:column headerText="Details" style="width: 100px;" exportable="false">
+                    <p:commandButton
+                            value="View"
+                            action="#{auditLogsController.prepareViewDetails(log)}"
+                            update=":auditDetailForm"
+                            oncomplete="PF('auditDetailSidebar').show()"/>
+                </p:column>
+
+                <p:ajax event="rowSelect"
+                        update=":auditLogsTableForm:clearSelectionButton :auditLogsTableForm:exportButton"/>
+                <p:ajax event="rowUnselect"
+                        update=":auditLogsTableForm:clearSelectionButton :auditLogsTableForm:exportButton"/>
+                <p:ajax event="rowSelectCheckbox"
+                        update=":auditLogsTableForm:clearSelectionButton :auditLogsTableForm:exportButton"/>
+                <p:ajax event="rowUnselectCheckbox"
+                        update=":auditLogsTableForm:clearSelectionButton :auditLogsTableForm:exportButton"/>
+                <p:ajax event="toggleSelect"
+                        update=":auditLogsTableForm:clearSelectionButton :auditLogsTableForm:exportButton"/>
+            </p:dataTable>
+        </h:form>
+
+        <!-- Audit Detail Sidebar -->
+        <p:sidebar id="auditDetailSidebar"
+                   header="Audit Log Details"
+                   widgetVar="auditDetailSidebar"
+                   position="right"
+                   style="width:600px;">
+            <h:form id="auditDetailForm">
+                <div class="space-y-4 overflow-y-auto max-h-[95vh]">
+                    <!-- Sidebar Title -->
+                    <h2 class="text-xl font-semibold mb-4">Audit Log Details</h2>
+
+                    <!-- Basic Information -->
+                    <h3 class="text-lg font-semibold mb-2">Basic Information</h3>
+                    
+                    <!-- ID -->
+                    <div class="field mb-4">
+                        <p:outputLabel for="auditId" value="ID" styleClass="block mb-1"/>
+                        <p:outputLabel id="auditId" value="#{auditLogsController.selectedAuditLog.id}" styleClass="block p-2 bg-gray-50 rounded"/>
+                    </div>
+                    
+                    <!-- User -->
+                    <div class="field mb-4">
+                        <p:outputLabel for="auditUser" value="User" styleClass="block mb-1"/>
+                        <p:outputLabel id="auditUser" value="#{auditLogsController.selectedAuditLog.userId.username}"
+                                       styleClass="block p-2 bg-gray-50 rounded"
+                                       rendered="#{auditLogsController.selectedAuditLog.userId != null}"/>
+                        <p:outputLabel id="auditUserSystem" value="System"
+                                       styleClass="block p-2 bg-gray-50 rounded text-gray-500 italic"
+                                       rendered="#{auditLogsController.selectedAuditLog.userId == null}"/>
+                    </div>
+                    
+                    <!-- Action -->
+                    <div class="field mb-4">
+                        <p:outputLabel for="auditAction" value="Action" styleClass="block mb-1"/>
+                        <div class="block p-2 bg-gray-50 rounded">
+                            <p:tag id="auditAction" value="#{auditLogsController.selectedAuditLog.action}"
+                                   severity="#{auditLogsController.selectedAuditLog.action == 'CREATE' ? 'success' :
+                                             auditLogsController.selectedAuditLog.action == 'DELETE' ? 'danger' : 
+                                             auditLogsController.selectedAuditLog.action == 'UPDATE' ? 'warning' : 
+                                             auditLogsController.selectedAuditLog.action == 'LOGIN' ? 'info' :
+                                             auditLogsController.selectedAuditLog.action == 'LOGOUT' ? 'secondary' : 'info'}"/>
+                        </div>
+                    </div>
+                    
+                    <!-- Entity Type -->
+                    <div class="field mb-4">
+                        <p:outputLabel for="auditEntityType" value="Entity Type" styleClass="block mb-1"/>
+                        <p:outputLabel id="auditEntityType" value="#{auditLogsController.selectedAuditLog.entityType}"
+                                       styleClass="block p-2 bg-gray-50 rounded"/>
+                    </div>
+                    
+                    <!-- Entity ID -->
+                    <h:panelGroup class="field mb-4" rendered="#{auditLogsController.selectedAuditLog.entityId != null}">
+                        <p:outputLabel for="auditEntityId" value="Entity ID" styleClass="block mb-1"/>
+                        <p:outputLabel id="auditEntityId" value="#{auditLogsController.selectedAuditLog.entityId}"
+                                       styleClass="block p-2 bg-gray-50 rounded"/>
+                    </h:panelGroup>
+                    
+                    <!-- IP Address -->
+                    <div class="field mb-4">
+                        <p:outputLabel for="auditIpAddress" value="IP Address" styleClass="block mb-1"/>
+                        <p:outputLabel id="auditIpAddress" value="#{auditLogsController.selectedAuditLog.ipAddress}"
+                                       styleClass="block p-2 bg-gray-50 rounded"/>
+                    </div>
+                    
+                    <!-- User Agent -->
+                    <div class="field mb-4">
+                        <p:outputLabel for="auditUserAgent" value="User Agent" styleClass="block mb-1"/>
+                        <p:outputLabel id="auditUserAgent" value="#{auditLogsController.selectedAuditLog.userAgent}"
+                                       styleClass="block p-2 bg-gray-50 rounded"/>
+                    </div>
+                    
+                    <!-- Created At -->
+                    <div class="field mb-4">
+                        <p:outputLabel for="auditCreatedAt" value="Created At" styleClass="block mb-1"/>
+                        <p:outputLabel id="auditCreatedAt" value="#{auditLogsController.selectedAuditLog.createdAt}"
+                                       styleClass="block p-2 bg-gray-50 rounded">
+                            <f:convertDateTime pattern="MMM dd, yyyy HH:mm:ss"/>
+                        </p:outputLabel>
+                    </div>
+
+                    <!-- Change Details -->
+                    <h3 class="text-lg font-semibold mb-2">Change Details</h3>
+                    
+                    <!-- Description -->
+                    <div class="field mb-4">
+                        <p:outputLabel for="auditDescription" value="Description" styleClass="block mb-1"/>
+                        <p:outputPanel id="auditDescription" styleClass="block p-2 bg-gray-50 rounded" style="max-height: 150px; overflow-y: auto">
+                            <h:outputText value="#{auditLogsController.selectedAuditLog.description}"
+                                          escape="false"/>
+                        </p:outputPanel>
+                    </div>
+
+                    <!-- Old Values -->
+                    <h:panelGroup styleClass="field mb-4" layout="block"
+                                  rendered="#{auditLogsController.selectedAuditLog.oldValues != null}">
+                        <p:outputLabel for="auditOldValues" value="Old Values" styleClass="block mb-1"/>
+                        <p:outputPanel id="auditOldValues" styleClass="block p-2 bg-gray-50 rounded" style="max-height: 150px; overflow-y: auto">
+                            <pre><h:outputText value="#{auditLogsController.selectedAuditLog.oldValues}"/></pre>
+                        </p:outputPanel>
+                    </h:panelGroup>
+
+                    <!-- New Values -->
+                    <h:panelGroup styleClass="field mb-4" layout="block"
+                                  rendered="#{auditLogsController.selectedAuditLog.newValues != null}">
+                        <p:outputLabel for="auditNewValues" value="New Values" styleClass="block mb-1"/>
+                        <p:outputPanel id="auditNewValues" styleClass="block p-2 bg-gray-50 rounded" style="max-height: 150px; overflow-y: auto">
+                            <pre><h:outputText value="#{auditLogsController.selectedAuditLog.newValues}"/></pre>
+                        </p:outputPanel>
+                    </h:panelGroup>
+
+                    <!-- Additional Data -->
+                    <h:panelGroup styleClass="field mb-4" layout="block"
+                                  rendered="#{auditLogsController.selectedAuditLog.additionalData != null}">
+                        <p:outputLabel for="auditAdditionalData" value="Additional Data" styleClass="block mb-1"/>
+                        <p:outputPanel id="auditAdditionalData" styleClass="block p-2 bg-gray-50 rounded" style="max-height: 150px; overflow-y: auto">
+                            <pre><h:outputText value="#{auditLogsController.selectedAuditLog.additionalData}"/></pre>
+                        </p:outputPanel>
+                    </h:panelGroup>
+
+                    <!-- Action Buttons -->
+                    <div class="flex justify-content-end gap-4">
+                        <p:commandButton value="Close"
+                                         onclick="PF('auditDetailSidebar').hide()"
+                                         styleClass="ui-button-secondary"/>
+                    </div>
+                </div>
+            </h:form>
+        </p:sidebar>
+    </ui:define>
+</ui:composition>
