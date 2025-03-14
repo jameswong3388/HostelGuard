@@ -4,15 +4,20 @@ import jakarta.annotation.PostConstruct;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.view.ViewScoped;
+import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.List;
+
+import org.example.hvvs.model.CalendarEvents;
+import org.example.hvvs.model.CalendarEventsFacade;
+import org.example.hvvs.model.Users;
+import org.example.hvvs.utils.CommonParam;
+
 import org.primefaces.event.SelectEvent;
-import org.primefaces.event.schedule.ScheduleEntryMoveEvent;
-import org.primefaces.event.schedule.ScheduleEntryResizeEvent;
-import org.primefaces.event.schedule.ScheduleRangeEvent;
 import org.primefaces.model.DefaultScheduleEvent;
 import org.primefaces.model.DefaultScheduleModel;
 import org.primefaces.model.LazyScheduleModel;
@@ -24,6 +29,9 @@ import org.primefaces.model.ScheduleModel;
 @ViewScoped
 public class CalendarController implements Serializable {
 
+    @Inject
+    private CalendarEventsFacade eventsFacade;
+    
     private ScheduleModel eventModel;
 
     private ScheduleModel lazyEventModel;
@@ -33,8 +41,8 @@ public class CalendarController implements Serializable {
     private boolean slotEventOverlap = true;
     private boolean showWeekNumbers = false;
     private boolean showHeader = true;
-    private boolean draggable = true;
-    private boolean resizable = true;
+    private boolean draggable = false; // Set to false for read-only
+    private boolean resizable = false; // Set to false for read-only
     private boolean selectable = false;
     private boolean showWeekends = true;
     private boolean tooltip = true;
@@ -65,99 +73,117 @@ public class CalendarController implements Serializable {
     private String view = "timeGridWeek";
     private String height = "auto";
 
-    private String extenderCode = "// Write your code here or select an example from above";
-    private String selectedExtenderExample = "";
-
     @PostConstruct
     public void init() {
         eventModel = new DefaultScheduleModel();
-
-        addEvents2EventModel(LocalDateTime.now());
-        addEvents2EventModel(LocalDateTime.now().minusMonths(6));
+        
+        // Initialize with database events
+        loadDatabaseEvents();
 
         lazyEventModel = new LazyScheduleModel() {
-
             @Override
             public void loadEvents(LocalDateTime start, LocalDateTime end) {
-                for (int i = 1; i <= 5; i++) {
-                    LocalDateTime random = getRandomDateTime(start);
-                    addEvent(DefaultScheduleEvent.builder()
-                            .title("Lazy Event " + i)
-                            .startDate(random)
-                            .endDate(random.plusHours(3))
-                            .build());
-                }
+                // Load events from the database that fall within the requested date range
+                loadEventsFromDatabase(start, end);
             }
         };
     }
-
-    private void addEvents2EventModel(LocalDateTime referenceDate) {
-        DefaultScheduleEvent<?> event = DefaultScheduleEvent.builder()
-                .title("Champions League Match")
-                .startDate(previousDay8Pm(referenceDate))
-                .endDate(previousDay11Pm(referenceDate))
-                .description("Team A vs. Team B")
-                .url("https://www.uefa.com/uefachampionsleague/")
-                .borderColor("orange")
-                .build();
-        eventModel.addEvent(event);
-
-        event = DefaultScheduleEvent.builder()
-                .startDate(referenceDate.minusDays(6))
-                .endDate(referenceDate.minusDays(3))
-                .overlapAllowed(true)
-                .editable(false)
-                .resizable(false)
-                .display(ScheduleDisplayMode.BACKGROUND)
-                .backgroundColor("lightgreen")
-                .build();
-        eventModel.addEvent(event);
-
-        event = DefaultScheduleEvent.builder()
-                .title("Birthday Party")
-                .startDate(today1Pm(referenceDate))
-                .endDate(today6Pm(referenceDate))
-                .description("Aragon")
-                .overlapAllowed(true)
-                .borderColor("#CB4335")
-                .build();
-        eventModel.addEvent(event);
-
-        event = DefaultScheduleEvent.builder()
-                .title("Breakfast at Tiffanys (always resizable)")
-                .startDate(nextDay9Am(referenceDate))
-                .endDate(nextDay11Am(referenceDate))
-                .description("all you can eat")
-                .overlapAllowed(true)
-                .resizable(true)
-                .borderColor("#27AE60")
-                .build();
-        eventModel.addEvent(event);
-
-        event = DefaultScheduleEvent.builder()
-                .title("Plant the new garden stuff (always draggable)")
-                .startDate(theDayAfter3Pm(referenceDate))
-                .endDate(fourDaysLater3pm(referenceDate))
-                .description("Trees, flowers, ...")
-                .draggable(true)
-                .borderColor("#27AE60")
-                .build();
-        eventModel.addEvent(event);
-
-        DefaultScheduleEvent<?> scheduleEventAllDay = DefaultScheduleEvent.builder()
-                .title("Holidays (AllDay)")
-                .startDate(sevenDaysLater0am(referenceDate))
-                .endDate(eightDaysLater0am(referenceDate))
-                .description("sleep as long as you want")
-                .borderColor("#27AE60")
-                .allDay(true)
-                .build();
-        eventModel.addEvent(scheduleEventAllDay);
+    
+    /**
+     * Loads all events from the database into the event model
+     */
+    private void loadDatabaseEvents() {
+        // Get current user from session
+        Users currentUser = getCurrentUser();
+        if (currentUser == null) {
+            return; // Do not load any events if user is not authenticated
+        }
+        
+        List<CalendarEvents> events = eventsFacade.findByUser(currentUser);
+        for (CalendarEvents dbEvent : events) {
+            addDatabaseEventToModel(dbEvent, eventModel);
+        }
     }
-
-    public LocalDateTime getRandomDateTime(LocalDateTime base) {
-        LocalDateTime dateTime = base.withMinute(0).withSecond(0).withNano(0);
-        return dateTime.plusDays(((int) (Math.random() * 30)));
+    
+    /**
+     * Loads events from database within a specific date range for the lazy loading model
+     */
+    private void loadEventsFromDatabase(LocalDateTime start, LocalDateTime end) {
+        // Get current user from session
+        Users currentUser = getCurrentUser();
+        if (currentUser == null) {
+            return; // Do not load any events if user is not authenticated
+        }
+        
+        // Query database for events for the current user
+        List<CalendarEvents> events = eventsFacade.findByUser(currentUser);
+        
+        for (CalendarEvents dbEvent : events) {
+            // Only add events within the requested range
+            if (isEventInRange(dbEvent, start, end)) {
+                addDatabaseEventToModel(dbEvent, lazyEventModel);
+            }
+        }
+    }
+    
+    /**
+     * Get the current user from the session
+     */
+    private Users getCurrentUser() {
+        return (Users) FacesContext.getCurrentInstance()
+            .getExternalContext().getSessionMap().get(CommonParam.SESSION_SELF);
+    }
+    
+    /**
+     * Checks if an event falls within the specified date range
+     */
+    private boolean isEventInRange(CalendarEvents dbEvent, LocalDateTime start, LocalDateTime end) {
+        return (dbEvent.getStartDate().isEqual(start) || dbEvent.getStartDate().isAfter(start)) && 
+               (dbEvent.getEndDate().isEqual(end) || dbEvent.getEndDate().isBefore(end)) ||
+               (dbEvent.getStartDate().isBefore(start) && dbEvent.getEndDate().isAfter(start));
+    }
+    
+    /**
+     * Converts a database event to a schedule event and adds it to the model
+     */
+    private void addDatabaseEventToModel(CalendarEvents dbEvent, ScheduleModel model) {
+        DefaultScheduleEvent.Builder eventBuilder = DefaultScheduleEvent.builder()
+                .title(dbEvent.getTitle())
+                .startDate(dbEvent.getStartDate())
+                .endDate(dbEvent.getEndDate())
+                .description(dbEvent.getDescription())
+                .allDay(dbEvent.getAllDay())
+                .data(dbEvent.getId()); // Store the database ID
+                
+        if (dbEvent.getUrl() != null) {
+            eventBuilder.url(dbEvent.getUrl());
+        }
+        
+        if (dbEvent.getBorderColor() != null) {
+            eventBuilder.borderColor(dbEvent.getBorderColor());
+        }
+        
+        if (dbEvent.getBackgroundColor() != null) {
+            eventBuilder.backgroundColor(dbEvent.getBackgroundColor());
+        }
+        
+        if (dbEvent.getDisplayMode() != null) {
+            switch (dbEvent.getDisplayMode()) {
+                case BACKGROUND:
+                    eventBuilder.display(ScheduleDisplayMode.BACKGROUND);
+                    break;
+                case INVERSE:
+                    eventBuilder.display(ScheduleDisplayMode.INVERSE_BACKGROUND);
+                    break;
+                default:
+                    eventBuilder.display(ScheduleDisplayMode.AUTO);
+            }
+        }
+        
+        // Make events non-editable for read-only view
+        eventBuilder.editable(false);
+        DefaultScheduleEvent<?> scheduleEvent = eventBuilder.build();
+        model.addEvent(scheduleEvent);
     }
 
     public ScheduleModel getEventModel() {
@@ -168,48 +194,8 @@ public class CalendarController implements Serializable {
         return lazyEventModel;
     }
 
-    private LocalDateTime previousDay8Pm(LocalDateTime referenceDate) {
-        return referenceDate.minusDays(1).withHour(20).withMinute(0).withSecond(0).withNano(0);
-    }
-
-    private LocalDateTime previousDay11Pm(LocalDateTime referenceDate) {
-        return referenceDate.minusDays(1).withHour(23).withMinute(0).withSecond(0).withNano(0);
-    }
-
-    private LocalDateTime today1Pm(LocalDateTime referenceDate) {
-        return referenceDate.withHour(13).withMinute(0).withSecond(0).withNano(0);
-    }
-
-    private LocalDateTime theDayAfter3Pm(LocalDateTime referenceDate) {
-        return referenceDate.plusDays(1).withHour(15).withMinute(0).withSecond(0).withNano(0);
-    }
-
-    private LocalDateTime today6Pm(LocalDateTime referenceDate) {
-        return referenceDate.withHour(18).withMinute(0).withSecond(0).withNano(0);
-    }
-
-    private LocalDateTime nextDay9Am(LocalDateTime referenceDate) {
-        return referenceDate.plusDays(1).withHour(9).withMinute(0).withSecond(0).withNano(0);
-    }
-
-    private LocalDateTime nextDay11Am(LocalDateTime referenceDate) {
-        return referenceDate.plusDays(1).withHour(11).withMinute(0).withSecond(0).withNano(0);
-    }
-
-    private LocalDateTime fourDaysLater3pm(LocalDateTime referenceDate) {
-        return referenceDate.plusDays(4).withHour(15).withMinute(0).withSecond(0).withNano(0);
-    }
-
-    private LocalDateTime sevenDaysLater0am(LocalDateTime referenceDate) {
-        return referenceDate.plusDays(7).withHour(0).withMinute(0).withSecond(0).withNano(0);
-    }
-
-    private LocalDateTime eightDaysLater0am(LocalDateTime referenceDate) {
-        return referenceDate.plusDays(7).withHour(0).withMinute(0).withSecond(0).withNano(0);
-    }
-
     public LocalDate getInitialDate() {
-        return LocalDate.now().plusDays(1);
+        return LocalDate.now();
     }
 
     public ScheduleEvent<?> getEvent() {
@@ -218,23 +204,6 @@ public class CalendarController implements Serializable {
 
     public void setEvent(ScheduleEvent<?> event) {
         this.event = event;
-    }
-
-    public void addEvent() {
-        if (event.isAllDay()) {
-            // see https://github.com/primefaces/primefaces/issues/1164
-            if (event.getStartDate().toLocalDate().equals(event.getEndDate().toLocalDate())) {
-                event.setEndDate(event.getEndDate().plusDays(1));
-            }
-        }
-
-        if (event.getId() == null) {
-            eventModel.addEvent(event);
-        } else {
-            eventModel.updateEvent(event);
-        }
-
-        event = new DefaultScheduleEvent<>();
     }
 
     public void onEventSelect(SelectEvent<ScheduleEvent<?>> selectEvent) {
@@ -247,156 +216,66 @@ public class CalendarController implements Serializable {
         addMessage(message);
     }
 
-    public void onDateSelect(SelectEvent<LocalDateTime> selectEvent) {
-        event = DefaultScheduleEvent.builder()
-                .startDate(selectEvent.getObject())
-                .endDate(selectEvent.getObject().plusHours(1))
-                .build();
-    }
-
-    public void onEventMove(ScheduleEntryMoveEvent event) {
-        FacesMessage message = new FacesMessage(FacesMessage.SEVERITY_INFO, "Event moved",
-                "Delta:" + event.getDeltaAsDuration());
-
-        addMessage(message);
-    }
-
-    public void onEventResize(ScheduleEntryResizeEvent event) {
-        FacesMessage message = new FacesMessage(FacesMessage.SEVERITY_INFO, "Event resized",
-                "Start-Delta:" + event.getDeltaStartAsDuration() + ", End-Delta: " + event.getDeltaEndAsDuration());
-
-        addMessage(message);
-    }
-
-    public void onRangeSelect(ScheduleRangeEvent event) {
-        FacesMessage message = new FacesMessage(FacesMessage.SEVERITY_INFO, "Range selected",
-                "Start-Date:" + event.getStartDate() + ", End-Date: " + event.getEndDate());
-
-        addMessage(message);
-    }
-
-    public void onEventDelete() {
-        String eventId = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("eventId");
-        if (event != null) {
-            ScheduleEvent<?> event = eventModel.getEvent(eventId);
-            eventModel.deleteEvent(event);
-        }
-    }
-
     private void addMessage(FacesMessage message) {
         FacesContext.getCurrentInstance().addMessage(null, message);
     }
 
+    // Keep only the getter methods needed for the UI properties
+
     public boolean isShowWeekends() {
         return showWeekends;
-    }
-
-    public void setShowWeekends(boolean showWeekends) {
-        this.showWeekends = showWeekends;
     }
 
     public boolean isSlotEventOverlap() {
         return slotEventOverlap;
     }
 
-    public void setSlotEventOverlap(boolean slotEventOverlap) {
-        this.slotEventOverlap = slotEventOverlap;
-    }
-
     public boolean isShowWeekNumbers() {
         return showWeekNumbers;
-    }
-
-    public void setShowWeekNumbers(boolean showWeekNumbers) {
-        this.showWeekNumbers = showWeekNumbers;
     }
 
     public boolean isShowHeader() {
         return showHeader;
     }
 
-    public void setShowHeader(boolean showHeader) {
-        this.showHeader = showHeader;
-    }
-
     public boolean isDraggable() {
         return draggable;
-    }
-
-    public void setDraggable(boolean draggable) {
-        this.draggable = draggable;
     }
 
     public boolean isResizable() {
         return resizable;
     }
 
-    public void setResizable(boolean resizable) {
-        this.resizable = resizable;
-    }
-
     public boolean isSelectable() {
         return selectable;
-    }
-
-    public void setSelectable(boolean selectable) {
-        this.selectable = selectable;
     }
 
     public boolean isTooltip() {
         return tooltip;
     }
 
-    public void setTooltip(boolean tooltip) {
-        this.tooltip = tooltip;
-    }
-
     public boolean isRtl() {
         return rtl;
-    }
-
-    public void setRtl(boolean rtl) {
-        this.rtl = rtl;
     }
 
     public boolean isAllDaySlot() {
         return allDaySlot;
     }
 
-    public void setAllDaySlot(boolean allDaySlot) {
-        this.allDaySlot = allDaySlot;
-    }
-
     public double getAspectRatio() {
         return aspectRatio == 0 ? Double.MIN_VALUE : aspectRatio;
-    }
-
-    public void setAspectRatio(double aspectRatio) {
-        this.aspectRatio = aspectRatio;
     }
 
     public String getLeftHeaderTemplate() {
         return leftHeaderTemplate;
     }
 
-    public void setLeftHeaderTemplate(String leftHeaderTemplate) {
-        this.leftHeaderTemplate = leftHeaderTemplate;
-    }
-
     public String getCenterHeaderTemplate() {
         return centerHeaderTemplate;
     }
 
-    public void setCenterHeaderTemplate(String centerHeaderTemplate) {
-        this.centerHeaderTemplate = centerHeaderTemplate;
-    }
-
     public String getRightHeaderTemplate() {
         return rightHeaderTemplate;
-    }
-
-    public void setRightHeaderTemplate(String rightHeaderTemplate) {
-        this.rightHeaderTemplate = rightHeaderTemplate;
     }
 
     public String getView() {
@@ -407,155 +286,27 @@ public class CalendarController implements Serializable {
         this.view = view;
     }
 
-    public String getNextDayThreshold() {
-        return nextDayThreshold;
-    }
-
-    public void setNextDayThreshold(String nextDayThreshold) {
-        this.nextDayThreshold = nextDayThreshold;
-    }
-
-    public String getWeekNumberCalculation() {
-        return weekNumberCalculation;
-    }
-
-    public void setWeekNumberCalculation(String weekNumberCalculation) {
-        this.weekNumberCalculation = weekNumberCalculation;
-    }
-
-    public String getWeekNumberCalculator() {
-        return weekNumberCalculator;
-    }
-
-    public void setWeekNumberCalculator(String weekNumberCalculator) {
-        this.weekNumberCalculator = weekNumberCalculator;
-    }
-
-    public String getTimeFormat() {
-        return timeFormat;
-    }
-
-    public void setTimeFormat(String timeFormat) {
-        this.timeFormat = timeFormat;
-    }
-
     public String getSlotDuration() {
         return slotDuration;
-    }
-
-    public void setSlotDuration(String slotDuration) {
-        this.slotDuration = slotDuration;
-    }
-
-    public String getSlotLabelInterval() {
-        return slotLabelInterval;
-    }
-
-    public void setSlotLabelInterval(String slotLabelInterval) {
-        this.slotLabelInterval = slotLabelInterval;
-    }
-
-    public String getSlotLabelFormat() {
-        return slotLabelFormat;
-    }
-
-    public void setSlotLabelFormat(String slotLabelFormat) {
-        this.slotLabelFormat = slotLabelFormat;
-    }
-
-    public String getDisplayEventEnd() {
-        return displayEventEnd;
-    }
-
-    public void setDisplayEventEnd(String displayEventEnd) {
-        this.displayEventEnd = displayEventEnd;
-    }
-
-    public String getScrollTime() {
-        return scrollTime;
-    }
-
-    public void setScrollTime(String scrollTime) {
-        this.scrollTime = scrollTime;
-    }
-
-    public String getMinTime() {
-        return minTime;
-    }
-
-    public void setMinTime(String minTime) {
-        this.minTime = minTime;
-    }
-
-    public String getMaxTime() {
-        return maxTime;
-    }
-
-    public void setMaxTime(String maxTime) {
-        this.maxTime = maxTime;
     }
 
     public String getLocale() {
         return locale;
     }
 
-    public void setLocale(String locale) {
-        this.locale = locale;
-    }
-
     public String getTimeZone() {
         return timeZone;
-    }
-
-    public void setTimeZone(String timeZone) {
-        this.timeZone = timeZone;
     }
 
     public String getClientTimeZone() {
         return clientTimeZone;
     }
 
-    public void setClientTimeZone(String clientTimeZone) {
-        this.clientTimeZone = clientTimeZone;
-    }
-
-    public String getColumnHeaderFormat() {
-        return columnHeaderFormat;
-    }
-
-    public void setColumnHeaderFormat(String columnHeaderFormat) {
-        this.columnHeaderFormat = columnHeaderFormat;
-    }
-
-    public String getSelectedExtenderExample() {
-        return selectedExtenderExample;
-    }
-
-    public void setSelectedExtenderExample(String selectedExtenderExample) {
-        this.selectedExtenderExample = selectedExtenderExample;
-    }
-
-    public String getExtenderCode() {
-        return extenderCode;
-    }
-
-    public void setExtenderCode(String extenderCode) {
-        this.extenderCode = extenderCode;
-    }
-
     public String getHeight() {
         return height;
     }
 
-    public void setHeight(String height) {
-        this.height = height;
-    }
-
     public String getServerTimeZone() {
         return serverTimeZone;
-    }
-
-    public void setServerTimeZone(String serverTimeZone) {
-        this.serverTimeZone = serverTimeZone;
     }
 }

@@ -5,41 +5,59 @@
                 xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
                 template="/WEB-INF/templates/layouts/admin-layout.xhtml">
 
-    <ui:define name="title">Dashboard - HostelGuard™</ui:define>
+    <ui:define name="title">Calendar - HostelGuard™</ui:define>
 
     <ui:define name="content">
-        <h:form>
-            <p:growl id="messages" showDetail="true"/>
+        <div class="card">
+            <h:form>
+                <p:growl id="messages" showDetail="true"/>
 
-            <p:schedule value="#{calendarController.lazyEventModel}"
-                        timeZone="#{calendarController.serverTimeZone}"
-                        clientTimeZone="#{calendarController.serverTimeZone}">
-                
-            </p:schedule>
+                <p:schedule id="schedule" 
+                           value="#{calendarController.lazyEventModel}"
+                           timeZone="#{calendarController.serverTimeZone}"
+                           clientTimeZone="#{calendarController.clientTimeZone}"
+                           draggable="false"
+                           resizable="false"
+                           initialDate="#{calendarController.initialDate}"
+                           slotDuration="#{calendarController.slotDuration}"
+                           aspectRatio="#{calendarController.aspectRatio}"
+                           locale="#{calendarController.locale}"
+                           view="#{calendarController.view}"
+                           height="#{calendarController.height}"
+                           leftHeaderTemplate="#{calendarController.leftHeaderTemplate}"
+                           centerHeaderTemplate="#{calendarController.centerHeaderTemplate}"
+                           rightHeaderTemplate="#{calendarController.rightHeaderTemplate}"
+                           widgetVar="myschedule">
+                    <p:ajax event="eventSelect" listener="#{calendarController.onEventSelect}" update="eventDetails" oncomplete="PF('eventDialog').show()"/>
+                </p:schedule>
 
-            <p:dialog widgetVar="eventDialog" header="Event Details" showEffect="fade" hideEffect="fade">
-                <h:panelGrid id="eventDetails" columns="2" cellpadding="7">
-                    <p:outputLabel for="title" value="Titles" styleClass="font-bold"/>
-                    <p:inputText id="title" value="#{calendarController.event.title}" required="true"/>
+                <p:dialog widgetVar="eventDialog" header="Event Details" showEffect="fade" hideEffect="fade" responsive="true" modal="true">
+                    <h:panelGrid id="eventDetails" columns="2" cellpadding="7">
+                        <p:outputLabel value="Title" styleClass="font-bold"/>
+                        <p:outputLabel value="#{calendarController.event.title}"/>
 
-                    <p:outputLabel for="from" value="From" styleClass="font-bold"/>
-                    <p:datePicker id="from" value="#{calendarController.event.startDate}" pattern="dd/MM/yyyy"
-                                  showTime="true" appendTo="@(body)"/>
+                        <p:outputLabel value="Description" styleClass="font-bold" rendered="#{not empty calendarController.event.description}"/>
+                        <p:outputLabel value="#{calendarController.event.description}" rendered="#{not empty calendarController.event.description}"/>
 
-                    <p:outputLabel for="to" value="To" styleClass="font-bold"/>
-                    <p:datePicker id="to" value="#{calendarController.event.endDate}" pattern="dd/MM/yyyy"
-                                  showTime="true" appendTo="@(body)"/>
+                        <p:outputLabel value="From" styleClass="font-bold"/>
+                        <p:outputLabel value="#{calendarController.event.startDate}">
+                            <f:convertDateTime pattern="dd/MM/yyyy HH:mm" type="localDateTime"/>
+                        </p:outputLabel>
 
-                    <p:outputLabel for="allDay" value="All Day" styleClass="font-bold"/>
-                    <h:selectBooleanCheckbox id="allDay" value="#{calendarController.event.allDay}"/>
-                </h:panelGrid>
+                        <p:outputLabel value="To" styleClass="font-bold"/>
+                        <p:outputLabel value="#{calendarController.event.endDate}">
+                            <f:convertDateTime pattern="dd/MM/yyyy HH:mm" type="localDateTime"/>
+                        </p:outputLabel>
+                        
+                        <p:outputLabel value="All Day" styleClass="font-bold"/>
+                        <p:outputLabel value="#{calendarController.event.allDay ? 'Yes' : 'No'}"/>
+                    </h:panelGrid>
 
-                <div class="flex justify-content-between mt-3">
-                    <p:commandButton type="reset" value="Reset" styleClass="font-bold ui-button-outlined"/>
-                    <p:commandButton id="addButton" value="Save" action="#{calendarController.addEvent}"
-                                     oncomplete="PF('myschedule').update();PF('eventDialog').hide();"/>
-                </div>
-            </p:dialog>
-        </h:form>
+                    <div class="flex justify-content-end mt-3">
+                        <p:commandButton value="Close" type="button" onclick="PF('eventDialog').hide();" styleClass="ui-button-secondary"/>
+                    </div>
+                </p:dialog>
+            </h:form>
+        </div>
     </ui:define>
 </ui:composition>
