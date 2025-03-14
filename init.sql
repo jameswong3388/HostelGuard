@@ -227,7 +227,7 @@ CREATE TABLE audit_logs
 
     FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE SET NULL,
     CHECK (action IN
-           ('CREATE', 'READ', 'UPDATE', 'DELETE', 'LOGIN', 'LOGOUT', 'EXPORT', 'IMPORT', 'APPROVE', 'REJECT', 'EXECUTE'))
+           ('CREATE', 'READ', 'UPDATE', 'DELETE', 'LOGIN', 'LOGOUT'))
 );
 
 -- Create indexes for better query performance

@@ -298,7 +298,7 @@ CREATE TABLE audit_logs
     created_at        TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     
     FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE SET NULL,
-    CHECK (action IN ('CREATE', 'READ', 'UPDATE', 'DELETE', 'LOGIN', 'LOGOUT', 'EXPORT', 'IMPORT', 'APPROVE', 'REJECT', 'EXECUTE'))
+    CHECK (action IN ('CREATE', 'READ', 'UPDATE', 'DELETE', 'LOGIN', 'LOGOUT'))
 );
 
 -- Create indexes
