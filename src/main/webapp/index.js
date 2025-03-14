@@ -6,8 +6,8 @@ const elts = {
 const texts = [
     "HostelGuard™",
     "Apply.",
-    "Approve.",
-    "Arrive.",
+    "Get Ready.",
+    "Move In.",
     "So easy.",
     "Excited ?",
     "JOM !",

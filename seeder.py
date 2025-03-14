@@ -159,7 +159,7 @@ CREATE TABLE visit_requests
     created_at        TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at        TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
-    CHECK (status IN ('PENDING', 'APPROVED', 'REJECTED', 'PROGRESS', 'COMPLETED', 'CANCELLED'))
+    CHECK (status IN ('PENDING', 'PROGRESS', 'COMPLETED', 'CANCELLED'))
 );
 
 -- Create visitor_records table
@@ -824,7 +824,7 @@ def main():
             visitor_phone = generate_malaysia_phone_number()
             
             purpose = random.choice(purposes)
-            status = random.choice(['PENDING', 'APPROVED', 'REJECTED', 'PROGRESS', 'COMPLETED', 'CANCELLED'])
+            status = random.choice(['PENDING', 'PROGRESS', 'COMPLETED', 'CANCELLED'])
             remarks = fake.sentence(nb_words=6)
             unit_number = resident_unit_map[user_id]
 

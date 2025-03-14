@@ -140,7 +140,7 @@
                 <!-- Status -->
                 <p:column headerText="Status" sortBy="#{req.status}" style="width: 120px;">
                     <p:tag severity="#{req.status eq 'PENDING' ? 'warning' :
-                                      req.status eq 'APPROVED' ? 'info' :
+                                      req.status eq 'PROGRESS' ? 'info' :
                                       req.status eq 'COMPLETED' ? 'success' :
                                       req.status eq 'CANCELLED' ? 'info' : 'danger'}"
                            value="#{req.status}"/>
@@ -257,8 +257,7 @@
                         <p:selectOneMenu id="editStatus" value="#{VisitRequestsControllerAdmin.editingRequest.status}"
                                          styleClass="w-full">
                             <f:selectItem itemLabel="Pending" itemValue="PENDING"/>
-                            <f:selectItem itemLabel="Approved" itemValue="APPROVED"/>
-                            <f:selectItem itemLabel="Rejected" itemValue="REJECTED"/>
+                            <f:selectItem itemLabel="In Progress" itemValue="PROGRESS"/>
                             <f:selectItem itemLabel="Completed" itemValue="COMPLETED"/>
                             <f:selectItem itemLabel="Cancelled" itemValue="CANCELLED"/>
                         </p:selectOneMenu>

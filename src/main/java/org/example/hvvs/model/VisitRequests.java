@@ -80,7 +80,7 @@ public class VisitRequests extends BaseEntity {
     }
 
     public enum VisitStatus {
-        PENDING, APPROVED, REJECTED, COMPLETED, PROGRESS, CANCELLED
+        PENDING, PROGRESS, COMPLETED, CANCELLED
     }
 
     public Users getUserId() {

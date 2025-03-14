@@ -44,7 +44,7 @@ public class OnboardVisitorsServiceImpl implements OnboardVisitorsService {
         TypedQuery<VisitRequests> query = entityManager.createQuery(
                 "SELECT v FROM VisitRequests v WHERE v.verification_code = :code " +
                         "AND v.visit_day = :today " +
-                        "AND (v.status = 'APPROVED')",
+                        "AND (v.status = 'PENDING')",
                 VisitRequests.class
         );
         query.setParameter("code", verificationCode);

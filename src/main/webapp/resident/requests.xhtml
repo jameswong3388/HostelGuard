@@ -211,10 +211,9 @@
                 <!-- Status column -->
                 <p:column headerText="Status" sortBy="#{req.status}" style="width: 120px;">
                     <p:tag severity="#{req.status eq 'PENDING' ? 'warning' :
-                          req.status eq 'APPROVED' ? 'info' :
+                          req.status eq 'PROGRESS' ? 'info' :
                           req.status eq 'COMPLETED' ? 'success' :
-                          req.status eq 'CANCELLED' ? 'info' :
-                          req.status eq 'PROGRESS' ? 'warning': 'danger'}"
+                          req.status eq 'CANCELLED' ? 'info' : 'danger'}"
                            value="#{req.status}"/>
                 </p:column>
 
@@ -247,7 +246,7 @@
                                          update=":qrCodeForm"
                                          oncomplete="PF('qrCodeDialog').show();"
                                          styleClass="p-button-sm p-button-secondary p-button-rounded"
-                                         rendered="#{req.status eq 'PENDING' or req.status eq 'APPROVED'}"
+                                         rendered="#{req.status eq 'PENDING'}"
                                          title="View QR Code"/>
                     </div>
                 </p:column>

@@ -66,7 +66,7 @@ public class VisitRequestsController implements Serializable {
         this.newRequest = new VisitRequests();
         String verificationCode = UUID.randomUUID().toString();
         newRequest.setStatus(VisitRequests.VisitStatus.PENDING);
-        newRequest.setRemarks("Awaiting approval");
+        newRequest.setRemarks("Awaiting visitor to check in.");
         newRequest.setVerificationCode(verificationCode);
         newRequest.setVisitDay(new Date(System.currentTimeMillis()));
         newRequest.setVisitorName("");
@@ -191,7 +191,7 @@ public class VisitRequestsController implements Serializable {
             String verificationCode = UUID.randomUUID().toString();
             newRequest.setVerificationCode(verificationCode);
             newRequest.setStatus(VisitRequests.VisitStatus.PENDING);
-            newRequest.setRemarks("Awaiting approval");
+            newRequest.setRemarks("Awaiting visitor to check in.");
             newRequest.setVisitDay(new Date(System.currentTimeMillis()));
             newRequest.setVisitorName("");
             newRequest.setVisitorIdentity("");
