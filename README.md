@@ -1,4 +1,4 @@
-# HostelGuard™ - Apply. Approve. Arrive. So easy.
+# HostelGuard™ - Apply. Get Ready. Move In. So easy.
 
 A web-based Visitor Verification System.
 
