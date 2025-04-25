@@ -52,14 +52,14 @@ public class Users extends BaseEntity {
     private Gender gender;
 
     @Column(name = "is_active")
-    private boolean is_active = true;
+    private boolean is_active = false;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false)
     private Role role;
 
     @Column(name = "is_mfa_enable")
-    private Boolean is_mfa_enable;
+    private Boolean is_mfa_enable = false;
 
     @Column(name = "created_at", nullable = false)
     private Timestamp created_at;
